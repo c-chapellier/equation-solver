@@ -1,6 +1,8 @@
 
 #include "nonlinear_equ_sys_solver.h"
 
+// max ((a - b) / (2*fabs(a - b)) + 0.5) * a + ((b - a) / (2*fabs(a - b)) + 0.5) * b
+
 static double eval_expr(const gsl_vector *x, expression_t *expr)
 {
     switch (expr->type)
@@ -60,7 +62,6 @@ int nonlinear_equ_sys_solver(system_t sys, double *res)
 {    
     const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
     gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, sys.n);
-
     gsl_multiroot_function f = { &rosenbrock_f, sys.n, &sys };
     
     gsl_vector *x = gsl_vector_alloc(sys.n);
@@ -72,23 +73,20 @@ int nonlinear_equ_sys_solver(system_t sys, double *res)
     int status = GSL_CONTINUE;
     size_t iter = 0;
 
-    print_state(iter, sys.n, s);
+    if (DEBUG_MODE) print_state(iter, sys.n, s);
     while (status == GSL_CONTINUE && iter++ < 1000)
     {
         status = gsl_multiroot_fsolver_iterate(s);
-
-        print_state(iter, sys.n, s);
-
+        if (DEBUG_MODE) print_state(iter, sys.n, s);
         if (status) /* check if solver is stuck */
             break;
-
         status = gsl_multiroot_test_residual(s->f, 1e-7);
     }
 
+    debug("status = %s\n", gsl_strerror(status));
+
     for (int i = 0; i < sys.n; i++)
         res[i] = gsl_vector_get(s->x, i);
-
-    printf("status = %s\n", gsl_strerror(status));
 
     gsl_multiroot_fsolver_free(s);
     gsl_vector_free(x);

@@ -1,0 +1,121 @@
+"Constantes"
+T = 20
+P = 101300
+Rr_inox = 0.0003
+rho_air = 1.024
+v_air_max_ms = 5
+v_air_max_mh = 18000
+ 
+prix_mazout = 0.85
+prix_kwh = 0.0832
+ 
+"Dimension des salles"
+plafond_z = 2.77
+ 
+salle_y = 10
+salle_x = 9
+salle_aire = salle_x * salle_y
+ 
+couloir_y = 4.2
+couloir_x = 1.55
+couloir_aire = couloir_x * couloir_y
+ 
+vestiaires_y = 4.2
+vestiaire_homme_x = 1.7
+vestiaire_homme_aire = vestiaire_homme_x * vestiaires_y
+vestiaire_femme_x = 2.1
+vestiaire_femme_aire = vestiaire_femme_x * vestiaires_y
+ 
+toilettes_hall_y = 0.9
+toilettes_hall_x = 1.55
+toilettes_hall_aire = toilettes_hall_x * toilettes_hall_y
+ 
+toilettes_y = 0.9
+toilettes_x = 1.7
+toilettes_aire = toilettes_x * toilettes_y
+ 
+porte_z = 2
+porte_x = 73.5
+porte_aire = porte_x * porte_z
+ 
+porte_fenetre_z = 2.2
+porte_fenetre_x = 2.3
+porte_fenetre_aire = porte_fenetre_x * porte_fenetre_z
+ 
+aire_totale = salle_aire + couloir_aire + vestiaire_homme_aire + vestiaire_femme_aire + toilettes_hall_aire + toilettes_aire
+volume_total = aire_totale * plafond_z
+ 
+"Dimension des conduites"
+r_petit_coude = 0.25
+r_grand_coude = 0.5
+ 
+l_conduites_salle = 11.5
+l_conduites_sanitaires = 20
+l_conduites_ext = 0.5
+ 
+"Conditions de pression"
+{q_supply = 1 "Doit etre entre -5 et 10"}
+ 
+"Qualite de l'air et debit de conception minimal (en air neuf)"
+n_athletes_recommande = (salle_aire + couloir_aire) / 10
+n_athletes = 10
+met_muscu = 5.95 {https://www.regivia.com/comment-maigrir-conseils-solutions-trucs-et-astuces/information/quest-ce-que-la-valeur-met-metabolic-equivalent-of-task-ou-equivalent-metabolique/}
+salle_q_min = 22 * n_athletes * (met_muscu / 1.2)
+ 
+toilettes_q_min = 25
+
+def abs(a) = sqrt(a * a)
+def max(a, b) = ((a - b) / (2*abs(a - b)) + 0.5) * a + ((b - a) / (2*abs(a - b)) + 0.5) * b
+
+vestiaire_homme_q_min_calc = 5 * vestiaire_homme_aire
+vestiaire_homme_q_min = max(vestiaire_homme_q_min_calc, 50)
+ 
+vestiaire_femme_q_min_calc = 5 * vestiaire_femme_aire
+vestiaire_femme_q_min = max(vestiaire_femme_q_min_calc, 50)
+ 
+q_tot_min =  salle_q_min + 2*toilettes_q_min + vestiaire_homme_q_min + vestiaire_femme_q_min
+ 
+"Reseau"
+d_conduites_salle_min = 2 * sqrt(salle_q_min / (v_air_max_mh * PI))
+d_conduites_salle_std = 0.315
+ 
+q_conduites_sanitaires = 2*toilettes_q_min + vestiaire_homme_q_min + vestiaire_femme_q_min
+d_conduites_sanitaires_min = 2 * sqrt(q_conduites_sanitaires / (v_air_max_mh * PI))
+d_conduites_sanitaires_std = 0.125
+ 
+"Pertes de charge"
+m_dot_air_salle = rho_air*salle_q_min / 3600
+Call pipeflow('Air', T, P, m_dot_air_salle, d_conduites_salle_std, l_conduites_salle, Rr_inox: , , DELTA_P_conduites_salle, , , )
+ 
+m_dot_air_sanitaires = rho_air*q_conduites_sanitaires / 3600
+Call pipeflow('Air', T, P, m_dot_air_sanitaires, d_conduites_sanitaires_std, l_conduites_sanitaires, Rr_inox: , , DELTA_P_conduites_sanitaires, , , )
+ 
+m_dot_air_ext = m_dot_air_salle + m_dot_air_sanitaires
+Call pipeflow('Air', T, P,m_dot_air_ext, d_conduites_salle_std, l_conduites_ext, Rr_inox: , , DELTA_P_conduites_ext, , , )
+ 
+DELTA_P_petit_coude = k_90deg_bend(r_petit_coude, d_conduites_sanitaires_std, Rr_inox) * v_air_max_ms^2 / (2 * g#) * rho_air * g#
+DELTA_P_grand_coude = k_90deg_bend(r_grand_coude, d_conduites_salle_std, Rr_inox) * v_air_max_ms^2 / (2 * g#) * rho_air * g#
+ 
+DELTA_P_entrees_salle = k_sharp_edged_pipe_inlet(d_conduites_sanitaires_std) * v_air_max_ms^2 / (2 * g#) * rho_air * g#
+DELTA_P_entrees_sanitaires = k_sharp_edged_pipe_inlet(d_conduites_salle_std) * v_air_max_ms^2 / (2 * g#) * rho_air * g#
+DELTA_P_sorties = k_sharp_edged_pipe_exit('Laminar') * v_air_max_ms^2 / (2 * g#) * rho_air * g#
+ 
+DELTA_P_salle = DELTA_P_conduites_salle + 6*DELTA_P_grand_coude + 2*DELTA_P_entrees_salle
+DELTA_P_sanitaires = DELTA_P_conduites_sanitaires + 3*DELTA_P_petit_coude + 4*DELTA_P_entrees_sanitaires
+DELTA_P_ext = DELTA_P_conduites_ext + DELTA_P_sorties
+ 
+"Pertes de chaleur"
+{https://energieplus-lesite.be/ameliorer/ventilation11/placer-un-recuperateur-de-chaleur-d1/}
+air_chaleur_volumique = 0.34
+Q_dot_ventilation = (18) * air_chaleur_volumique * q_tot_min
+rendement_chauffage = 0.7
+equivalent_combustible = Q_dot_ventilation / (1000* rendement_chauffage * 10)
+ 
+"Couts"
+P_ventilation = 450
+ 
+C_horaire_ventilaion = prix_kwh * (450 / 1000)
+C_horaire_chauffage = prix_mazout * equivalent_combustible
+C_tot = C_horaire_ventilaion + C_horaire_chauffage
+ 
+roi = (6250 / (0.8*C_horaire_chauffage - 0.3*prix_kwh)) / 4 

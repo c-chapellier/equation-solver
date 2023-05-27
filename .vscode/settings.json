@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "random": "c"
+        "random": "c",
+        "nonlinear_equ_sys_solver.h": "c"
     }
 }
