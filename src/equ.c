@@ -8,3 +8,10 @@ equation_t *equ_create(expression_t *lvalue, expression_t *rvalue)
 	equ->rvalue = rvalue;
 	return equ;
 }
+
+void equ_to_latex(FILE *f, system_t sys, equation_t *equ)
+{
+	expr_to_latex(f, sys, equ->lvalue);
+	fprintf(f, " = ");
+	expr_to_latex(f, sys, equ->rvalue);
+}
