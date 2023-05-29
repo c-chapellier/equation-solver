@@ -11,7 +11,6 @@ PARSER_OUT = $(BUILD_DIR)/parser.c
 LEXER_OUT = $(BUILD_DIR)/lexer.c
 
 SRCS = src/nonlinear_equ_sys_solver.c \
-		src/equ.c \
 		src/expr.c \
 		src/sys.c
 

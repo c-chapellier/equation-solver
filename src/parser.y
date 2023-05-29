@@ -22,7 +22,6 @@ int n_vars = 0;
 	double dval;
 	char* sval;
 	void *expval;
-	void *equval;
 }
 
 %token<sval> T_VAR
@@ -36,7 +35,7 @@ int n_vars = 0;
 %left T_EXP
 
 %type<expval> exp
-%type<equval> equ
+%type<expval> equ
 
 %start prog
 
@@ -52,7 +51,7 @@ line:
     | equ T_EOF			{ sys_add_equ(&sys, $1); }
 ;
 
-equ: exp T_EQU exp		{ $$ = equ_create($1, $3);}
+equ: exp T_EQU exp		{ $$ = expr_create(EXPR_TYPE_EQU, 0, 0, $1, $3); }
 ;
 
 exp:
@@ -117,7 +116,7 @@ static int save_to_markdown(const char *fname, system_t sys, double *res)
 	for (int i = 0; i < sys.n; ++i)
 	{
 		fprintf(f, "$$");
-		equ_to_latex(f, sys, sys.equs[i]);
+		expr_to_latex(f, sys, sys.equs[i]);
 		fprintf(f, "$$\n\n");
 	}
 

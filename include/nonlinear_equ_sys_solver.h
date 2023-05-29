@@ -18,6 +18,7 @@
 #define EXPR_TYPE_DIV 5
 #define EXPR_TYPE_EXP 6
 #define EXPR_TYPE_PAR 7
+#define EXPR_TYPE_EQU 8
 
 typedef struct s_expression
 {
@@ -29,13 +30,8 @@ typedef struct s_expression
 
 typedef struct
 {
-	expression_t *lvalue, *rvalue;
-} equation_t;
-
-typedef struct
-{
     int n;
-	equation_t *equs[100];
+	expression_t *equs[100];
     char *vars[100];
 } system_t;
 
@@ -45,13 +41,10 @@ extern int n_vars;
 
 int nonlinear_equ_sys_solver(system_t sys, double *res);
 
-equation_t *equ_create(expression_t *lvalue, expression_t *rvalue);
-void equ_to_latex(FILE *f, system_t sys, equation_t *equ);
-
 expression_t *expr_create(uint8_t type, double dvalue, int var, expression_t *left, expression_t *right);
 void expr_print(expression_t *expr);
 void expr_to_latex(FILE *f, system_t sys, expression_t *expr);
 
-void sys_add_equ(system_t *sys, equation_t *equ);
+void sys_add_equ(system_t *sys, expression_t *equ);
 int sys_register_var(system_t *sys, const char *var);
 void sys_print(const system_t sys);

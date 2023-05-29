@@ -1,7 +1,7 @@
 
 #include "nonlinear_equ_sys_solver.h"
 
-void sys_add_equ(system_t *sys, equation_t *equ)
+void sys_add_equ(system_t *sys, expression_t *equ)
 {
 	sys->equs[n_equs++] = equ;
 }
@@ -23,9 +23,7 @@ void sys_print(const system_t sys)
 	for (int i = 0; i < n_equs; ++i)
 	{
 		printf("    ");
-		expr_print(sys.equs[i]->lvalue);
-		printf(" = ");
-		expr_print(sys.equs[i]->rvalue);
+		expr_print(sys.equs[i]);
 		printf("\n");
 	}
 	printf("  Variables:\n");

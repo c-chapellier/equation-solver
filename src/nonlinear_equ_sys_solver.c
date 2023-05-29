@@ -3,7 +3,7 @@
 
 // max ((a - b) / (2*fabs(a - b)) + 0.5) * a + ((b - a) / (2*fabs(a - b)) + 0.5) * b
 
-static double eval_expr(const gsl_vector *x, expression_t *expr)
+static double eval_exp(const gsl_vector *x, expression_t *expr)
 {
     switch (expr->type)
     {
@@ -12,25 +12,22 @@ static double eval_expr(const gsl_vector *x, expression_t *expr)
     case EXPR_TYPE_VAR:
         return gsl_vector_get(x, expr->var);
     case EXPR_TYPE_ADD:
-        return eval_expr(x, expr->eleft) + eval_expr(x, expr->eright);
+        return eval_exp(x, expr->eleft) + eval_exp(x, expr->eright);
     case EXPR_TYPE_SUB:
-        return eval_expr(x, expr->eleft) - eval_expr(x, expr->eright);
+        return eval_exp(x, expr->eleft) - eval_exp(x, expr->eright);
     case EXPR_TYPE_MUL:
-        return eval_expr(x, expr->eleft) * eval_expr(x, expr->eright);
+        return eval_exp(x, expr->eleft) * eval_exp(x, expr->eright);
     case EXPR_TYPE_DIV:
-        return eval_expr(x, expr->eleft) / eval_expr(x, expr->eright);
+        return eval_exp(x, expr->eleft) / eval_exp(x, expr->eright);
     case EXPR_TYPE_EXP:
-        return pow(eval_expr(x, expr->eleft), eval_expr(x, expr->eright));
+        return pow(eval_exp(x, expr->eleft), eval_exp(x, expr->eright));
     case EXPR_TYPE_PAR:
-        return eval_expr(x, expr->eleft);
+        return eval_exp(x, expr->eleft);
+    case EXPR_TYPE_EQU:
+        return eval_exp(x, expr->eleft) - eval_exp(x, expr->eright);
     default:
         fprintf(stderr, "Error: unknown expression type %d\n", expr->type), exit(1);
     }
-}
-
-static double eval_equ(const gsl_vector *x, equation_t *equ)
-{
-    return eval_expr(x, equ->lvalue) - eval_expr(x, equ->rvalue);
 }
 
 static int rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
@@ -39,7 +36,7 @@ static int rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 
     double y[sys->n];
     for (int i = 0; i < sys->n; ++i)
-        y[i] = eval_equ(x, sys->equs[i]);
+        y[i] = eval_exp(x, sys->equs[i]);
 
     for (int i = 0; i < sys->n; ++i)
         gsl_vector_set(f, i, y[i]);

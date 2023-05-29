@@ -52,6 +52,11 @@ void expr_print(expression_t *expr)
 		expr_print(expr->eleft);
 		printf(")");
 		break;
+	case EXPR_TYPE_EQU:
+		expr_print(expr->eleft);
+		printf(" = ");
+		expr_print(expr->eright);
+		break;
 	}
 }
 
@@ -122,6 +127,11 @@ void expr_to_latex(FILE *f, system_t sys, expression_t *expr)
 		fprintf(f, "\\left(");
 		expr_to_latex(f, sys, expr->eleft);
 		fprintf(f, "\\right)");
+		break;
+	case EXPR_TYPE_EQU:
+		expr_to_latex(f, sys, expr->eleft);
+		fprintf(f, " = ");
+		expr_to_latex(f, sys, expr->eright);
 		break;
 	}
 }
