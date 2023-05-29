@@ -10,9 +10,8 @@ LEXER_PATH = src/lexer.l
 PARSER_OUT = $(BUILD_DIR)/parser.cpp
 LEXER_OUT = $(BUILD_DIR)/lexer.cpp
 
-SRCS = src/nonlinear_equ_sys_solver.cpp \
-		src/expr.cpp \
-		src/sys.cpp
+SRCS = src/Expression.cpp \
+		src/System.cpp
 
 all:
 	mkdir -p $(BUILD_DIR)

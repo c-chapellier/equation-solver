@@ -12,7 +12,7 @@ void yyerror(const char* s);
 
 #include "nonlinear_equ_sys_solver.h"
 
-system_t sys = {0};
+System sys = System();
 int n_equs = 0;
 int n_vars = 0;
 
@@ -47,27 +47,27 @@ prog:
 
 line:
 	  T_NEWLINE
-    | equ T_NEWLINE		{ sys_add_equ(&sys, (expression_t *)$1); }
-    | equ T_EOF			{ sys_add_equ(&sys, (expression_t *)$1); }
+    | equ T_NEWLINE		{ sys.add_equ((Expression *)$1); }
+    | equ T_EOF			{ sys.add_equ((Expression *)$1); }
 ;
 
-equ: exp T_EQU exp		{ $$ = expr_create(EXPR_TYPE_EQU, 0, 0, (expression_t *)$1, (expression_t *)$3); }
+equ: exp T_EQU exp		{ $$ = new Expression(EXPR_TYPE_EQU, 0, 0, (Expression *)$1, (Expression *)$3); }
 ;
 
 exp:
-	  T_DOUBLE			{ $$ = expr_create(EXPR_TYPE_DOUBLE, $1, 0, NULL, NULL); }
-	| T_VAR				{ $$ = expr_create(EXPR_TYPE_VAR, 0, sys_register_var(&sys, $1), NULL, NULL); }
-	| exp T_ADD exp		{ $$ = expr_create(EXPR_TYPE_ADD, 0, 0, (expression_t *)$1, (expression_t *)$3) }
-	| exp T_SUB exp		{ $$ = expr_create(EXPR_TYPE_SUB, 0, 0, (expression_t *)$1, (expression_t *)$3) }
-	| exp T_MUL exp		{ $$ = expr_create(EXPR_TYPE_MUL, 0, 0, (expression_t *)$1, (expression_t *)$3) }
-	| exp T_DIV exp		{ $$ = expr_create(EXPR_TYPE_DIV, 0, 0, (expression_t *)$1, (expression_t *)$3) }
-	| exp T_EXP exp		{ $$ = expr_create(EXPR_TYPE_EXP, 0, 0, (expression_t *)$1, (expression_t *)$3) }
-	| T_LPAR exp T_RPAR	{ $$ = expr_create(EXPR_TYPE_PAR, 0, 0, (expression_t *)$2, NULL) }
+	  T_DOUBLE			{ $$ = new Expression(EXPR_TYPE_DOUBLE, $1, 0, NULL, NULL); }
+	| T_VAR				{ $$ = new Expression(EXPR_TYPE_VAR, 0, sys.register_var($1), NULL, NULL); }
+	| exp T_ADD exp		{ $$ = new Expression(EXPR_TYPE_ADD, 0, 0, (Expression *)$1, (Expression *)$3) }
+	| exp T_SUB exp		{ $$ = new Expression(EXPR_TYPE_SUB, 0, 0, (Expression *)$1, (Expression *)$3) }
+	| exp T_MUL exp		{ $$ = new Expression(EXPR_TYPE_MUL, 0, 0, (Expression *)$1, (Expression *)$3) }
+	| exp T_DIV exp		{ $$ = new Expression(EXPR_TYPE_DIV, 0, 0, (Expression *)$1, (Expression *)$3) }
+	| exp T_EXP exp		{ $$ = new Expression(EXPR_TYPE_EXP, 0, 0, (Expression *)$1, (Expression *)$3) }
+	| T_LPAR exp T_RPAR	{ $$ = new Expression(EXPR_TYPE_PAR, 0, 0, (Expression *)$2, NULL) }
 ;
 
 %%
 
-static int save_to_file(const char *fname, system_t sys, double *res)
+static int save_to_file(const char *fname, System sys, double *res)
 {
 	FILE *f = fopen(fname, "w");
 	if (f == NULL)
@@ -105,7 +105,7 @@ static void double_to_latex(FILE *f, double n)
 	fprintf(f, "%s", s);
 }
 
-static int save_to_markdown(const char *fname, system_t sys, double *res)
+static int save_to_markdown(const char *fname, System sys, double *res)
 {
 	FILE *f = fopen(fname, "w");
 	if (f == NULL)
@@ -116,7 +116,7 @@ static int save_to_markdown(const char *fname, system_t sys, double *res)
 	for (int i = 0; i < sys.n; ++i)
 	{
 		fprintf(f, "$$");
-		expr_to_latex(f, sys, sys.equs[i]);
+		sys.equs[i]->to_latex(f, sys);
 		fprintf(f, "$$\n\n");
 	}
 
@@ -149,13 +149,13 @@ int main(int argc, char* argv[])
 
 	fclose(yyin);
 
-	if (DEBUG_MODE) sys_print(sys);
-	if (n_equs != n_vars)
+	if (DEBUG_MODE) sys.print();
+	if (sys.n_equs != sys.n_vars)
 		fprintf(stderr, "Number of equationss and variables must be equal\n"), exit(1);
-	sys.n = n_equs;
+	sys.n = sys.n_equs;
 
 	double res[sys.n];
-	nonlinear_equ_sys_solver(sys, res);
+	sys.solve(res);
 
 	debug("Solution:\n");
 	for (int i = 0; i < sys.n; ++i)
