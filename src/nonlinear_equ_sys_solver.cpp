@@ -59,7 +59,7 @@ int nonlinear_equ_sys_solver(system_t sys, double *res)
 {    
     const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
     gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, sys.n);
-    gsl_multiroot_function f = { &rosenbrock_f, sys.n, &sys };
+    gsl_multiroot_function f = { &rosenbrock_f, (size_t)sys.n, &sys };
     
     gsl_vector *x = gsl_vector_alloc(sys.n);
     for (int i = 0; i < sys.n; i++)

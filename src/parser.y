@@ -47,22 +47,22 @@ prog:
 
 line:
 	  T_NEWLINE
-    | equ T_NEWLINE		{ sys_add_equ(&sys, $1); }
-    | equ T_EOF			{ sys_add_equ(&sys, $1); }
+    | equ T_NEWLINE		{ sys_add_equ(&sys, (expression_t *)$1); }
+    | equ T_EOF			{ sys_add_equ(&sys, (expression_t *)$1); }
 ;
 
-equ: exp T_EQU exp		{ $$ = expr_create(EXPR_TYPE_EQU, 0, 0, $1, $3); }
+equ: exp T_EQU exp		{ $$ = expr_create(EXPR_TYPE_EQU, 0, 0, (expression_t *)$1, (expression_t *)$3); }
 ;
 
 exp:
 	  T_DOUBLE			{ $$ = expr_create(EXPR_TYPE_DOUBLE, $1, 0, NULL, NULL); }
 	| T_VAR				{ $$ = expr_create(EXPR_TYPE_VAR, 0, sys_register_var(&sys, $1), NULL, NULL); }
-	| exp T_ADD exp		{ $$ = expr_create(EXPR_TYPE_ADD, 0, 0, $1, $3) }
-	| exp T_SUB exp		{ $$ = expr_create(EXPR_TYPE_SUB, 0, 0, $1, $3) }
-	| exp T_MUL exp		{ $$ = expr_create(EXPR_TYPE_MUL, 0, 0, $1, $3) }
-	| exp T_DIV exp		{ $$ = expr_create(EXPR_TYPE_DIV, 0, 0, $1, $3) }
-	| exp T_EXP exp		{ $$ = expr_create(EXPR_TYPE_EXP, 0, 0, $1, $3) }
-	| T_LPAR exp T_RPAR	{ $$ = expr_create(EXPR_TYPE_PAR, 0, 0, $2, NULL) }
+	| exp T_ADD exp		{ $$ = expr_create(EXPR_TYPE_ADD, 0, 0, (expression_t *)$1, (expression_t *)$3) }
+	| exp T_SUB exp		{ $$ = expr_create(EXPR_TYPE_SUB, 0, 0, (expression_t *)$1, (expression_t *)$3) }
+	| exp T_MUL exp		{ $$ = expr_create(EXPR_TYPE_MUL, 0, 0, (expression_t *)$1, (expression_t *)$3) }
+	| exp T_DIV exp		{ $$ = expr_create(EXPR_TYPE_DIV, 0, 0, (expression_t *)$1, (expression_t *)$3) }
+	| exp T_EXP exp		{ $$ = expr_create(EXPR_TYPE_EXP, 0, 0, (expression_t *)$1, (expression_t *)$3) }
+	| T_LPAR exp T_RPAR	{ $$ = expr_create(EXPR_TYPE_PAR, 0, 0, (expression_t *)$2, NULL) }
 ;
 
 %%
@@ -82,7 +82,7 @@ static int save_to_file(const char *fname, system_t sys, double *res)
 
 static void var_to_latex(FILE *f, const char *var)
 {
-	char *s = strchr(var, '_');
+	const char *s = strchr(var, '_');
 	if (s == NULL)
 		fprintf(f, "%s", var);
 	else
@@ -92,7 +92,7 @@ static void var_to_latex(FILE *f, const char *var)
 static void double_to_latex(FILE *f, double n)
 {
 	char s[50];
-	sprintf(s, "%.10g", n);
+	snprintf(s, 50, "%f", n);
 
 	int i = strlen(s);
 	while (s[i - 1] == '0')
@@ -161,14 +161,14 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < sys.n; ++i)
 		debug("  %s = %f\n", sys.vars[i], res[i]);
 
-	char *fname = malloc(strlen(argv[1]) + 5);
+	char *fname = (char *)malloc(strlen(argv[1]) + 5);
 	strcpy(fname, argv[1]);
 	strcat(fname, ".res");
 
 	if (save_to_file(fname, sys, res) == -1)
 		fprintf(stderr, "Can't save results to file %s\n", fname), exit(1);
 
-	char *fname2 = malloc(strlen(argv[1]) + 5);
+	char *fname2 = (char *)malloc(strlen(argv[1]) + 5);
 	strcpy(fname2, argv[1]);
 	strcat(fname2, ".md");
 

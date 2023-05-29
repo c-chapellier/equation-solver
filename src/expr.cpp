@@ -3,7 +3,7 @@
 
 expression_t *expr_create(uint8_t type, double dvalue, int var, expression_t *left, expression_t *right)
 {
-	expression_t *expr = malloc(sizeof(expression_t));
+	expression_t *expr = (expression_t *)malloc(sizeof(expression_t));
 	expr->type = type;
 	expr->dval = dvalue;
 	expr->var = var;
@@ -63,7 +63,7 @@ void expr_print(expression_t *expr)
 static void double_to_latex(FILE *f, double n)
 {
 	char s[50];
-	sprintf(s, "%.10g", n);
+	snprintf(s, 50, "%.10g", n);
 
 	int i = strlen(s);
 	while (s[i - 1] == '0')
@@ -78,7 +78,7 @@ static void double_to_latex(FILE *f, double n)
 
 static void var_to_latex(FILE *f, const char *var)
 {
-	char *s = strchr(var, '_');
+	const char *s = strchr(var, '_');
 	if (s == NULL)
 		fprintf(f, "%s", var);
 	else
