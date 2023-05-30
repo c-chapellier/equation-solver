@@ -119,6 +119,17 @@ void Expression::to_latex(FILE *f, System sys)
 		fprintf(f, " = ");
 		this->eright->to_latex(f, sys);
 		break;
+	case EXPR_TYPE_FUNC:
+		Latex::var_to_latex(f, this->var.c_str());
+		fprintf(f, "\\left(\n");
+		for (int i = 0; i < this->args.size(); ++i)
+		{
+			this->args[i]->to_latex(f, sys);
+			if (i != this->args.size() - 1)
+				fprintf(f, ", ");
+		}
+		fprintf(f, "\\right)\n");
+		break;
 	}
 }
 
@@ -160,15 +171,15 @@ static void replace_args(System *mother_sys, const gsl_vector *x, Expression *ex
 	}
 }
 
-static double eval_function(Expression *func, std::vector<double> args)
+double Expression::eval_function_call(std::vector<double> args)
 {
-	if (func->type != EXPR_TYPE_FUNC)
+	if (this->type != EXPR_TYPE_FUNC)
 		fprintf(stderr, "Error: expression is not a function\n"), exit(1);
 
-	System *cp_sys = new System(3);
+	System *cp_sys = new System();
 
-	for (int i = 0; i < func->sys->size(); ++i)
-		cp_sys->add_equ(func->sys->equs[i]->deep_copy());
+	for (int i = 0; i < this->sys->size(); ++i)
+		cp_sys->add_equ(this->sys->equs[i]->deep_copy());
 	cp_sys->load_vars_from_equs();
 
 	int j = 0;
@@ -204,28 +215,22 @@ static double eval_function(Expression *func, std::vector<double> args)
 	return res[cp_sys->size() - 1];
 }
 
-int get_index(std::vector<std::string> vars, std::string var)
-{
-	for (int i = 0; i < vars.size(); ++i)
-		if (vars[i] == var)
-			return i;
-	return -1;
-}
-
 double Expression::eval(System *mother_sys, const gsl_vector *x)
 {
 	std::vector<double> args;
-	int index;
+	int var_index;
 
     switch (this->type)
     {
     case EXPR_TYPE_DOUBLE:
         return this->dval;
     case EXPR_TYPE_VAR:
-		index = get_index(mother_sys->vars, this->var);
-		if (index == -1)
+		for (int i = 0; i < mother_sys->vars.size(); ++i)
+			if (mother_sys->vars[i] == this->var)
+				var_index = i;
+		if (var_index == -1)
 			fprintf(stderr, "Error: variable %s not found\n", this->var.c_str()), exit(1);
-        return gsl_vector_get(x, index);
+        return gsl_vector_get(x, var_index);
     case EXPR_TYPE_ADD:
         return this->eleft->eval(mother_sys, x) + this->eright->eval(mother_sys, x);
     case EXPR_TYPE_SUB:
@@ -243,10 +248,7 @@ double Expression::eval(System *mother_sys, const gsl_vector *x)
 	case EXPR_TYPE_FUNC:
 		for (int i = 0; i < this->args.size(); ++i)
 			args.push_back(this->args[i]->eval(mother_sys, x));
-		printf("evaluating function %s\n", this->var.c_str());
-		for (int i = 0; i < args.size(); ++i)
-			printf("\targ[%d] = %f\n", i, args[i]);
-		return eval_function(this, args);
+		return this->eval_function_call(args);
     default:
         fprintf(stderr, "Error: unknown expression type %d\n", this->type), exit(1);
     }
@@ -275,7 +277,7 @@ Expression *Expression::deep_copy()
 		exp->eleft = this->eleft->deep_copy();
 		break;
 	case EXPR_TYPE_FUNC:
-		exp->sys = new System(100);
+		exp->sys = new System();
 		for (int i = 0; i < this->sys->size(); ++i)
 			exp->sys->add_equ(this->sys->equs[i]->deep_copy());
 		break;

@@ -5,13 +5,14 @@ a = 3.1416 * (d / 2)^2
 q_dot = 5 * a
 "
 
-function square(n)
+function circle_area(d)
 {
-    s = n
-    y = s^2
-    return y
+    a = 3.1416 * (d / 2)^2
+    return a
 }
 
 d = 0.1
-a = 3.1416 * square(d / 2)
+a = circle_area(d)
 q_dot = 5 * a
+
+

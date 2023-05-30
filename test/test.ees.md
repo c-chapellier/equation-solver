@@ -4,7 +4,9 @@
 
 $$d = 0.1$$
 
-$$a = 3.1416 \cdot $$
+$$a = circle_{area}\left(
+d\right)
+$$
 
 $$q_{dot} = 5 \cdot a$$
 

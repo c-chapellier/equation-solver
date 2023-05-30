@@ -13,10 +13,9 @@ private:
 public:
     std::vector<Expression *> equs;
     std::vector<std::string> vars;
-    int sys_num;
 
 public:
-    System(int sys_num);
+    System();
     void add_equ(Expression *equ);
     void add_sys(System *sys);
     int solve(double *res);

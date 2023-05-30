@@ -30,6 +30,7 @@ public:
     void print();
     void to_latex(FILE *f, System sys);
     double eval(System *mother_sys, const gsl_vector *x);
+    double eval_function_call(std::vector<double> args);
     void add_arg(Expression *arg);
     Expression *deep_copy();
 };

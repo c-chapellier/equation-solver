@@ -12,8 +12,7 @@ void yyerror(const char* s);
 
 #include "es.hpp"
 
-int i_sys = 0;
-System main_sys = System(i_sys++);
+System main_sys = System();
 
 typedef struct
 {
@@ -48,7 +47,7 @@ Expression *create_function_call(std::string name, std::vector<Expression *> *ar
 	if (f->args_names->size() != args->size())
 		yyerror("Wrong number of arguments");
 
-	Expression *exp = new Expression(EXPR_TYPE_FUNC, 0, f->name, NULL, NULL, new System(i_sys++));
+	Expression *exp = new Expression(EXPR_TYPE_FUNC, 0, f->name, NULL, NULL, new System());
 
 	for (int i = 0; i < args->size(); ++i)
 		exp->args.push_back((*args)[i]);
@@ -144,11 +143,11 @@ args_def:
 
 sys:
 	  sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE\n"); ((System *)$$)->add_equ((Expression *)$2); }
-	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE\n"); $$ = new System(i_sys++); ((System *)$$)->add_equ((Expression *)$1);}
+	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE\n"); $$ = new System(); ((System *)$$)->add_equ((Expression *)$1);}
 	| sys T_NEWLINE			{ debug("sys: sys T_NEWLINE\n");  }
 	| sys T_EOF				{ debug("sys: sys T_EOF\n"); }
-	| equ T_EOF				{ debug("sys: equ T_EOF\n"); $$ = new System(i_sys++); ((System *)$$)->add_equ((Expression *)$1);}
-	| T_NEWLINE				{ debug("sys: T_NEWLINE\n"); $$ = new System(i_sys++); }
+	| equ T_EOF				{ debug("sys: equ T_EOF\n"); $$ = new System(); ((System *)$$)->add_equ((Expression *)$1);}
+	| T_NEWLINE				{ debug("sys: T_NEWLINE\n"); $$ = new System(); }
 ;
 
 equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp\n"); $$ = new Expression(EXPR_TYPE_EQU, 0, "", (Expression *)$1, (Expression *)$3, NULL); }

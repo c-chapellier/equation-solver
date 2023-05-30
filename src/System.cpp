@@ -1,9 +1,8 @@
 
 #include "System.hpp"
 
-System::System(int sys_num)
+System::System()
 {
-	this->sys_num = sys_num;
 	this->equs = std::vector<Expression *>();
 	this->vars = std::vector<std::string>();
 }
@@ -66,7 +65,7 @@ int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 
 void System::print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
 {
-	printf("[%d] iter = %3lu x = ", this->sys_num, iter);
+	printf("iter = %3lu x = ", iter);
 	for (int i = 0; i < n; ++i)
 		printf("% .3f ", gsl_vector_get(s->x, i));
 	printf("f(x) = ");
@@ -100,7 +99,7 @@ int System::solve(double *res)
         status = gsl_multiroot_test_residual(s->f, 1e-7);
     }
 
-    debug("[%d] status = %s\n", this->sys_num, gsl_strerror(status));
+    debug("status = %s\n", gsl_strerror(status));
 
     for (int i = 0; i < this->equs.size(); i++)
         res[i] = gsl_vector_get(s->x, i);
