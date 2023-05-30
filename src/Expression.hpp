@@ -12,19 +12,24 @@
 #define EXPR_TYPE_EXP 6
 #define EXPR_TYPE_PAR 7
 #define EXPR_TYPE_EQU 8
+#define EXPR_TYPE_FUNC 9
 
 class Expression
 {
 public:
     uint8_t type;
     double dval;
-    int var;
+    std::string var;
     Expression *eleft;
     Expression *eright;
+    System *sys;
+    std::vector<Expression *> args;
 
 public:
-    Expression(uint8_t type, double dvalue, int var, Expression *left, Expression *right);
+    Expression(uint8_t type, double dvalue, std::string var, Expression *left, Expression *right, System *sys);
     void print();
     void to_latex(FILE *f, System sys);
-    double eval(const gsl_vector *x);
+    double eval(System *mother_sys, const gsl_vector *x);
+    void add_arg(Expression *arg);
+    Expression *deep_copy();
 };

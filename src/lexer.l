@@ -12,9 +12,10 @@
 
 %%
 
-\{.*\}                          { debug("comment {}\n"); }
 \"(\\.|[^\"\\])*\"              { debug("comment \"\"\n"); }
 [ \t]	                        ; // ignore all whitespace
+"function"                      { debug("T_FUNC\n"); return T_FUNC; }
+"return"                        { debug("T_RETURN\n"); return T_RETURN; }
 [a-zA-Z_][a-zA-Z0-9_]{0,31}     { yylval.sval = strdup(yytext); debug("T_VAR (%s)\n", yylval.sval); return T_VAR; }
 [0-9]+\.[0-9]+                  { yylval.dval = atof(yytext); debug("T_DOUBLE (%f)\n", yylval.dval); return T_DOUBLE; }
 [0-9]+		                    { yylval.dval = atof(yytext); debug("T_DOUBLE (%f)\n", yylval.dval); return T_DOUBLE; }
@@ -27,6 +28,9 @@
 "^"		                        { debug("T_EXP\n"); return T_EXP; }
 "("		                        { debug("T_LPAR\n"); return T_LPAR; }
 ")"		                        { debug("T_RPAR\n"); return T_RPAR; }
+","                             { debug("T_COMMA\n"); return T_COMMA; }
+"{"                             { debug("T_LBRA\n"); return T_LBRA; }
+"}"                             { debug("T_RBRA\n"); return T_RBRA; }
 "<<EOF>>"                       { debug("T_EOF\n"); return T_EOF; }
 
 %%

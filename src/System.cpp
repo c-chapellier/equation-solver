@@ -1,56 +1,64 @@
 
 #include "System.hpp"
 
-System::System()
+System::System(int sys_num)
 {
-	this->n_equs = 0;
-	this->n_vars = 0;
+	this->sys_num = sys_num;
+	this->equs = std::vector<Expression *>();
+	this->vars = std::vector<std::string>();
 }
 
 int System::size() const
 {
-	return this->n_equs;
+	return this->equs.size();
 }
 
 void System::add_equ(Expression *equ)
 {
-	this->equs[this->n_equs++] = equ;
+	this->equs.push_back(equ);
 }
 
-int System::add_var(const char *var)
+void System::add_var(std::string var)
 {
-	for (int i = 0; i < this->n_vars; ++i)
-		if (strcmp(this->vars[i], var) == 0)
-			return i;
+	for (int i = 0; i < this->vars.size(); ++i)
+		if (this->vars[i].compare(var) == 0)
+			return;
 
-	this->vars[this->n_vars++] = strdup(var);
-	return this->n_vars - 1;
+	this->vars.push_back(var);
+}
+
+void System::add_sys(System *sys)
+{
+	for (int i = 0; i < sys->equs.size(); ++i)
+		this->add_equ(sys->equs[i]);
+	for (int i = 0; i < sys->vars.size(); ++i)
+		this->add_var(sys->vars[i]);
 }
 
 void System::print() const
 {
 	printf("System:\n");
-	printf("  Equations:\n");
-	for (int i = 0; i < this->n_equs; ++i)
+	printf("  Equations(%lu):\n", this->equs.size());
+	for (int i = 0; i < this->equs.size(); ++i)
 	{
 		printf("    ");
 		this->equs[i]->print();
 		printf("\n");
 	}
-	printf("  Variables:\n");
-	for (int i = 0; i < this->n_vars; ++i)
-		printf("    %s\n", this->vars[i]);
+	printf("  Variables(%lu):\n", this->vars.size());
+	for (int i = 0; i < this->vars.size(); ++i)
+		printf("    %s\n", this->vars[i].c_str());
 }
 
 int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
     System *sys = (System *)params;
 
-    double y[sys->n_equs];
-    for (int i = 0; i < sys->n_equs; ++i)
-        y[i] = sys->equs[i]->eval(x);
+    double y[sys->equs.size()];
+    for (int i = 0; i < sys->equs.size(); ++i)
+        y[i] = sys->equs[i]->eval(sys, x);
 
-    for (int i = 0; i < sys->n_equs; ++i)
+    for (int i = 0; i < sys->equs.size(); ++i)
         gsl_vector_set(f, i, y[i]);
 
     return GSL_SUCCESS;
@@ -58,23 +66,23 @@ int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 
 void System::print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
 {
-    printf("iter %3zu x = ", iter);
-    for (int i = 0; i < n; i++)
-        printf("% .3f ", gsl_vector_get(s->x, i));
-    printf("f(x) = ");
-    for (int i = 0; i < n; i++)
-        printf("% .3e ", gsl_vector_get(s->f, i));
-    printf("\n");
+	printf("[%d] iter = %3lu x = ", this->sys_num, iter);
+	for (int i = 0; i < n; ++i)
+		printf("% .3f ", gsl_vector_get(s->x, i));
+	printf("f(x) = ");
+	for (int i = 0; i < n; ++i)
+		printf("% .3e ", gsl_vector_get(s->f, i));
+	printf("\n");
 }
 
 int System::solve(double *res)
 {
     const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
-    gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, this->n_equs);
-    gsl_multiroot_function f = { &System::rosenbrock_f, (size_t)this->n_equs, this };
+    gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, this->equs.size());
+    gsl_multiroot_function f = { &System::rosenbrock_f, (size_t)this->equs.size(), this };
     
-    gsl_vector *x = gsl_vector_alloc(this->n_equs);
-    for (int i = 0; i < this->n_equs; i++)
+    gsl_vector *x = gsl_vector_alloc(this->equs.size());
+    for (int i = 0; i < this->equs.size(); i++)
         gsl_vector_set(x, i, 0.0); // 3rd arg is initial guess
 
     gsl_multiroot_fsolver_set(s, &f, x);
@@ -82,19 +90,19 @@ int System::solve(double *res)
     int status = GSL_CONTINUE;
     size_t iter = 0;
 
-    if (DEBUG_MODE) print_state(iter, this->n_equs, s);
+    if (DEBUG_MODE) print_state(iter, this->equs.size(), s);
     while (status == GSL_CONTINUE && iter++ < 1000)
     {
         status = gsl_multiroot_fsolver_iterate(s);
-        if (DEBUG_MODE) print_state(iter, this->n_equs, s);
+        if (DEBUG_MODE) print_state(iter, this->equs.size(), s);
         if (status) /* check if solver is stuck */
             break;
         status = gsl_multiroot_test_residual(s->f, 1e-7);
     }
 
-    debug("status = %s\n", gsl_strerror(status));
+    debug("[%d] status = %s\n", this->sys_num, gsl_strerror(status));
 
-    for (int i = 0; i < this->n_equs; i++)
+    for (int i = 0; i < this->equs.size(); i++)
         res[i] = gsl_vector_get(s->x, i);
 
     gsl_multiroot_fsolver_free(s);
@@ -102,28 +110,28 @@ int System::solve(double *res)
     return 0;
 }
 
-int System::save_to_file(const char *fname, double *res)
+int System::save_to_file(const std::string &fname, double *res) const
 {
-	FILE *f = fopen(fname, "w");
+	FILE *f = fopen(fname.c_str(), "w");
 	if (f == NULL)
 		return -1;
 
-	for (int i = 0; i < this->n_equs; ++i)
-		fprintf(f, "%s = %f\n", this->vars[i], res[i]);
+	for (int i = 0; i < this->vars.size(); ++i)
+		fprintf(f, "%s = %f\n", this->vars[i].c_str(), res[i]);
 
 	fclose(f);
 	return 0;
 }
 
-int System::save_to_markdown(const char *fname, double *res)
+int System::save_to_markdown(const std::string &fname, double *res) const
 {
-	FILE *f = fopen(fname, "w");
+	FILE *f = fopen(fname.c_str(), "w");
 	if (f == NULL)
 		return -1;
 
-	fprintf(f, "# %s\n\n", fname);
+	fprintf(f, "# %s\n\n", fname.c_str());
 	fprintf(f, "## System of equations\n\n");
-	for (int i = 0; i < this->n_equs; ++i)
+	for (int i = 0; i < this->equs.size(); ++i)
 	{
 		fprintf(f, "$$");
 		this->equs[i]->to_latex(f, *this);
@@ -131,10 +139,10 @@ int System::save_to_markdown(const char *fname, double *res)
 	}
 
 	fprintf(f, "## Solution\n\n");
-	for (int i = 0; i < this->n_equs; ++i)
+	for (int i = 0; i < this->vars.size(); ++i)
 	{
 		fprintf(f, "$$");
-		Latex::var_to_latex(f, this->vars[i]);
+		Latex::var_to_latex(f, this->vars[i].c_str());
 		fprintf(f, " = ");
 		Latex::double_to_latex(f, res[i]);
 		fprintf(f, "$$\n\n");
@@ -142,4 +150,38 @@ int System::save_to_markdown(const char *fname, double *res)
 
 	fclose(f);
 	return 0;
+}
+
+void System::load_vars_from_exp(Expression *exp)
+{
+	switch (exp->type)
+	{
+	case EXPR_TYPE_DOUBLE:
+		break;
+	case EXPR_TYPE_VAR:
+		this->add_var(exp->var);
+		break;
+	case EXPR_TYPE_ADD:
+	case EXPR_TYPE_SUB:
+	case EXPR_TYPE_MUL:
+	case EXPR_TYPE_DIV:
+	case EXPR_TYPE_EXP:
+	case EXPR_TYPE_EQU:
+		this->load_vars_from_exp(exp->eleft);
+		this->load_vars_from_exp(exp->eright);
+		break;
+	case EXPR_TYPE_PAR:
+		this->load_vars_from_exp(exp->eleft);
+		break;
+	}
+}
+
+void System::load_vars_from_equs()
+{
+	this->vars.clear();
+
+	for (int i = 0; i < this->equs.size(); ++i)
+	{
+		this->load_vars_from_exp(this->equs[i]);
+	}
 }

@@ -4,7 +4,7 @@
 
 $$d = 0.1$$
 
-$$a = 3.1416 \cdot \left(\frac{d}{2}\right)^{2}$$
+$$a = 3.1416 \cdot $$
 
 $$q_{dot} = 5 \cdot a$$
 
