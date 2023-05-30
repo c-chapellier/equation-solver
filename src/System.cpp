@@ -3,9 +3,13 @@
 
 System::System()
 {
-	this->n = 0;
 	this->n_equs = 0;
 	this->n_vars = 0;
+}
+
+int System::size() const
+{
+	return this->n_equs;
 }
 
 void System::add_equ(Expression *equ)
@@ -13,7 +17,7 @@ void System::add_equ(Expression *equ)
 	this->equs[this->n_equs++] = equ;
 }
 
-int System::register_var(const char *var)
+int System::add_var(const char *var)
 {
 	for (int i = 0; i < this->n_vars; ++i)
 		if (strcmp(this->vars[i], var) == 0)
@@ -23,7 +27,7 @@ int System::register_var(const char *var)
 	return this->n_vars - 1;
 }
 
-void System::print()
+void System::print() const
 {
 	printf("System:\n");
 	printf("  Equations:\n");
@@ -42,11 +46,11 @@ int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
     System *sys = (System *)params;
 
-    double y[sys->n];
-    for (int i = 0; i < sys->n; ++i)
+    double y[sys->n_equs];
+    for (int i = 0; i < sys->n_equs; ++i)
         y[i] = sys->equs[i]->eval(x);
 
-    for (int i = 0; i < sys->n; ++i)
+    for (int i = 0; i < sys->n_equs; ++i)
         gsl_vector_set(f, i, y[i]);
 
     return GSL_SUCCESS;
@@ -64,13 +68,13 @@ void System::print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
 }
 
 int System::solve(double *res)
-{    
+{
     const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
-    gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, this->n);
-    gsl_multiroot_function f = { &System::rosenbrock_f, (size_t)this->n, this };
+    gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, this->n_equs);
+    gsl_multiroot_function f = { &System::rosenbrock_f, (size_t)this->n_equs, this };
     
-    gsl_vector *x = gsl_vector_alloc(this->n);
-    for (int i = 0; i < this->n; i++)
+    gsl_vector *x = gsl_vector_alloc(this->n_equs);
+    for (int i = 0; i < this->n_equs; i++)
         gsl_vector_set(x, i, 0.0); // 3rd arg is initial guess
 
     gsl_multiroot_fsolver_set(s, &f, x);
@@ -78,11 +82,11 @@ int System::solve(double *res)
     int status = GSL_CONTINUE;
     size_t iter = 0;
 
-    if (DEBUG_MODE) print_state(iter, this->n, s);
+    if (DEBUG_MODE) print_state(iter, this->n_equs, s);
     while (status == GSL_CONTINUE && iter++ < 1000)
     {
         status = gsl_multiroot_fsolver_iterate(s);
-        if (DEBUG_MODE) print_state(iter, this->n, s);
+        if (DEBUG_MODE) print_state(iter, this->n_equs, s);
         if (status) /* check if solver is stuck */
             break;
         status = gsl_multiroot_test_residual(s->f, 1e-7);
@@ -90,10 +94,52 @@ int System::solve(double *res)
 
     debug("status = %s\n", gsl_strerror(status));
 
-    for (int i = 0; i < this->n; i++)
+    for (int i = 0; i < this->n_equs; i++)
         res[i] = gsl_vector_get(s->x, i);
 
     gsl_multiroot_fsolver_free(s);
     gsl_vector_free(x);
     return 0;
+}
+
+int System::save_to_file(const char *fname, double *res)
+{
+	FILE *f = fopen(fname, "w");
+	if (f == NULL)
+		return -1;
+
+	for (int i = 0; i < this->n_equs; ++i)
+		fprintf(f, "%s = %f\n", this->vars[i], res[i]);
+
+	fclose(f);
+	return 0;
+}
+
+int System::save_to_markdown(const char *fname, double *res)
+{
+	FILE *f = fopen(fname, "w");
+	if (f == NULL)
+		return -1;
+
+	fprintf(f, "# %s\n\n", fname);
+	fprintf(f, "## System of equations\n\n");
+	for (int i = 0; i < this->n_equs; ++i)
+	{
+		fprintf(f, "$$");
+		this->equs[i]->to_latex(f, *this);
+		fprintf(f, "$$\n\n");
+	}
+
+	fprintf(f, "## Solution\n\n");
+	for (int i = 0; i < this->n_equs; ++i)
+	{
+		fprintf(f, "$$");
+		Latex::var_to_latex(f, this->vars[i]);
+		fprintf(f, " = ");
+		Latex::double_to_latex(f, res[i]);
+		fprintf(f, "$$\n\n");
+	}
+
+	fclose(f);
+	return 0;
 }

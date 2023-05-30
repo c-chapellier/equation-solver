@@ -58,40 +58,15 @@ void Expression::print()
 	}
 }
 
-static void double_to_latex(FILE *f, double n)
-{
-	char s[50];
-	snprintf(s, 50, "%.10g", n);
-
-	int i = strlen(s);
-	while (s[i - 1] == '0')
-		i--;
-	if (s[i - 1] == '.')
-		i--;
-
-	s[i] = '\0';
-
-	fprintf(f, "%s", s);
-}
-
-static void var_to_latex(FILE *f, const char *var)
-{
-	const char *s = strchr(var, '_');
-	if (s == NULL)
-		fprintf(f, "%s", var);
-	else
-		fprintf(f, "%.*s_{%s}", (int)(s - var), var, s + 1);
-}
-
 void Expression::to_latex(FILE *f, System sys)
 {
 	switch (this->type)
 	{
 	case EXPR_TYPE_DOUBLE:
-		double_to_latex(f, this->dval);
+		Latex::double_to_latex(f, this->dval);
 		break;
 	case EXPR_TYPE_VAR:
-		var_to_latex(f, sys.vars[this->var]);
+		Latex::var_to_latex(f, sys.vars[this->var]);
 		break;
 	case EXPR_TYPE_ADD:
 		this->eleft->to_latex(f, sys);

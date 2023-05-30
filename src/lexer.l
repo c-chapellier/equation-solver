@@ -2,11 +2,11 @@
 
 %{
 
-#include "nonlinear_equ_sys_solver.h"
+#include "es.hpp"
 
 #define YY_DECL int yylex()
 
-#include "parser.h"
+#include "parser.hpp"
 
 %}
 

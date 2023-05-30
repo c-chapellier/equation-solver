@@ -8,13 +8,12 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>
 
-#include "debug.h"
+#include "debug.hpp"
+
+#include "../src/Latex.hpp"
 
 class Expression;
 class System;
 
 #include "../src/System.hpp"
-
 #include "../src/Expression.hpp"
-
-int nonlinear_equ_sys_solver(System sys, double *res);

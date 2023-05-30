@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "nonlinear_equ_sys_solver.h"
+#include "es.hpp"
 
 class System
 {
@@ -10,14 +10,17 @@ private:
     void print_state(size_t iter, int n, gsl_multiroot_fsolver *s);
 
 public:
-    int n, n_equs, n_vars;
+    int n_equs, n_vars;
     Expression *equs[100];
     char *vars[100];
 
 public:
     System();
     void add_equ(Expression *equ);
-    int register_var(const char *var);
+    int add_var(const char *var);
     int solve(double *res);
-    void print();
+    void print() const;
+    int size() const;
+    int save_to_file(const char *fname, double *res);
+    int save_to_markdown(const char *fname, double *res); 
 };

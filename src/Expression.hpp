@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "nonlinear_equ_sys_solver.h"
+#include "es.hpp"
 
 #define EXPR_TYPE_DOUBLE 0
 #define EXPR_TYPE_VAR 1
