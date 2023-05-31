@@ -1,19 +1,15 @@
 
 #include "ExpMul.hpp"
 
-ExpMul::ExpMul(Exp *left, Exp *right)
-    : Exp(0, "", left, right, NULL)
-{}
+ExpMul::ExpMul(Exp *left, Exp *right) : Exp()
+{
+    this->eleft = left;
+    this->eright = right;
+}
 
 double ExpMul::eval(System *mother_sys, const gsl_vector *x)
 {
     return this->eleft->eval(mother_sys, x) * this->eright->eval(mother_sys, x);
-}
-
-void ExpMul::replace_args(System *mother_sys, const gsl_vector *x)
-{
-    this->eleft->replace_args(mother_sys, x);
-    this->eright->replace_args(mother_sys, x);
 }
 
 ExpMul *ExpMul::deep_copy()

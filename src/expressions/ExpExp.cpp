@@ -1,19 +1,15 @@
 
 #include "ExpExp.hpp"
 
-ExpExp::ExpExp(Exp *left, Exp *right)
-    : Exp(0, "", left, right, NULL)
-{}
+ExpExp::ExpExp(Exp *left, Exp *right) : Exp()
+{
+    this->eleft = left;
+    this->eright = right;
+}
 
 double ExpExp::eval(System *mother_sys, const gsl_vector *x)
 {
     return pow(this->eleft->eval(mother_sys, x), this->eright->eval(mother_sys, x));
-}
-
-void ExpExp::replace_args(System *mother_sys, const gsl_vector *x)
-{
-    this->eleft->replace_args(mother_sys, x);
-    this->eright->replace_args(mother_sys, x);
 }
 
 ExpExp *ExpExp::deep_copy()

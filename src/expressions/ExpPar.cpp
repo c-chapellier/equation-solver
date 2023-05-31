@@ -1,18 +1,14 @@
 
 #include "ExpPar.hpp"
 
-ExpPar::ExpPar(Exp *left)
-    : Exp(0, "", left, NULL, NULL)
-{}
+ExpPar::ExpPar(Exp *left) : Exp()
+{
+	this->eleft = left;
+}
 
 double ExpPar::eval(System *mother_sys, const gsl_vector *x)
 {
     return this->eleft->eval(mother_sys, x);
-}
-
-void ExpPar::replace_args(System *mother_sys, const gsl_vector *x)
-{
-    this->eleft->replace_args(mother_sys, x);
 }
 
 ExpPar *ExpPar::deep_copy()

@@ -1,9 +1,11 @@
 
 #include "ExpFuncCall.hpp"
 
-ExpFuncCall::ExpFuncCall(std::string name, System *sys)
-    : Exp(0, name, NULL, NULL, sys)
-{}
+ExpFuncCall::ExpFuncCall(std::string name, System *sys) : Exp()
+{
+	this->var = name;
+	this->sys = sys;
+}
 
 void ExpFuncCall::to_latex(FILE *f)
 {
@@ -16,4 +18,9 @@ void ExpFuncCall::to_latex(FILE *f)
 			fprintf(f, ", ");
 	}
 	fprintf(f, "\\right)\n");
+}
+
+void ExpFuncCall::add_arg(Exp *arg)
+{
+	this->args.push_back(arg);
 }

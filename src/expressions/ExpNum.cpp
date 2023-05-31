@@ -1,18 +1,14 @@
 
 #include "ExpNum.hpp"
 
-ExpNum::ExpNum(double dval)
-    : Exp(dval, "", NULL, NULL, NULL)
-{}
+ExpNum::ExpNum(double dval) : Exp()
+{
+	this->dval = dval;
+}
 
 double ExpNum::eval(System *mother_sys, const gsl_vector *x)
 {
     return this->dval;
-}
-
-void ExpNum::replace_args(System *mother_sys, const gsl_vector *x)
-{
-
 }
 
 ExpNum *ExpNum::deep_copy()

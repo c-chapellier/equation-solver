@@ -61,7 +61,7 @@ Exp *create_function_call(std::string name, std::vector<Exp *> *args)
 	if (f->args_names->size() != args->size())
 		yyerror("Wrong number of arguments");
 
-	Exp *exp = new ExpFuncCall(f->name, new System());
+	ExpFuncCall *exp = new ExpFuncCall(f->name, new System());
 
 	for (int i = 0; i < args->size(); ++i)
 		exp->args.push_back((*args)[i]);
