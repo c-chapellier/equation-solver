@@ -6,31 +6,31 @@ ExpPar::ExpPar(Exp *left) : Exp()
 	this->eleft = left;
 }
 
-void ExpPar::load_vars_into_sys(System *sys)
+void ExpPar::load_vars_into_sys(System *sys) const
 {
 	this->eleft->load_vars_into_sys(sys);
 }
 
-double ExpPar::eval(System *mother_sys, const gsl_vector *x)
+double ExpPar::eval(System *mother_sys, const gsl_vector *x) const
 {
     return this->eleft->eval(mother_sys, x);
 }
 
-ExpPar *ExpPar::deep_copy()
+ExpPar *ExpPar::deep_copy() const
 {
 	return new ExpPar(this->eleft->deep_copy());
 }
 
-void ExpPar::to_latex(FILE *f)
+void ExpPar::to_latex(std::ofstream &f) const
 {
-	fprintf(f, "\\left(");
+	f << "\\left(";
 	this->eleft->to_latex(f);
-	fprintf(f, "\\right)");
+	f << "\\right)";
 }
 
-void ExpPar::print()
+void ExpPar::print() const
 {
-	printf("(");
+	std::cout << "(";
 	this->eleft->print();
-	printf(")");
+	std::cout << ")";
 }

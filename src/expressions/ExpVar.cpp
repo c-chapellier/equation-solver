@@ -6,17 +6,17 @@ ExpVar::ExpVar(std::string var) : Exp()
 	this->var = var;
 }
 
-ExpVar *ExpVar::deep_copy()
+ExpVar *ExpVar::deep_copy() const
 {
 	return new ExpVar(this->var);
 }
 
-void ExpVar::to_latex(FILE *f)
+void ExpVar::to_latex(std::ofstream &f) const
 {
 	Latex::var_to_latex(f, this->var.c_str());
 }
 
-void ExpVar::print()
+void ExpVar::print() const
 {
-	printf("%s", this->var.c_str());
+	std::cout << this->var;
 }

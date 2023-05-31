@@ -17,13 +17,13 @@ void System::add_equ(Exp *equ)
 	this->equs.push_back(equ);
 }
 
-void System::add_var(std::string var)
+void System::add_var(const std::string &var)
 {
 	for (int i = 0; i < this->vars.size(); ++i)
 		if (this->vars[i].compare(var) == 0)
 			return;
 
-	this->vars.push_back(var);
+	this->vars.push_back(std::string(var));
 }
 
 void System::add_sys(System *sys)
@@ -74,7 +74,7 @@ void System::print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
 	printf("\n");
 }
 
-int System::solve(double *res)
+int System::solve(std::vector<double> &res)
 {
     const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
     gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, this->equs.size());
@@ -101,6 +101,7 @@ int System::solve(double *res)
 
     debug("status = %s\n", gsl_strerror(status));
 
+	res = std::vector<double>(this->equs.size());
     for (int i = 0; i < this->equs.size(); i++)
         res[i] = gsl_vector_get(s->x, i);
 
@@ -109,45 +110,49 @@ int System::solve(double *res)
     return 0;
 }
 
-int System::save_to_file(const std::string &fname, double *res) const
+int System::save_to_file(const std::string &fname, const std::vector<double> &res) const
 {
-	FILE *f = fopen(fname.c_str(), "w");
-	if (f == NULL)
+	std::ofstream f;
+
+	f.open(fname);
+	if (!f.is_open())
 		return -1;
 
 	for (int i = 0; i < this->vars.size(); ++i)
-		fprintf(f, "%s = %f\n", this->vars[i].c_str(), res[i]);
+		f << this->vars[i] << " = " << res[i] << std::endl;
 
-	fclose(f);
+	f.close();
 	return 0;
 }
 
-int System::save_to_markdown(const std::string &fname, double *res) const
+int System::save_to_markdown(const std::string &fname, const std::vector<double> &res) const
 {
-	FILE *f = fopen(fname.c_str(), "w");
-	if (f == NULL)
+	std::ofstream f;
+
+	f.open(fname);
+	if (!f.is_open())
 		return -1;
 
-	fprintf(f, "# %s\n\n", fname.c_str());
-	fprintf(f, "## System of equations\n\n");
+	f << "# " << fname << std::endl << std::endl;
+	f << "## System of equations" << std::endl << std::endl;
 	for (int i = 0; i < this->equs.size(); ++i)
 	{
-		fprintf(f, "$$");
+		f << "$$";
 		this->equs[i]->to_latex(f);
-		fprintf(f, "$$\n\n");
+		f << "$$" << std::endl << std::endl;
 	}
 
-	fprintf(f, "## Solution\n\n");
+	f << "## Solution" << std::endl << std::endl;
 	for (int i = 0; i < this->vars.size(); ++i)
 	{
-		fprintf(f, "$$");
+		f << "$$";
 		Latex::var_to_latex(f, this->vars[i].c_str());
-		fprintf(f, " = ");
+		f << " = ";
 		Latex::double_to_latex(f, res[i]);
-		fprintf(f, "$$\n\n");
+		f << "$$" << std::endl << std::endl;
 	}
 
-	fclose(f);
+	f.close();
 	return 0;
 }
 
@@ -159,12 +164,12 @@ void System::load_vars_from_equs()
 		this->equs[i]->load_vars_into_sys(this);
 }
 
-void ExpVar::load_vars_into_sys(System *sys)
+void ExpVar::load_vars_into_sys(System *sys) const
 {
 	sys->add_var(this->var);
 }
 
-double ExpVar::eval(System *mother_sys, const gsl_vector *x)
+double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 {
 	if (this->var == "")
 		return this->dval;
@@ -180,7 +185,7 @@ double ExpVar::eval(System *mother_sys, const gsl_vector *x)
     return gsl_vector_get(x, var_index);
 }
 
-double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x)
+double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 {
 	std::vector<double> args;
 	for (int i = 0; i < this->args.size(); ++i)
@@ -219,13 +224,13 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x)
 
 	cp_sys->load_vars_from_equs();
 
-	double res[cp_sys->size()];
+	std::vector<double> res;
 	cp_sys->solve(res);
 
 	return res[cp_sys->size() - 1];
 }
 
-ExpFuncCall *ExpFuncCall::deep_copy()
+ExpFuncCall *ExpFuncCall::deep_copy() const
 {
 	ExpFuncCall *exp = new ExpFuncCall(this->var, NULL);
 
@@ -236,7 +241,7 @@ ExpFuncCall *ExpFuncCall::deep_copy()
 	return exp;
 }
 
-void ExpFuncCall::print()
+void ExpFuncCall::print() const
 {
 	printf("%s(\n", this->var.c_str());
 	this->sys->print();

@@ -5,8 +5,7 @@
 $$d = 0.1$$
 
 $$a = circle_{area}\left(
-d\right)
-$$
+d\right)$$
 
 $$v = 5$$
 

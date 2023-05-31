@@ -11,7 +11,6 @@ PARSER_OUT = $(BUILD_DIR)/parser.cpp
 LEXER_OUT = $(BUILD_DIR)/lexer.cpp
 
 SRCS = 	src/System.cpp \
-		src/expressions/Exp.cpp \
 		src/expressions/ExpEqu.cpp \
 		src/expressions/ExpNum.cpp \
 		src/expressions/ExpVar.cpp \

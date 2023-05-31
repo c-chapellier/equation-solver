@@ -186,13 +186,15 @@ args:
 int main(int argc, char* argv[])
 {
 	if (argc != 2)
-		fprintf(stderr, "Usage: %s <filename>\n", argv[0]), exit(1);
+		std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl, exit(1);
 
 	// yydebug = 1;
+
+	std::string fname(argv[1]);
 	
 	yyin = fopen(argv[1], "r");
 	if (yyin == NULL)
-		fprintf(stderr, "Can't open file %s\n", argv[1]), exit(1);
+		std::cerr << "Can't open file " << argv[1] << std::endl, exit(1);
 
 	do
 		yyparse();
@@ -205,22 +207,18 @@ int main(int argc, char* argv[])
 	main_sys.print();
 	printf("----------- SOLVE ------------\n");
 
-	double res[main_sys.size()];
+	std::vector<double> res;
 	main_sys.solve(res);
 
 	debug("Solution:\n");
 	for (int i = 0; i < main_sys.size(); ++i)
 		debug("  %s = %f\n", main_sys.vars[i].c_str(), res[i]);
 
-	std::string fname = std::string(argv[1]) + ".res";
+	if (main_sys.save_to_file(fname + ".res", res) == -1)
+		std::cerr << "Can't save results to file " << fname  + ".res" << std::endl, exit(1);
 
-	if (main_sys.save_to_file(fname, res) == -1)
-		std::cerr << "Can't save results to file " << fname << std::endl, exit(1);
-
-	std::string fname2 = std::string(argv[1]) + ".md";
-
-	if (main_sys.save_to_markdown(fname2, res) == -1)
-		std::cerr << "Can't save results to file " << fname2 << std::endl, exit(1);
+	if (main_sys.save_to_markdown(fname + ".md", res) == -1)
+		std::cerr << "Can't save results to file " << fname  + ".md" << std::endl, exit(1);
 	
 	return 0;
 }

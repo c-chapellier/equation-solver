@@ -29,12 +29,12 @@ public:
 public:
     System();
     void add_equ(Exp *equ);
-    void add_var(std::string var);
+    void add_var(const std::string &var);
     void add_sys(System *sys);
     int size() const;
     void load_vars_from_equs();
-    int solve(double *res);
+    int solve(std::vector<double> &res);
     void print() const;
-    int save_to_file(const std::string &fname, double *res) const;
-    int save_to_markdown(const std::string &fname, double *res) const;
+    int save_to_file(const std::string &fname, const std::vector<double> &res) const;
+    int save_to_markdown(const std::string &fname, const std::vector<double> &res) const;
 };

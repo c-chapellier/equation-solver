@@ -6,28 +6,31 @@
 class Latex
 {
 public:
-    static void var_to_latex(FILE *f, const char *var)
+    static void var_to_latex(std::ofstream &f, std::string var)
     {
-        const char *s = strchr(var, '_');
-        if (s == NULL)
-            fprintf(f, "%s", var);
+        int i = var.find('_');
+
+        if (i == -1)
+            f << var;
         else
-            fprintf(f, "%.*s_{%s}", (int)(s - var), var, s + 1);
+            f << var.substr(0, i) << "_{" << var.substr(i + 1) << "}";
     }
 
-    static void double_to_latex(FILE *f, double n)
+    static void double_to_latex(std::ofstream &f, double n)
     {
-        char s[50];
-        snprintf(s, 50, "%f", n);
+        // char s[50];
+        // snprintf(s, 50, "%f", n);
 
-        int i = strlen(s);
-        while (s[i - 1] == '0')
-            i--;
-        if (s[i - 1] == '.')
-            i--;
+        // int i = strlen(s);
+        // while (s[i - 1] == '0')
+        //     i--;
+        // if (s[i - 1] == '.')
+        //     i--;
 
-        s[i] = '\0';
+        // s[i] = '\0';
 
-        fprintf(f, "%s", s);
+        // fprintf(f, "%s", s);
+
+        f << n;
     }
 };
