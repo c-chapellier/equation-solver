@@ -7,6 +7,12 @@ ExpFuncCall::ExpFuncCall(std::string name, System *sys) : Exp()
 	this->sys = sys;
 }
 
+void ExpFuncCall::load_vars_into_sys(System *sys)
+{
+	for (int i = 0; i < this->args.size(); ++i)
+		this->args[i]->load_vars_into_sys(sys);
+}
+
 void ExpFuncCall::to_latex(FILE *f)
 {
 	Latex::var_to_latex(f, this->var.c_str());

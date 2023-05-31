@@ -7,6 +7,12 @@ ExpEqu::ExpEqu(Exp *left, Exp *right) : Exp()
     this->eright = right;
 }
 
+void ExpEqu::load_vars_into_sys(System *sys)
+{
+	this->eleft->load_vars_into_sys(sys);
+	this->eright->load_vars_into_sys(sys);
+}
+
 double ExpEqu::eval(System *mother_sys, const gsl_vector *x)
 {
     return this->eleft->eval(mother_sys, x) - this->eright->eval(mother_sys, x);

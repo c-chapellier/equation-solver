@@ -7,6 +7,12 @@ ExpMul::ExpMul(Exp *left, Exp *right) : Exp()
     this->eright = right;
 }
 
+void ExpMul::load_vars_into_sys(System *sys)
+{
+	this->eleft->load_vars_into_sys(sys);
+	this->eright->load_vars_into_sys(sys);
+}
+
 double ExpMul::eval(System *mother_sys, const gsl_vector *x)
 {
     return this->eleft->eval(mother_sys, x) * this->eright->eval(mother_sys, x);

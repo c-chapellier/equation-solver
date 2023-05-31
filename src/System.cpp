@@ -151,39 +151,17 @@ int System::save_to_markdown(const std::string &fname, double *res) const
 	return 0;
 }
 
-void System::load_vars_from_exp(Exp *exp)
-{
-	if (dynamic_cast<ExpNum *>(exp) != nullptr)
-		;
-	else if (dynamic_cast<ExpVar *>(exp) != nullptr)
-		this->add_var(dynamic_cast<ExpVar *>(exp)->var);
-	else if (dynamic_cast<ExpFuncCall *>(exp) != nullptr)
-		for (int i = 0; i < dynamic_cast<ExpFuncCall *>(exp)->args.size(); ++i)
-			this->load_vars_from_exp(dynamic_cast<ExpFuncCall *>(exp)->args[i]);
-	else if (dynamic_cast<ExpPar *>(exp) != nullptr)
-		this->load_vars_from_exp(dynamic_cast<ExpPar *>(exp)->eleft);
-	else if (dynamic_cast<ExpAdd *>(exp) != nullptr)
-		this->load_vars_from_exp(dynamic_cast<ExpAdd *>(exp)->eleft), this->load_vars_from_exp(dynamic_cast<ExpAdd *>(exp)->eright);
-	else if (dynamic_cast<ExpSub *>(exp) != nullptr)
-		this->load_vars_from_exp(dynamic_cast<ExpSub *>(exp)->eleft), this->load_vars_from_exp(dynamic_cast<ExpSub *>(exp)->eright);
-	else if (dynamic_cast<ExpMul *>(exp) != nullptr)
-		this->load_vars_from_exp(dynamic_cast<ExpMul *>(exp)->eleft), this->load_vars_from_exp(dynamic_cast<ExpMul *>(exp)->eright);
-	else if (dynamic_cast<ExpDiv *>(exp) != nullptr)
-		this->load_vars_from_exp(dynamic_cast<ExpDiv *>(exp)->eleft), this->load_vars_from_exp(dynamic_cast<ExpDiv *>(exp)->eright);
-	else if (dynamic_cast<ExpExp *>(exp) != nullptr)
-		this->load_vars_from_exp(dynamic_cast<ExpExp *>(exp)->eleft), this->load_vars_from_exp(dynamic_cast<ExpExp *>(exp)->eright);
-	else if (dynamic_cast<ExpEqu *>(exp) != nullptr)
-		this->load_vars_from_exp(dynamic_cast<ExpEqu *>(exp)->eleft), this->load_vars_from_exp(dynamic_cast<ExpEqu *>(exp)->eright);
-	else
-		fprintf(stderr, "Error: unknown expression type\n"), exit(1);
-}
-
 void System::load_vars_from_equs()
 {
 	this->vars.clear();
 
 	for (int i = 0; i < this->equs.size(); ++i)
-		this->load_vars_from_exp(this->equs[i]);
+		this->equs[i]->load_vars_into_sys(this);
+}
+
+void ExpVar::load_vars_into_sys(System *sys)
+{
+	sys->add_var(this->var);
 }
 
 double ExpVar::eval(System *mother_sys, const gsl_vector *x)
@@ -200,24 +178,6 @@ double ExpVar::eval(System *mother_sys, const gsl_vector *x)
 		fprintf(stderr, "Error: variable %s not found\n", this->var.c_str()), exit(1);
 
     return gsl_vector_get(x, var_index);
-}
-
-void ExpFuncCall::print()
-{
-	printf("%s(\n", this->var.c_str());
-	this->sys->print();
-	printf(")\n");
-}
-
-ExpFuncCall *ExpFuncCall::deep_copy()
-{
-	ExpFuncCall *exp = new ExpFuncCall(this->var, NULL);
-
-    exp->sys = new System();
-	for (int i = 0; i < this->sys->size(); ++i)
-		exp->sys->add_equ(this->sys->equs[i]->deep_copy());
-	
-	return exp;
 }
 
 double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x)
@@ -240,7 +200,6 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x)
 			fprintf(stderr, "Error: expression is not an equation\n"), exit(1);
 
 		ExpVar *var = dynamic_cast<ExpVar *>(equ->eleft);
-
 		if (var != nullptr && var->var.front() == '@')
 		{
 			std::string var = cp_sys->vars[i];
@@ -264,4 +223,22 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x)
 	cp_sys->solve(res);
 
 	return res[cp_sys->size() - 1];
+}
+
+ExpFuncCall *ExpFuncCall::deep_copy()
+{
+	ExpFuncCall *exp = new ExpFuncCall(this->var, NULL);
+
+    exp->sys = new System();
+	for (int i = 0; i < this->sys->size(); ++i)
+		exp->sys->add_equ(this->sys->equs[i]->deep_copy());
+	
+	return exp;
+}
+
+void ExpFuncCall::print()
+{
+	printf("%s(\n", this->var.c_str());
+	this->sys->print();
+	printf(")\n");
 }

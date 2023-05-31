@@ -6,6 +6,11 @@ ExpNum::ExpNum(double dval) : Exp()
 	this->dval = dval;
 }
 
+void ExpNum::load_vars_into_sys(System *sys)
+{
+
+}
+
 double ExpNum::eval(System *mother_sys, const gsl_vector *x)
 {
     return this->dval;
