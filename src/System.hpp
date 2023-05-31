@@ -3,6 +3,18 @@
 
 #include "es.hpp"
 
+#include "expressions/Exp.hpp"
+#include "expressions/ExpEqu.hpp"
+#include "expressions/ExpNum.hpp"
+#include "expressions/ExpVar.hpp"
+#include "expressions/ExpAdd.hpp"
+#include "expressions/ExpSub.hpp"
+#include "expressions/ExpMul.hpp"
+#include "expressions/ExpDiv.hpp"
+#include "expressions/ExpExp.hpp"
+#include "expressions/ExpPar.hpp"
+#include "expressions/ExpFuncCall.hpp"
+
 class System
 {
 private:
@@ -11,15 +23,15 @@ private:
     void add_var(std::string var);
 
 public:
-    std::vector<Expression *> equs;
+    std::vector<Exp *> equs;
     std::vector<std::string> vars;
 
 public:
     System();
-    void add_equ(Expression *equ);
+    void add_equ(Exp *equ);
     void add_sys(System *sys);
     int solve(double *res);
-    void load_vars_from_exp(Expression *exp);
+    void load_vars_from_exp(Exp *exp);
     void load_vars_from_equs();
     void print() const;
     int size() const;

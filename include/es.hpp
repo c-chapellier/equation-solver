@@ -14,9 +14,3 @@
 #include "debug.hpp"
 
 #include "../src/Latex.hpp"
-
-class Expression;
-class System;
-
-#include "../src/System.hpp"
-#include "../src/Expression.hpp"

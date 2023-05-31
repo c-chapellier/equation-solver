@@ -10,8 +10,18 @@ LEXER_PATH = src/lexer.l
 PARSER_OUT = $(BUILD_DIR)/parser.cpp
 LEXER_OUT = $(BUILD_DIR)/lexer.cpp
 
-SRCS = src/Expression.cpp \
-		src/System.cpp
+SRCS = 	src/System.cpp \
+		src/expressions/Exp.cpp \
+		src/expressions/ExpEqu.cpp \
+		src/expressions/ExpNum.cpp \
+		src/expressions/ExpVar.cpp \
+		src/expressions/ExpAdd.cpp \
+		src/expressions/ExpSub.cpp \
+		src/expressions/ExpMul.cpp \
+		src/expressions/ExpDiv.cpp \
+		src/expressions/ExpExp.cpp \
+		src/expressions/ExpPar.cpp \
+		src/expressions/ExpFuncCall.cpp \
 
 all:
 	mkdir -p $(BUILD_DIR)

@@ -12,6 +12,20 @@ void yyerror(const char* s);
 
 #include "es.hpp"
 
+#include "../src/expressions/Exp.hpp"
+#include "../src/expressions/ExpEqu.hpp"
+#include "../src/expressions/ExpNum.hpp"
+#include "../src/expressions/ExpVar.hpp"
+#include "../src/expressions/ExpAdd.hpp"
+#include "../src/expressions/ExpSub.hpp"
+#include "../src/expressions/ExpMul.hpp"
+#include "../src/expressions/ExpDiv.hpp"
+#include "../src/expressions/ExpExp.hpp"
+#include "../src/expressions/ExpPar.hpp"
+#include "../src/expressions/ExpFuncCall.hpp"
+
+#include "../src/System.hpp"
+
 System main_sys = System();
 
 typedef struct
@@ -19,10 +33,10 @@ typedef struct
 	std::string name;
 	std::vector<std::string> *args_names;
 	System* sys;
-	Expression* exp;
+	Exp* exp;
 } function_t;
 
-function_t *create_function(std::string name, std::vector<std::string> *args_names, System* sys, Expression* exp)
+function_t *create_function(std::string name, std::vector<std::string> *args_names, System* sys, Exp* exp)
 {
 	function_t *f = (function_t *)malloc(sizeof (function_t));
 	f->name = name;
@@ -34,7 +48,7 @@ function_t *create_function(std::string name, std::vector<std::string> *args_nam
 
 std::vector<function_t *> functions;
 
-Expression *create_function_call(std::string name, std::vector<Expression *> *args)
+Exp *create_function_call(std::string name, std::vector<Exp *> *args)
 {
 	function_t *f = NULL;
 	for (int i = 0; i < functions.size(); ++i)
@@ -47,24 +61,20 @@ Expression *create_function_call(std::string name, std::vector<Expression *> *ar
 	if (f->args_names->size() != args->size())
 		yyerror("Wrong number of arguments");
 
-	Expression *exp = new Expression(EXPR_TYPE_FUNC, 0, f->name, NULL, NULL, new System());
+	Exp *exp = new ExpFuncCall(f->name, new System());
 
 	for (int i = 0; i < args->size(); ++i)
 		exp->args.push_back((*args)[i]);
 
 	for (int i = 0; i < f->args_names->size(); ++i)
 	{
-		if ((*args)[i]->type == EXPR_TYPE_EQU)
+		if (dynamic_cast<ExpEqu *>((*args)[i]) != nullptr)
 			yyerror("Can't use equation as argument");
 
 		exp->sys->add_equ(
-			new Expression(
-				EXPR_TYPE_EQU,
-				0,
-				"",
-				new Expression(EXPR_TYPE_VAR, 0, std::string("@") + (*f->args_names)[i], NULL, NULL, NULL),
-				(*args)[i],
-				NULL
+			new ExpEqu(
+				new ExpVar(std::string("@") + (*f->args_names)[i]),
+				(*args)[i]
 			)
 		);
 	}
@@ -73,13 +83,9 @@ Expression *create_function_call(std::string name, std::vector<Expression *> *ar
 		exp->sys->add_equ(f->sys->equs[i]);
 
 	exp->sys->add_equ(
-		new Expression(
-			EXPR_TYPE_EQU,
-			0,
-			"",
-			new Expression(EXPR_TYPE_VAR, 0, std::string("#ret"), NULL, NULL, NULL),
-			f->exp,
-			NULL
+		new ExpEqu(
+			new ExpVar(std::string("#ret")),
+			f->exp
 		)
 	);
 
@@ -139,7 +145,7 @@ block:
 
 func:
 	  T_FUNC T_VAR T_LPAR args_def T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA
-	  { $$ = create_function(std::string($2), (std::vector<std::string> *)$4, (System *)$9, (Expression *)$11); }
+	  { $$ = create_function(std::string($2), (std::vector<std::string> *)$4, (System *)$9, (Exp *)$11); }
 ;
 
 args_def:
@@ -149,31 +155,31 @@ args_def:
 
 sys:
 	  T_NEWLINE				{ $$ = new System(); }
-	| equ T_NEWLINE			{ $$ = new System(); ((System *)$$)->add_equ((Expression *)$1); }
-	| equ T_EOF				{ $$ = new System(); ((System *)$$)->add_equ((Expression *)$1); }
-	| sys equ T_NEWLINE		{ ((System *)$$)->add_equ((Expression *)$2); }
+	| equ T_NEWLINE			{ $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
+	| equ T_EOF				{ $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
+	| sys equ T_NEWLINE		{ ((System *)$$)->add_equ((Exp *)$2); }
 	| sys T_NEWLINE			{ }
 	| sys T_EOF				{ }
 ;
 
-equ: exp T_EQU exp		{ $$ = new Expression(EXPR_TYPE_EQU, 0, "", (Expression *)$1, (Expression *)$3, NULL); }
+equ: exp T_EQU exp		{ $$ = new ExpEqu((Exp *)$1, (Exp *)$3); }
 ;
 
 exp:
-	  T_DOUBLE			{ $$ = new Expression(EXPR_TYPE_DOUBLE, $1, "", NULL, NULL, NULL); }
-	| T_VAR				{ $$ = new Expression(EXPR_TYPE_VAR, 0, $1, NULL, NULL, NULL); }
-	| exp T_ADD exp		{ $$ = new Expression(EXPR_TYPE_ADD, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
-	| exp T_SUB exp		{ $$ = new Expression(EXPR_TYPE_SUB, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
-	| exp T_MUL exp		{ $$ = new Expression(EXPR_TYPE_MUL, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
-	| exp T_DIV exp		{ $$ = new Expression(EXPR_TYPE_DIV, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
-	| exp T_EXP exp		{ $$ = new Expression(EXPR_TYPE_EXP, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
-	| T_LPAR exp T_RPAR	{ $$ = new Expression(EXPR_TYPE_PAR, 0, "", (Expression *)$2, NULL, NULL) }
-	| T_VAR T_LPAR args T_RPAR	{ $$ = create_function_call(std::string($1), (std::vector<Expression *> *)$3); }
+	  T_DOUBLE			{ $$ = new ExpNum($1); }
+	| T_VAR				{ $$ = new ExpVar($1); }
+	| exp T_ADD exp		{ $$ = new ExpAdd((Exp *)$1, (Exp *)$3) }
+	| exp T_SUB exp		{ $$ = new ExpSub((Exp *)$1, (Exp *)$3) }
+	| exp T_MUL exp		{ $$ = new ExpMul((Exp *)$1, (Exp *)$3) }
+	| exp T_DIV exp		{ $$ = new ExpDiv((Exp *)$1, (Exp *)$3) }
+	| exp T_EXP exp		{ $$ = new ExpExp((Exp *)$1, (Exp *)$3) }
+	| T_LPAR exp T_RPAR	{ $$ = new ExpPar((Exp *)$2) }
+	| T_VAR T_LPAR args T_RPAR	{ $$ = create_function_call(std::string($1), (std::vector<Exp *> *)$3); }
 ;
 
 args:
-	  exp T_COMMA args	{ ((std::vector<Expression *> *)$$)->push_back((Expression *)$1); }
-	| exp				{ $$ = new std::vector<Expression *>(); ((std::vector<Expression *> *)$$)->push_back((Expression *)$1); }
+	  exp T_COMMA args	{ ((std::vector<Exp *> *)$$)->push_back((Exp *)$1); }
+	| exp				{ $$ = new std::vector<Exp *>(); ((std::vector<Exp *> *)$$)->push_back((Exp *)$1); }
 
 %%
 

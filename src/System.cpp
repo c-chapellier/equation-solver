@@ -3,7 +3,7 @@
 
 System::System()
 {
-	this->equs = std::vector<Expression *>();
+	this->equs = std::vector<Exp *>();
 	this->vars = std::vector<std::string>();
 }
 
@@ -12,7 +12,7 @@ int System::size() const
 	return this->equs.size();
 }
 
-void System::add_equ(Expression *equ)
+void System::add_equ(Exp *equ)
 {
 	this->equs.push_back(equ);
 }
@@ -133,7 +133,7 @@ int System::save_to_markdown(const std::string &fname, double *res) const
 	for (int i = 0; i < this->equs.size(); ++i)
 	{
 		fprintf(f, "$$");
-		this->equs[i]->to_latex(f, *this);
+		this->equs[i]->to_latex(f);
 		fprintf(f, "$$\n\n");
 	}
 
@@ -151,28 +151,28 @@ int System::save_to_markdown(const std::string &fname, double *res) const
 	return 0;
 }
 
-void System::load_vars_from_exp(Expression *exp)
+void System::load_vars_from_exp(Exp *exp)
 {
-	switch (exp->type)
-	{
-	case EXPR_TYPE_DOUBLE:
-		break;
-	case EXPR_TYPE_VAR:
+	if (dynamic_cast<ExpNum *>(exp) != nullptr)
+		;
+	else if (dynamic_cast<ExpVar *>(exp) != nullptr)
 		this->add_var(exp->var);
-		break;
-	case EXPR_TYPE_ADD:
-	case EXPR_TYPE_SUB:
-	case EXPR_TYPE_MUL:
-	case EXPR_TYPE_DIV:
-	case EXPR_TYPE_EXP:
-	case EXPR_TYPE_EQU:
+	else if (dynamic_cast<ExpFuncCall *>(exp) != nullptr)
+		for (int i = 0; i < exp->args.size(); ++i)
+			this->load_vars_from_exp(exp->args[i]);
+	else if (dynamic_cast<ExpPar *>(exp) != nullptr)
 		this->load_vars_from_exp(exp->eleft);
-		this->load_vars_from_exp(exp->eright);
-		break;
-	case EXPR_TYPE_PAR:
-		this->load_vars_from_exp(exp->eleft);
-		break;
-	}
+	else if (
+		dynamic_cast<ExpAdd *>(exp) != nullptr
+		|| dynamic_cast<ExpSub *>(exp) != nullptr
+		|| dynamic_cast<ExpMul *>(exp) != nullptr
+		|| dynamic_cast<ExpDiv *>(exp) != nullptr
+		|| dynamic_cast<ExpExp *>(exp) != nullptr
+		|| dynamic_cast<ExpEqu *>(exp) != nullptr
+	)
+		this->load_vars_from_exp(exp->eleft), this->load_vars_from_exp(exp->eright);
+	else
+		fprintf(stderr, "Error: unknown expression type\n"), exit(1);
 }
 
 void System::load_vars_from_equs()
@@ -180,7 +180,100 @@ void System::load_vars_from_equs()
 	this->vars.clear();
 
 	for (int i = 0; i < this->equs.size(); ++i)
-	{
 		this->load_vars_from_exp(this->equs[i]);
+}
+
+double ExpVar::eval(System *mother_sys, const gsl_vector *x)
+{
+	if (this->var == "")
+		return this->dval;
+
+	int var_index;
+	for (int i = 0; i < mother_sys->vars.size(); ++i)
+		if (mother_sys->vars[i] == this->var)
+			var_index = i;
+
+	if (var_index == -1)
+		fprintf(stderr, "Error: variable %s not found\n", this->var.c_str()), exit(1);
+
+    return gsl_vector_get(x, var_index);
+}
+
+void ExpFuncCall::print()
+{
+	printf("%s(\n", this->var.c_str());
+	this->sys->print();
+	printf(")\n");
+}
+
+ExpFuncCall *ExpFuncCall::deep_copy()
+{
+	ExpFuncCall *exp = new ExpFuncCall(this->var, NULL);
+
+    exp->sys = new System();
+	for (int i = 0; i < this->sys->size(); ++i)
+		exp->sys->add_equ(this->sys->equs[i]->deep_copy());
+	
+	return exp;
+}
+
+void ExpFuncCall::replace_args(System *mother_sys, const gsl_vector *x)
+{
+	for (int i = 0; i < this->sys->equs.size(); i++)
+	    this->sys->equs[i]->eleft->replace_args(mother_sys, x);
+}
+
+void ExpVar::replace_args(System *mother_sys, const gsl_vector *x)
+{
+	bool ok = false;
+
+	for (int i = 0; i < mother_sys->vars.size(); i++)
+		if (this->var == mother_sys->vars[i])
+			this->dval = gsl_vector_get(x, i), ok = true;
+	if (!ok)
+		fprintf(stderr, "Error: variable %s not found\n", this->var.c_str()), exit(1);
+	this->var = "";
+}
+
+double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x)
+{
+	std::vector<double> args;
+	for (int i = 0; i < this->args.size(); ++i)
+		args.push_back(this->args[i]->eval(mother_sys, x));
+	
+	System *cp_sys = new System();
+
+	for (int i = 0; i < this->sys->size(); ++i)
+		cp_sys->add_equ(this->sys->equs[i]->deep_copy());
+	cp_sys->load_vars_from_equs();
+
+	int j = 0;
+	for (int i = 0; i < cp_sys->equs.size(); ++i)
+	{
+		if (dynamic_cast<ExpEqu *>(cp_sys->equs[i]) == nullptr)
+			fprintf(stderr, "Error: expression is not an equation\n"), exit(1);
+
+		if (dynamic_cast<ExpVar *>(cp_sys->equs[i]->eleft) != nullptr && cp_sys->equs[i]->eleft->var.front() == '@')
+		{
+			std::string var = cp_sys->vars[i];
+			var.erase(0, 1);
+			cp_sys->add_equ(
+				new ExpEqu(
+					new ExpVar(var),
+					new ExpNum(args[i])
+				)
+			);
+			++j;
+		}
 	}
+
+	for (int i = 0; i < j; ++i)
+		cp_sys->equs.erase(cp_sys->equs.begin());
+
+	cp_sys->load_vars_from_equs();
+
+	double res[cp_sys->size()];
+	cp_sys->solve(res);
+
+	return res[cp_sys->size() - 1];
 }
