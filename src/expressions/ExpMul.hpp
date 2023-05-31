@@ -13,9 +13,9 @@ public:
     
 public:
     ExpMul(Exp *left, Exp *right);
-    void load_vars_into_sys(System *sys);
-    double eval(System *mother_sys, const gsl_vector *x);
-    ExpMul *deep_copy();
-    void to_latex(FILE *f);
-    void print();
+    void load_vars_into_sys(System *sys) override;
+    double eval(System *mother_sys, const gsl_vector *x) override;
+    ExpMul *deep_copy() override;
+    void to_latex(FILE *f) override;
+    void print() override;
 };
