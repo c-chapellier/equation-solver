@@ -13,6 +13,7 @@ function circle_area(d)
 
 d = 0.1
 a = circle_area(d)
-q_dot = 5 * a
+v = 5
+q_dot = v * a
 
 

@@ -15,7 +15,7 @@ SRCS = src/Expression.cpp \
 
 all:
 	mkdir -p $(BUILD_DIR)
-	bison -v -d -o $(PARSER_OUT) $(PARSER_PATH)
+	bison -v --debug -d -o $(PARSER_OUT) $(PARSER_PATH)
 	flex -o $(LEXER_OUT) $(LEXER_PATH)
 	clang++ --std=c++17 -I $(INCLUDE_DIR) -lgsl -lgslcblas -lm -o $(EXEC) $(PARSER_OUT) $(LEXER_OUT) $(SRCS)
 

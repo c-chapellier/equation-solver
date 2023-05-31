@@ -90,6 +90,12 @@ Expression *create_function_call(std::string name, std::vector<Expression *> *ar
 
 %}
 
+%define "api.pure" "full"
+%define "api.token.prefix" "T_"
+%define "api.value.type" "union"
+%define "parse.error" "detailed"
+%define "parse.trace"
+
 %union {
 	double dval;
 	char* sval;
@@ -124,50 +130,50 @@ Expression *create_function_call(std::string name, std::vector<Expression *> *ar
 %%
 
 prog:
-	| prog block 		{ debug("prog: prog block\n"); }
+	| prog block 		{ }
 ;
 
 block:
-	  func				{ debug("block: func\n"); functions.push_back((function_t *)$1); }
-	| sys				{ debug("block: sys\n"); main_sys.add_sys((System *)$1); }
+	  func				{ functions.push_back((function_t *)$1); }
+	| sys				{ main_sys.add_sys((System *)$1); }
 
 func:
 	  T_FUNC T_VAR T_LPAR args_def T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA
-	  { debug("func: \n"); $$ = create_function(std::string($2), (std::vector<std::string> *)$4, (System *)$9, (Expression *)$11); }
+	  { $$ = create_function(std::string($2), (std::vector<std::string> *)$4, (System *)$9, (Expression *)$11); }
 ;
 
 args_def:
-	  T_VAR T_COMMA args_def	{ debug("args_def: T_VAR T_COMMA args_def\n"); ((std::vector<std::string> *)$$)->push_back(std::string($1));}
-	| T_VAR						{ debug("args_def: T_VAR\n"); $$ = new std::vector<std::string>(); ((std::vector<std::string> *)$$)->push_back(std::string($1)); }
+	  T_VAR T_COMMA args_def	{ ((std::vector<std::string> *)$$)->push_back(std::string($1)); }
+	| T_VAR						{ $$ = new std::vector<std::string>(); ((std::vector<std::string> *)$$)->push_back(std::string($1)); }
 ;
 
 sys:
-	  sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE\n"); ((System *)$$)->add_equ((Expression *)$2); }
-	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE\n"); $$ = new System(); ((System *)$$)->add_equ((Expression *)$1);}
-	| sys T_NEWLINE			{ debug("sys: sys T_NEWLINE\n");  }
-	| sys T_EOF				{ debug("sys: sys T_EOF\n"); }
-	| equ T_EOF				{ debug("sys: equ T_EOF\n"); $$ = new System(); ((System *)$$)->add_equ((Expression *)$1);}
-	| T_NEWLINE				{ debug("sys: T_NEWLINE\n"); $$ = new System(); }
+	  T_NEWLINE				{ $$ = new System(); }
+	| equ T_NEWLINE			{ $$ = new System(); ((System *)$$)->add_equ((Expression *)$1); }
+	| equ T_EOF				{ $$ = new System(); ((System *)$$)->add_equ((Expression *)$1); }
+	| sys equ T_NEWLINE		{ ((System *)$$)->add_equ((Expression *)$2); }
+	| sys T_NEWLINE			{ }
+	| sys T_EOF				{ }
 ;
 
-equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp\n"); $$ = new Expression(EXPR_TYPE_EQU, 0, "", (Expression *)$1, (Expression *)$3, NULL); }
+equ: exp T_EQU exp		{ $$ = new Expression(EXPR_TYPE_EQU, 0, "", (Expression *)$1, (Expression *)$3, NULL); }
 ;
 
 exp:
-	  T_DOUBLE			{ debug("exp: T_DOUBLE\n"); $$ = new Expression(EXPR_TYPE_DOUBLE, $1, "", NULL, NULL, NULL); }
-	| T_VAR				{ debug("exp: T_VAR\n"); $$ = new Expression(EXPR_TYPE_VAR, 0, $1, NULL, NULL, NULL); }
-	| exp T_ADD exp		{ debug("exp: exp T_ADD exp\n"); $$ = new Expression(EXPR_TYPE_ADD, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
-	| exp T_SUB exp		{ debug("exp: exp T_SUB exp\n"); $$ = new Expression(EXPR_TYPE_SUB, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
-	| exp T_MUL exp		{ debug("exp: exp T_MUL exp\n"); $$ = new Expression(EXPR_TYPE_MUL, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
-	| exp T_DIV exp		{ debug("exp: exp T_DIV exp\n"); $$ = new Expression(EXPR_TYPE_DIV, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
-	| exp T_EXP exp		{ debug("exp: exp T_EXP exp\n"); $$ = new Expression(EXPR_TYPE_EXP, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
-	| T_LPAR exp T_RPAR	{ debug("exp: T_LPAR exp T_RPA\n"); $$ = new Expression(EXPR_TYPE_PAR, 0, "", (Expression *)$2, NULL, NULL) }
-	| T_VAR T_LPAR args T_RPAR	{ debug("exp: T_VAR T_LPAR args T_RPAR\n"); $$ = create_function_call(std::string($1), (std::vector<Expression *> *)$3); }
+	  T_DOUBLE			{ $$ = new Expression(EXPR_TYPE_DOUBLE, $1, "", NULL, NULL, NULL); }
+	| T_VAR				{ $$ = new Expression(EXPR_TYPE_VAR, 0, $1, NULL, NULL, NULL); }
+	| exp T_ADD exp		{ $$ = new Expression(EXPR_TYPE_ADD, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
+	| exp T_SUB exp		{ $$ = new Expression(EXPR_TYPE_SUB, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
+	| exp T_MUL exp		{ $$ = new Expression(EXPR_TYPE_MUL, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
+	| exp T_DIV exp		{ $$ = new Expression(EXPR_TYPE_DIV, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
+	| exp T_EXP exp		{ $$ = new Expression(EXPR_TYPE_EXP, 0, "", (Expression *)$1, (Expression *)$3, NULL) }
+	| T_LPAR exp T_RPAR	{ $$ = new Expression(EXPR_TYPE_PAR, 0, "", (Expression *)$2, NULL, NULL) }
+	| T_VAR T_LPAR args T_RPAR	{ $$ = create_function_call(std::string($1), (std::vector<Expression *> *)$3); }
 ;
 
 args:
-	  exp T_COMMA args	{ debug("args: exp T_COMMA args\n"); ((std::vector<Expression *> *)$$)->push_back((Expression *)$1);}
-	| exp				{ debug("args: exp\n"); $$ = new std::vector<Expression *>(); ((std::vector<Expression *> *)$$)->push_back((Expression *)$1); }
+	  exp T_COMMA args	{ ((std::vector<Expression *> *)$$)->push_back((Expression *)$1); }
+	| exp				{ $$ = new std::vector<Expression *>(); ((std::vector<Expression *> *)$$)->push_back((Expression *)$1); }
 
 %%
 
@@ -176,6 +182,8 @@ int main(int argc, char* argv[])
 	if (argc != 2)
 		fprintf(stderr, "Usage: %s <filename>\n", argv[0]), exit(1);
 
+	// yydebug = 1;
+	
 	yyin = fopen(argv[1], "r");
 	if (yyin == NULL)
 		fprintf(stderr, "Can't open file %s\n", argv[1]), exit(1);
