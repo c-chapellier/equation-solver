@@ -139,55 +139,11 @@ void yyerror(const char* s);
 
 #include "../src/System.hpp"
 
+#include "../src/Saver.hpp"
+
 System main_sys = System();
 
-std::vector<Function *> functions;
-
-Exp *create_function_call(std::string name, std::vector<Exp *> *args)
-{
-	Function *f = NULL;
-	for (int i = 0; i < functions.size(); ++i)
-		if (functions[i]->name == name)
-			f = functions[i];
-	
-	if (f == NULL)
-		yyerror("Function not found");
-
-	if (f->args_names->size() != args->size())
-		yyerror("Wrong number of arguments");
-
-	ExpFuncCall *exp = new ExpFuncCall(f->name, new System());
-
-	for (int i = 0; i < args->size(); ++i)
-		exp->args.push_back((*args)[i]);
-
-	for (int i = 0; i < f->args_names->size(); ++i)
-	{
-		if (dynamic_cast<ExpEqu *>((*args)[i]) != nullptr)
-			yyerror("Can't use equation as argument");
-
-		exp->sys->add_equ(
-			new ExpEqu(
-				new ExpVar(std::string("@") + (*f->args_names)[i]),
-				(*args)[i]
-			)
-		);
-	}
-
-	for (int i = 0; i < f->sys->size(); ++i)
-		exp->sys->add_equ(f->sys->equs[i]);
-
-	exp->sys->add_equ(
-		new ExpEqu(
-			new ExpVar(std::string("#ret")),
-			f->exp
-		)
-	);
-
-	exp->sys->load_vars_from_equs();
-
-	return exp;
-}
+std::map<std::string, Function *> funcs;
 
 
 
@@ -211,7 +167,7 @@ Exp *create_function_call(std::string name, std::vector<Exp *> *args)
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 89 "src/parser.y"
+#line 45 "src/parser.y"
 {
 	double dval;
 	char* sval;
@@ -222,7 +178,7 @@ typedef union YYSTYPE
 	void *args_val;
 }
 /* Line 193 of yacc.c.  */
-#line 226 "src/parser.cpp"
+#line 182 "src/parser.cpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -235,7 +191,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 239 "src/parser.cpp"
+#line 195 "src/parser.cpp"
 
 #ifdef short
 # undef short
@@ -529,9 +485,9 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   122,   122,   123,   127,   128,   131,   136,   137,   141,
-     142,   143,   144,   145,   146,   149,   153,   154,   155,   156,
-     157,   158,   159,   160,   161,   165,   166
+       0,    78,    78,    79,    83,    84,    87,    92,    93,    97,
+      98,    99,   100,   101,   102,   105,   109,   110,   111,   112,
+     113,   114,   115,   116,   117,   121,   122
 };
 #endif
 
@@ -1467,128 +1423,128 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 123 "src/parser.y"
+#line 79 "src/parser.y"
     { ;}
     break;
 
   case 4:
-#line 127 "src/parser.y"
-    { functions.push_back((Function *)(yyvsp[(1) - (1)].func_val)); ;}
+#line 83 "src/parser.y"
+    { funcs[((Function *)(yyvsp[(1) - (1)].func_val))->name] = (Function *)(yyvsp[(1) - (1)].func_val); ;}
     break;
 
   case 5:
-#line 128 "src/parser.y"
+#line 84 "src/parser.y"
     { main_sys.add_sys((System *)(yyvsp[(1) - (1)].sys_val)); ;}
     break;
 
   case 6:
-#line 132 "src/parser.y"
+#line 88 "src/parser.y"
     { (yyval.func_val) = new Function(std::string((yyvsp[(2) - (13)].sval)), (std::vector<std::string> *)(yyvsp[(4) - (13)].args_def_val), (System *)(yyvsp[(9) - (13)].sys_val), (Exp *)(yyvsp[(11) - (13)].exp_val)); ;}
     break;
 
   case 7:
-#line 136 "src/parser.y"
+#line 92 "src/parser.y"
     { ((std::vector<std::string> *)(yyval.args_def_val))->push_back(std::string((yyvsp[(1) - (3)].sval))); ;}
     break;
 
   case 8:
-#line 137 "src/parser.y"
+#line 93 "src/parser.y"
     { (yyval.args_def_val) = new std::vector<std::string>(); ((std::vector<std::string> *)(yyval.args_def_val))->push_back(std::string((yyvsp[(1) - (1)].sval))); ;}
     break;
 
   case 9:
-#line 141 "src/parser.y"
+#line 97 "src/parser.y"
     { (yyval.sys_val) = new System(); ;}
     break;
 
   case 10:
-#line 142 "src/parser.y"
+#line 98 "src/parser.y"
     { (yyval.sys_val) = new System(); ((System *)(yyval.sys_val))->add_equ((Exp *)(yyvsp[(1) - (2)].exp_val)); ;}
     break;
 
   case 11:
-#line 143 "src/parser.y"
+#line 99 "src/parser.y"
     { (yyval.sys_val) = new System(); ((System *)(yyval.sys_val))->add_equ((Exp *)(yyvsp[(1) - (2)].exp_val)); ;}
     break;
 
   case 12:
-#line 144 "src/parser.y"
+#line 100 "src/parser.y"
     { ((System *)(yyval.sys_val))->add_equ((Exp *)(yyvsp[(2) - (3)].exp_val)); ;}
     break;
 
   case 13:
-#line 145 "src/parser.y"
+#line 101 "src/parser.y"
     { ;}
     break;
 
   case 14:
-#line 146 "src/parser.y"
+#line 102 "src/parser.y"
     { ;}
     break;
 
   case 15:
-#line 149 "src/parser.y"
+#line 105 "src/parser.y"
     { (yyval.exp_val) = new ExpEqu((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 16:
-#line 153 "src/parser.y"
+#line 109 "src/parser.y"
     { (yyval.exp_val) = new ExpNum((yyvsp[(1) - (1)].dval)); ;}
     break;
 
   case 17:
-#line 154 "src/parser.y"
+#line 110 "src/parser.y"
     { (yyval.exp_val) = new ExpVar((yyvsp[(1) - (1)].sval)); ;}
     break;
 
   case 18:
-#line 155 "src/parser.y"
-    { (yyval.exp_val) = new ExpAdd((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)) ;}
+#line 111 "src/parser.y"
+    { (yyval.exp_val) = new ExpAdd((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 19:
-#line 156 "src/parser.y"
-    { (yyval.exp_val) = new ExpSub((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)) ;}
+#line 112 "src/parser.y"
+    { (yyval.exp_val) = new ExpSub((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 20:
-#line 157 "src/parser.y"
-    { (yyval.exp_val) = new ExpMul((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)) ;}
+#line 113 "src/parser.y"
+    { (yyval.exp_val) = new ExpMul((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 21:
-#line 158 "src/parser.y"
-    { (yyval.exp_val) = new ExpDiv((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)) ;}
+#line 114 "src/parser.y"
+    { (yyval.exp_val) = new ExpDiv((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 22:
-#line 159 "src/parser.y"
-    { (yyval.exp_val) = new ExpExp((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)) ;}
+#line 115 "src/parser.y"
+    { (yyval.exp_val) = new ExpExp((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 23:
-#line 160 "src/parser.y"
-    { (yyval.exp_val) = new ExpPar((Exp *)(yyvsp[(2) - (3)].exp_val)) ;}
+#line 116 "src/parser.y"
+    { (yyval.exp_val) = new ExpPar((Exp *)(yyvsp[(2) - (3)].exp_val)); ;}
     break;
 
   case 24:
-#line 161 "src/parser.y"
-    { (yyval.exp_val) = create_function_call(std::string((yyvsp[(1) - (4)].sval)), (std::vector<Exp *> *)(yyvsp[(3) - (4)].args_val)); ;}
+#line 117 "src/parser.y"
+    { (yyval.exp_val) = new ExpFuncCall(funcs[(yyvsp[(1) - (4)].sval)], (std::vector<Exp *> *)(yyvsp[(3) - (4)].args_val), new System()); ;}
     break;
 
   case 25:
-#line 165 "src/parser.y"
+#line 121 "src/parser.y"
     { ((std::vector<Exp *> *)(yyval.args_val))->push_back((Exp *)(yyvsp[(1) - (3)].exp_val)); ;}
     break;
 
   case 26:
-#line 166 "src/parser.y"
+#line 122 "src/parser.y"
     { (yyval.args_val) = new std::vector<Exp *>(); ((std::vector<Exp *> *)(yyval.args_val))->push_back((Exp *)(yyvsp[(1) - (1)].exp_val)); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1592 "src/parser.cpp"
+#line 1548 "src/parser.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1802,7 +1758,7 @@ yyreturn:
 }
 
 
-#line 168 "src/parser.y"
+#line 124 "src/parser.y"
 
 
 int main(int argc, char* argv[])
@@ -1836,12 +1792,10 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < main_sys.size(); ++i)
 		debug("  %s = %f\n", main_sys.vars[i].c_str(), res[i]);
 
-	if (main_sys.save_to_file(fname + ".res", res) == -1)
-		std::cerr << "Can't save results to file " << fname  + ".res" << std::endl, exit(1);
+	Saver::save_to_file(fname + ".res", funcs, main_sys, res);
 
-	if (main_sys.save_to_markdown(fname + ".md", res) == -1)
-		std::cerr << "Can't save results to file " << fname  + ".md" << std::endl, exit(1);
-	
+	Saver::save_to_markdown(fname + ".md", funcs, main_sys, res);
+
 	return 0;
 }
 

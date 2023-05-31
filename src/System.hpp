@@ -15,6 +15,8 @@
 #include "expressions/ExpPar.hpp"
 #include "expressions/ExpFuncCall.hpp"
 
+#include "Function.hpp"
+
 class System
 {
 private:
@@ -25,6 +27,7 @@ private:
 public:
     std::vector<Exp *> equs;
     std::vector<std::string> vars;
+    // std::vector<Function *> funcs;
 
 public:
     System();
@@ -35,6 +38,4 @@ public:
     void load_vars_from_equs();
     int solve(std::vector<double> &res);
     void print() const;
-    int save_to_file(const std::string &fname, const std::vector<double> &res) const;
-    int save_to_markdown(const std::string &fname, const std::vector<double> &res) const;
 };

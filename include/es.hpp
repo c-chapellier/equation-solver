@@ -8,6 +8,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <ctype.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>

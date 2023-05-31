@@ -28,55 +28,11 @@ void yyerror(const char* s);
 
 #include "../src/System.hpp"
 
+#include "../src/Saver.hpp"
+
 System main_sys = System();
 
-std::vector<Function *> functions;
-
-Exp *create_function_call(std::string name, std::vector<Exp *> *args)
-{
-	Function *f = NULL;
-	for (int i = 0; i < functions.size(); ++i)
-		if (functions[i]->name == name)
-			f = functions[i];
-	
-	if (f == NULL)
-		yyerror("Function not found");
-
-	if (f->args_names->size() != args->size())
-		yyerror("Wrong number of arguments");
-
-	ExpFuncCall *exp = new ExpFuncCall(f->name, new System());
-
-	for (int i = 0; i < args->size(); ++i)
-		exp->args.push_back((*args)[i]);
-
-	for (int i = 0; i < f->args_names->size(); ++i)
-	{
-		if (dynamic_cast<ExpEqu *>((*args)[i]) != nullptr)
-			yyerror("Can't use equation as argument");
-
-		exp->sys->add_equ(
-			new ExpEqu(
-				new ExpVar(std::string("@") + (*f->args_names)[i]),
-				(*args)[i]
-			)
-		);
-	}
-
-	for (int i = 0; i < f->sys->size(); ++i)
-		exp->sys->add_equ(f->sys->equs[i]);
-
-	exp->sys->add_equ(
-		new ExpEqu(
-			new ExpVar(std::string("#ret")),
-			f->exp
-		)
-	);
-
-	exp->sys->load_vars_from_equs();
-
-	return exp;
-}
+std::map<std::string, Function *> funcs;
 
 %}
 
@@ -124,7 +80,7 @@ prog:
 ;
 
 block:
-	  func				{ functions.push_back((Function *)$1); }
+	  func				{ funcs[((Function *)$1)->name] = (Function *)$1; }
 	| sys				{ main_sys.add_sys((System *)$1); }
 
 func:
@@ -152,13 +108,13 @@ equ: exp T_EQU exp		{ $$ = new ExpEqu((Exp *)$1, (Exp *)$3); }
 exp:
 	  T_DOUBLE			{ $$ = new ExpNum($1); }
 	| T_VAR				{ $$ = new ExpVar($1); }
-	| exp T_ADD exp		{ $$ = new ExpAdd((Exp *)$1, (Exp *)$3) }
-	| exp T_SUB exp		{ $$ = new ExpSub((Exp *)$1, (Exp *)$3) }
-	| exp T_MUL exp		{ $$ = new ExpMul((Exp *)$1, (Exp *)$3) }
-	| exp T_DIV exp		{ $$ = new ExpDiv((Exp *)$1, (Exp *)$3) }
-	| exp T_EXP exp		{ $$ = new ExpExp((Exp *)$1, (Exp *)$3) }
-	| T_LPAR exp T_RPAR	{ $$ = new ExpPar((Exp *)$2) }
-	| T_VAR T_LPAR args T_RPAR	{ $$ = create_function_call(std::string($1), (std::vector<Exp *> *)$3); }
+	| exp T_ADD exp		{ $$ = new ExpAdd((Exp *)$1, (Exp *)$3); }
+	| exp T_SUB exp		{ $$ = new ExpSub((Exp *)$1, (Exp *)$3); }
+	| exp T_MUL exp		{ $$ = new ExpMul((Exp *)$1, (Exp *)$3); }
+	| exp T_DIV exp		{ $$ = new ExpDiv((Exp *)$1, (Exp *)$3); }
+	| exp T_EXP exp		{ $$ = new ExpExp((Exp *)$1, (Exp *)$3); }
+	| T_LPAR exp T_RPAR	{ $$ = new ExpPar((Exp *)$2); }
+	| T_VAR T_LPAR args T_RPAR	{ $$ = new ExpFuncCall(funcs[$1], (std::vector<Exp *> *)$3, new System()); }
 ;
 
 args:
@@ -198,12 +154,10 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < main_sys.size(); ++i)
 		debug("  %s = %f\n", main_sys.vars[i].c_str(), res[i]);
 
-	if (main_sys.save_to_file(fname + ".res", res) == -1)
-		std::cerr << "Can't save results to file " << fname  + ".res" << std::endl, exit(1);
+	Saver::save_to_file(fname + ".res", funcs, main_sys, res);
 
-	if (main_sys.save_to_markdown(fname + ".md", res) == -1)
-		std::cerr << "Can't save results to file " << fname  + ".md" << std::endl, exit(1);
-	
+	Saver::save_to_markdown(fname + ".md", funcs, main_sys, res);
+
 	return 0;
 }
 

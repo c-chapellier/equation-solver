@@ -14,4 +14,5 @@ public:
 
 public:
     Function(std::string name, std::vector<std::string> *args_names, System* sys, Exp* exp);
+	void to_latex(std::ostream &f) const;
 };

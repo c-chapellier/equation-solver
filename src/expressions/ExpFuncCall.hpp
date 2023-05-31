@@ -5,15 +5,18 @@
 
 #include "Exp.hpp"
 
+class Function;
+
 class ExpFuncCall : public Exp
 {
 public:
     std::string var;
     System *sys;
     std::vector<Exp *> args;
+    Function *f;
     
 public:
-    ExpFuncCall(std::string var, System *sys);
+    ExpFuncCall(Function *f, std::vector<Exp *> *args, System *sys);
     void load_vars_into_sys(System *sys) const override;
     double eval(System *mother_sys, const gsl_vector *x) const override;
     ExpFuncCall *deep_copy() const override;

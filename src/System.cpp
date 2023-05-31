@@ -110,52 +110,6 @@ int System::solve(std::vector<double> &res)
     return 0;
 }
 
-int System::save_to_file(const std::string &fname, const std::vector<double> &res) const
-{
-	std::ofstream f;
-
-	f.open(fname);
-	if (!f.is_open())
-		return -1;
-
-	for (int i = 0; i < this->vars.size(); ++i)
-		f << this->vars[i] << " = " << res[i] << std::endl;
-
-	f.close();
-	return 0;
-}
-
-int System::save_to_markdown(const std::string &fname, const std::vector<double> &res) const
-{
-	std::ofstream f;
-
-	f.open(fname);
-	if (!f.is_open())
-		return -1;
-
-	f << "# " << fname << std::endl << std::endl;
-	f << "## System of equations" << std::endl << std::endl;
-	for (int i = 0; i < this->equs.size(); ++i)
-	{
-		f << "$$";
-		this->equs[i]->to_latex(f);
-		f << "$$" << std::endl << std::endl;
-	}
-
-	f << "## Solution" << std::endl << std::endl;
-	for (int i = 0; i < this->vars.size(); ++i)
-	{
-		f << "$$";
-		Latex::var_to_latex(f, this->vars[i].c_str());
-		f << " = ";
-		Latex::double_to_latex(f, res[i]);
-		f << "$$" << std::endl << std::endl;
-	}
-
-	f.close();
-	return 0;
-}
-
 void System::load_vars_from_equs()
 {
 	this->vars.clear();
@@ -183,6 +137,43 @@ double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 		fprintf(stderr, "Error: variable %s not found\n", this->var.c_str()), exit(1);
 
     return gsl_vector_get(x, var_index);
+}
+
+ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> *args, System *sys) : Exp()
+{
+	if (f->args_names->size() != args->size())
+		std::cerr << "Error: function " << f->name << " takes " << f->args_names->size() << " arguments, but " << args->size() << " were given" << std::endl, exit(1);
+
+	this->sys = sys;
+	this->f = f;
+
+	for (int i = 0; i < args->size(); ++i)
+		this->args.push_back((*args)[i]);
+
+	for (int i = 0; i < f->args_names->size(); ++i)
+	{
+		if (dynamic_cast<ExpEqu *>((*args)[i]) != nullptr)
+			std::cerr << "Error: argument " << (*f->args_names)[i] << " is an equation" << std::endl, exit(1);
+
+		this->sys->add_equ(
+			new ExpEqu(
+				new ExpVar(std::string("@") + (*f->args_names)[i]),
+				(*args)[i]
+			)
+		);
+	}
+
+	for (int i = 0; i < f->sys->size(); ++i)
+		this->sys->add_equ(f->sys->equs[i]);
+
+	this->sys->add_equ(
+		new ExpEqu(
+			new ExpVar(std::string("#ret")),
+			f->exp
+		)
+	);
+
+	this->sys->load_vars_from_equs();
 }
 
 double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
@@ -232,7 +223,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 
 ExpFuncCall *ExpFuncCall::deep_copy() const
 {
-	ExpFuncCall *exp = new ExpFuncCall(this->var, NULL);
+	ExpFuncCall *exp = new ExpFuncCall(this->f, NULL, NULL);
 
     exp->sys = new System();
 	for (int i = 0; i < this->sys->size(); ++i)
@@ -241,9 +232,23 @@ ExpFuncCall *ExpFuncCall::deep_copy() const
 	return exp;
 }
 
+void ExpFuncCall::to_latex(std::ofstream &f) const
+{
+	Latex::var_to_latex(f, this->f->name);
+
+	f << "\\left(\n";
+	for (int i = 0; i < this->args.size(); ++i)
+	{
+		this->args[i]->to_latex(f);
+		if (i != this->args.size() - 1)
+			f << ", ";
+	}
+	f << "\\right)";
+}
+
 void ExpFuncCall::print() const
 {
-	printf("%s(\n", this->var.c_str());
+	std::cout << this->f->name << "(";
 	this->sys->print();
-	printf(")\n");
+	std::cout << ")";
 }
