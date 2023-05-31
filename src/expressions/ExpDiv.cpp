@@ -23,13 +23,9 @@ ExpDiv *ExpDiv::deep_copy() const
 	return new ExpDiv(this->eleft->deep_copy(), this->eright->deep_copy());
 }
 
-void ExpDiv::to_latex(std::ofstream &f) const
+std::string ExpDiv::to_latex() const
 {
-	f << "\\frac{";
-	this->eleft->to_latex(f);
-	f << "}{";
-	this->eright->to_latex(f);
-	f << "}";
+	return std::string("\\frac{") + this->eleft->to_latex() + "}{" + this->eright->to_latex() + "}";
 }
 
 void ExpDiv::print() const

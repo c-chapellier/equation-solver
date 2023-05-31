@@ -232,18 +232,19 @@ ExpFuncCall *ExpFuncCall::deep_copy() const
 	return exp;
 }
 
-void ExpFuncCall::to_latex(std::ofstream &f) const
+std::string ExpFuncCall::to_latex() const
 {
-	Latex::var_to_latex(f, this->f->name);
+	std::string ret = Latex::var_to_latex(this->f->name);
 
-	f << "\\left(\n";
+	ret += "\\left(\n";
 	for (int i = 0; i < this->args.size(); ++i)
 	{
-		this->args[i]->to_latex(f);
+		ret += this->args[i]->to_latex();
 		if (i != this->args.size() - 1)
-			f << ", ";
+			ret += ", ";
 	}
-	f << "\\right)";
+	ret += "\\right)";
+	return ret;
 }
 
 void ExpFuncCall::print() const
@@ -251,4 +252,22 @@ void ExpFuncCall::print() const
 	std::cout << this->f->name << "(";
 	this->sys->print();
 	std::cout << ")";
+}
+
+std::string Function::to_latex() const
+{
+    std::string res = "";
+    res += "" + Latex::var_to_latex(this->name) + "(";
+    for (int i = 0; i < this->args_names->size(); ++i)
+    {
+        res += this->args_names->at(i);
+        if (i != this->args_names->size() - 1)
+            res += ", ";
+    }
+    res += ")\\\\ \\{ \\\\";
+    for (int i = 0; i < this->sys->equs.size(); ++i)
+        res += this->sys->equs[i]->to_latex() + "\\\\";
+    res += "return(" + this->exp->to_latex() + ")\\\\";
+    res += "\\}";
+    return res;
 }

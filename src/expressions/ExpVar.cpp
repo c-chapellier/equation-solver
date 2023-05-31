@@ -11,9 +11,9 @@ ExpVar *ExpVar::deep_copy() const
 	return new ExpVar(this->var);
 }
 
-void ExpVar::to_latex(std::ofstream &f) const
+std::string ExpVar::to_latex() const
 {
-	Latex::var_to_latex(f, this->var.c_str());
+	return Latex::var_to_latex(this->var.c_str());
 }
 
 void ExpVar::print() const

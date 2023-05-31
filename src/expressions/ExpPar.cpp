@@ -21,11 +21,9 @@ ExpPar *ExpPar::deep_copy() const
 	return new ExpPar(this->eleft->deep_copy());
 }
 
-void ExpPar::to_latex(std::ofstream &f) const
+std::string ExpPar::to_latex() const
 {
-	f << "\\left(";
-	this->eleft->to_latex(f);
-	f << "\\right)";
+	return std::string("\\left(") + this->eleft->to_latex() + "\\right)";
 }
 
 void ExpPar::print() const

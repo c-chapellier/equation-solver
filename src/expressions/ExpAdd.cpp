@@ -23,11 +23,9 @@ ExpAdd *ExpAdd::deep_copy() const
 	return new ExpAdd(this->eleft->deep_copy(), this->eright->deep_copy());
 }
 
-void ExpAdd::to_latex(std::ofstream &f) const
+std::string ExpAdd::to_latex() const
 {
-	this->eleft->to_latex(f);
-	f << " + ";
-	this->eright->to_latex(f);
+	return this->eleft->to_latex() + " + " + this->eright->to_latex();
 }
 
 void ExpAdd::print() const

@@ -23,11 +23,9 @@ ExpSub *ExpSub::deep_copy() const
 	return new ExpSub(this->eleft->deep_copy(), this->eright->deep_copy());
 }
 
-void ExpSub::to_latex(std::ofstream &f) const
+std::string ExpSub::to_latex() const
 {
-	this->eleft->to_latex(f);
-    f << " - ";
-	this->eright->to_latex(f);
+	return this->eleft->to_latex() + " - " + this->eright->to_latex();
 }
 
 void ExpSub::print() const

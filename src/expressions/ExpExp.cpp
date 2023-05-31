@@ -23,12 +23,9 @@ ExpExp *ExpExp::deep_copy() const
 	return new ExpExp(this->eleft->deep_copy(), this->eright->deep_copy());
 }
 
-void ExpExp::to_latex(std::ofstream &f) const
+std::string ExpExp::to_latex() const
 {
-	this->eleft->to_latex(f);
-	f << "^{";
-	this->eright->to_latex(f);
-	f << "}";
+	return this->eleft->to_latex() + "^{" + this->eright->to_latex() + "}";
 }
 
 void ExpExp::print() const

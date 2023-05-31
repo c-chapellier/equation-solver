@@ -95,6 +95,9 @@
         "shared_mutex": "cpp",
         "stop_token": "cpp",
         "thread": "cpp",
-        "alignedvector3": "cpp"
+        "alignedvector3": "cpp",
+        "strstream": "cpp",
+        "typeindex": "cpp",
+        "source_location": "cpp"
     }
 }

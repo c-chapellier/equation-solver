@@ -23,11 +23,9 @@ ExpEqu *ExpEqu::deep_copy() const
 	return new ExpEqu(this->eleft->deep_copy(), this->eright->deep_copy());
 }
 
-void ExpEqu::to_latex(std::ofstream &f) const
+std::string ExpEqu::to_latex() const
 {
-	this->eleft->to_latex(f);
-    f << " = ";
-	this->eright->to_latex(f);
+	return this->eleft->to_latex() + " = " + this->eright->to_latex();
 }
 
 void ExpEqu::print() const

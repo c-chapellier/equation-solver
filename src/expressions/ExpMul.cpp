@@ -23,11 +23,9 @@ ExpMul *ExpMul::deep_copy() const
 	return new ExpMul(this->eleft->deep_copy(), this->eright->deep_copy());
 }
 
-void ExpMul::to_latex(std::ofstream &f) const
+std::string ExpMul::to_latex() const
 {
-    this->eleft->to_latex(f);
-	f << " \\cdot ";
-	this->eright->to_latex(f);
+    return this->eleft->to_latex() + " \\cdot " + this->eright->to_latex();
 }
 
 void ExpMul::print() const

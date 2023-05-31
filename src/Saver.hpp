@@ -35,7 +35,7 @@ public:
         for (auto it = funcs.begin(); it != funcs.end(); ++it)
         {
             f << "$$";
-            it->second->to_latex(f);
+            f << it->second->to_latex();
             f << "$$" << std::endl << std::endl;
         }
 
@@ -43,7 +43,7 @@ public:
         for (int i = 0; i < sys.equs.size(); ++i)
         {
             f << "$$";
-            sys.equs[i]->to_latex(f);
+            f << sys.equs[i]->to_latex();
             f << "$$" << std::endl << std::endl;
         }
 
@@ -51,9 +51,9 @@ public:
         for (int i = 0; i < sys.vars.size(); ++i)
         {
             f << "$$";
-            Latex::var_to_latex(f, sys.vars[i].c_str());
+            f << Latex::var_to_latex(sys.vars[i].c_str());
             f << " = ";
-            Latex::double_to_latex(f, res[i]);
+            f << Latex::double_to_latex(res[i]);
             f << "$$" << std::endl << std::endl;
         }
 

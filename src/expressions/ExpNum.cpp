@@ -21,9 +21,9 @@ ExpNum *ExpNum::deep_copy() const
 	return new ExpNum(this->dval);
 }
 
-void ExpNum::to_latex(std::ofstream &f) const
+std::string ExpNum::to_latex() const
 {
-	Latex::double_to_latex(f, this->dval);
+	return Latex::double_to_latex(this->dval);
 }
 
 void ExpNum::print() const
