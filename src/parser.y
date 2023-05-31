@@ -24,33 +24,17 @@ void yyerror(const char* s);
 #include "../src/expressions/ExpPar.hpp"
 #include "../src/expressions/ExpFuncCall.hpp"
 
+#include "../src/Function.hpp"
+
 #include "../src/System.hpp"
 
 System main_sys = System();
 
-typedef struct
-{
-	std::string name;
-	std::vector<std::string> *args_names;
-	System* sys;
-	Exp* exp;
-} function_t;
-
-function_t *create_function(std::string name, std::vector<std::string> *args_names, System* sys, Exp* exp)
-{
-	function_t *f = (function_t *)malloc(sizeof (function_t));
-	f->name = name;
-	f->args_names = args_names;
-	f->sys = sys;
-	f->exp = exp;
-	return f;
-}
-
-std::vector<function_t *> functions;
+std::vector<Function *> functions;
 
 Exp *create_function_call(std::string name, std::vector<Exp *> *args)
 {
-	function_t *f = NULL;
+	Function *f = NULL;
 	for (int i = 0; i < functions.size(); ++i)
 		if (functions[i]->name == name)
 			f = functions[i];
@@ -140,12 +124,12 @@ prog:
 ;
 
 block:
-	  func				{ functions.push_back((function_t *)$1); }
+	  func				{ functions.push_back((Function *)$1); }
 	| sys				{ main_sys.add_sys((System *)$1); }
 
 func:
 	  T_FUNC T_VAR T_LPAR args_def T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA
-	  { $$ = create_function(std::string($2), (std::vector<std::string> *)$4, (System *)$9, (Exp *)$11); }
+	  { $$ = new Function(std::string($2), (std::vector<std::string> *)$4, (System *)$9, (Exp *)$11); }
 ;
 
 args_def:

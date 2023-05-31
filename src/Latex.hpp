@@ -18,19 +18,6 @@ public:
 
     static void double_to_latex(std::ofstream &f, double n)
     {
-        // char s[50];
-        // snprintf(s, 50, "%f", n);
-
-        // int i = strlen(s);
-        // while (s[i - 1] == '0')
-        //     i--;
-        // if (s[i - 1] == '.')
-        //     i--;
-
-        // s[i] = '\0';
-
-        // fprintf(f, "%s", s);
-
         f << n;
     }
 };
