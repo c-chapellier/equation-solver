@@ -54,19 +54,18 @@ l_conduites_sanitaires = 20
 l_conduites_ext = 0.5
  
 "Conditions de pression"
-{q_supply = 1 "Doit etre entre -5 et 10"}
  
 "Qualite de l'air et debit de conception minimal (en air neuf)"
 n_athletes_recommande = (salle_aire + couloir_aire) / 10
 n_athletes = 10
-met_muscu = 5.95 {https://www.regivia.com/comment-maigrir-conseils-solutions-trucs-et-astuces/information/quest-ce-que-la-valeur-met-metabolic-equivalent-of-task-ou-equivalent-metabolique/}
+met_muscu = 5.95
 salle_q_min = 22 * n_athletes * (met_muscu / 1.2)
  
 toilettes_q_min = 25
 
 function max(a, b)
 {
-    return ((a - b) / (2*abs(a - b)) + 0.5) * a + ((b - a) / (2*abs(a - b)) + 0.5) * b
+    return (a + b + abs(a - b)) / 2
 }
 
 vestiaire_homme_q_min_calc = 5 * vestiaire_homme_aire
@@ -77,6 +76,13 @@ vestiaire_femme_q_min = max(vestiaire_femme_q_min_calc, 50)
  
 q_tot_min =  salle_q_min + 2*toilettes_q_min + vestiaire_homme_q_min + vestiaire_femme_q_min
  
+PI = 3.1416
+
+function sqrt(x)
+{
+    return x^0.5;
+}
+
 "Reseau"
 d_conduites_salle_min = 2 * sqrt(salle_q_min / (v_air_max_mh * PI))
 d_conduites_salle_std = 0.315
@@ -84,7 +90,7 @@ d_conduites_salle_std = 0.315
 q_conduites_sanitaires = 2*toilettes_q_min + vestiaire_homme_q_min + vestiaire_femme_q_min
 d_conduites_sanitaires_min = 2 * sqrt(q_conduites_sanitaires / (v_air_max_mh * PI))
 d_conduites_sanitaires_std = 0.125
- 
+
 "Pertes de charge"
 m_dot_air_salle = rho_air*salle_q_min / 3600
 Call pipeflow('Air', T, P, m_dot_air_salle, d_conduites_salle_std, l_conduites_salle, Rr_inox: , , DELTA_P_conduites_salle, , , )
@@ -107,7 +113,6 @@ DELTA_P_sanitaires = DELTA_P_conduites_sanitaires + 3*DELTA_P_petit_coude + 4*DE
 DELTA_P_ext = DELTA_P_conduites_ext + DELTA_P_sorties
  
 "Pertes de chaleur"
-{https://energieplus-lesite.be/ameliorer/ventilation11/placer-un-recuperateur-de-chaleur-d1/}
 air_chaleur_volumique = 0.34
 Q_dot_ventilation = (18) * air_chaleur_volumique * q_tot_min
 rendement_chauffage = 0.7

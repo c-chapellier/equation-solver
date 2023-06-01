@@ -4,15 +4,14 @@
 
 $$abs(x)\\ \{ \\return(\mid x \mid)\\\}$$
 
-$$max(a, b)\\ \{ \\return(\frac{\left(a + b + abs\left(
-a - b\right)\right)}{2})\\\}$$
+$$sqrt(x)\\ \{ \\return(x^{0.5})\\\}$$
 
 ## System of equations
 
-$$r = max\left(
-3, 2\right)$$
+$$r = sqrt\left(
+4\right)$$
 
 ## Solution
 
-$$r = 3$$
+$$r = 2$$
 

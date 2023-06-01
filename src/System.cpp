@@ -82,7 +82,7 @@ int System::solve(std::vector<double> &res)
     
     gsl_vector *x = gsl_vector_alloc(this->equs.size());
     for (int i = 0; i < this->equs.size(); i++)
-        gsl_vector_set(x, i, 0.0); // 3rd arg is initial guess
+        gsl_vector_set(x, i, 1.); // 3rd arg is initial guess
 
     gsl_multiroot_fsolver_set(s, &f, x);
 

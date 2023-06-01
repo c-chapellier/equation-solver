@@ -1,7 +1,7 @@
 
-function max(a, b)
+function sqrt(x)
 {
-    return (a + b + abs(a - b)) / 2
+    return x^0.5;
 }
 
-r = max(2, 3)
+r = sqrt(4)
