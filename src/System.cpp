@@ -299,10 +299,10 @@ std::string Function::to_latex() const
         if (i != this->args_names->size() - 1)
             res += ", ";
     }
-    res += ")\\\\ \\{ \\\\";
+	res += ")";
+    if (this->sys->equs.size() > 0) res += ":";
     for (int i = 0; i < this->sys->equs.size(); ++i)
-        res += this->sys->equs[i]->to_latex() + "\\\\";
-    res += "return(" + this->exp->to_latex() + ")\\\\";
-    res += "\\}";
+        res += this->sys->equs[i]->to_latex() + " ; ";
+    res += " \\rArr " + this->exp->to_latex() + "";
     return res;
 }
