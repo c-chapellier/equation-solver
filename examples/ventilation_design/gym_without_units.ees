@@ -64,8 +64,10 @@ salle_q_min = 22 * n_athletes * (met_muscu / 1.2)
  
 toilettes_q_min = 25
 
-def abs(a) = sqrt(a * a)
-def max(a, b) = ((a - b) / (2*abs(a - b)) + 0.5) * a + ((b - a) / (2*abs(a - b)) + 0.5) * b
+function max(a, b)
+{
+    return ((a - b) / (2*abs(a - b)) + 0.5) * a + ((b - a) / (2*abs(a - b)) + 0.5) * b
+}
 
 vestiaire_homme_q_min_calc = 5 * vestiaire_homme_aire
 vestiaire_homme_q_min = max(vestiaire_homme_q_min_calc, 50)

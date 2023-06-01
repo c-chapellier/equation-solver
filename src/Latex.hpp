@@ -18,6 +18,14 @@ public:
 
     static std::string double_to_latex(double n)
     {
-        return std::to_string(n);
+        std::string s = std::to_string(n);
+
+        while (s.back() == '0')
+            s.pop_back();
+
+        if (s.back() == '.')
+            s.pop_back();
+
+        return s;
     }
 };

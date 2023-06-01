@@ -1,19 +1,7 @@
 
-"
-d = 0.1
-a = 3.1416 * (d / 2)^2
-q_dot = 5 * a
-"
-
-function circle_area(d)
+function max(a, b)
 {
-    a = 3.1416 * (d / 2)^2
-    return a
+    return (a + b + abs(a - b)) / 2
 }
 
-d = 0.1
-a = circle_area(d)
-v = 5
-q_dot = v * a
-
-
+r = max(2, 3)

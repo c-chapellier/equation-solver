@@ -802,88 +802,88 @@ YY_RULE_SETUP
 case 3:
 YY_RULE_SETUP
 #line 25 "src/lexer.l"
-return T_FUNC;
+{ debug("T_FUNC\n"); return T_FUNC; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 26 "src/lexer.l"
-return T_RETURN;
+{ debug("T_RETURN\n"); return T_RETURN; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 27 "src/lexer.l"
-{ yylval.sval = strdup(yytext); return T_VAR; }
+{ yylval.sval = strdup(yytext); debug("T_VAR(%s)\n", yylval.sval); return T_VAR; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 28 "src/lexer.l"
-{ yylval.dval = atof(yytext); return T_DOUBLE; }
+{ yylval.dval = atof(yytext); debug("T_VAR(%f)\n", yylval.dval); return T_DOUBLE; }
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
 #line 29 "src/lexer.l"
-return T_NEWLINE;
+{ debug("T_NEWLINE\n"); return T_NEWLINE; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 30 "src/lexer.l"
-return T_EQU;
+{ debug("T_EQU\n"); return T_EQU; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 31 "src/lexer.l"
-return T_ADD;
+{ debug("T_ADD\n"); return T_ADD; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 32 "src/lexer.l"
-return T_SUB;
+{ debug("T_SUB\n"); return T_SUB; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 33 "src/lexer.l"
-return T_MUL;
+{ debug("T_MUL\n"); return T_MUL; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 34 "src/lexer.l"
-return T_DIV;
+{ debug("T_DIV\n"); return T_DIV; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 35 "src/lexer.l"
-return T_EXP;
+{ debug("T_EXP\n"); return T_EXP; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 36 "src/lexer.l"
-return T_LPAR;
+{ debug("T_LPAR\n"); return T_LPAR; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 37 "src/lexer.l"
-return T_RPAR;
+{ debug("T_RPAR\n"); return T_RPAR; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 38 "src/lexer.l"
-return T_COMMA;
+{ debug("T_COMMA\n"); return T_COMMA; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 39 "src/lexer.l"
-return T_LBRA;
+{ debug("T_LBRA\n"); return T_LBRA; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 40 "src/lexer.l"
-return T_RBRA;
+{ debug("T_RBRA\n"); return T_RBRA; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 41 "src/lexer.l"
-return T_EOF;
+{ debug("T_EOF\n"); return T_EOF; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP

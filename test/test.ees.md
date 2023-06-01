@@ -2,26 +2,17 @@
 
 ## Functions
 
-$$circle_{area}(d)\\ \{ \\a = 3.141600 \cdot \left(\frac{d}{2.000000}\right)^{2.000000}\\return(a)\\\}$$
+$$abs(x)\\ \{ \\return(\mid x \mid)\\\}$$
+
+$$max(a, b)\\ \{ \\return(\frac{\left(a + b + abs\left(
+a - b\right)\right)}{2})\\\}$$
 
 ## System of equations
 
-$$d = 0.100000$$
-
-$$a = circle_{area}\left(
-d\right)$$
-
-$$v = 5.000000$$
-
-$$q_{dot} = v \cdot a$$
+$$r = max\left(
+3, 2\right)$$
 
 ## Solution
 
-$$d = 0.100000$$
-
-$$a = 0.007854$$
-
-$$v = 5.000000$$
-
-$$q_{dot} = 0.039270$$
+$$r = 3$$
 

@@ -30,8 +30,8 @@ void System::add_sys(System *sys)
 {
 	for (int i = 0; i < sys->equs.size(); ++i)
 		this->add_equ(sys->equs[i]);
-	for (int i = 0; i < sys->vars.size(); ++i)
-		this->add_var(sys->vars[i]);
+	// for (int i = 0; i < sys->vars.size(); ++i)
+	// 	this->add_var(sys->vars[i]);
 }
 
 void System::print() const
@@ -118,6 +118,18 @@ void System::load_vars_from_equs()
 		this->equs[i]->load_vars_into_sys(this);
 }
 
+System *System::deep_copy() const
+{
+	System *cp_sys = new System();
+
+	for (int i = 0; i < this->equs.size(); ++i)
+		cp_sys->add_equ(this->equs[i]->deep_copy());
+	
+	cp_sys->load_vars_from_equs();
+	
+	return cp_sys;
+}
+
 void ExpVar::load_vars_into_sys(System *sys) const
 {
 	sys->add_var(this->var);
@@ -182,11 +194,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	for (int i = 0; i < this->args.size(); ++i)
 		args.push_back(this->args[i]->eval(mother_sys, x));
 	
-	System *cp_sys = new System();
-
-	for (int i = 0; i < this->sys->size(); ++i)
-		cp_sys->add_equ(this->sys->equs[i]->deep_copy());
-	cp_sys->load_vars_from_equs();
+	System *cp_sys = this->sys->deep_copy();
 
 	int j = 0;
 	for (int i = 0; i < cp_sys->equs.size(); ++i)
@@ -218,18 +226,23 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	std::vector<double> res;
 	cp_sys->solve(res);
 
-	return res[cp_sys->size() - 1];
+	return res[0];
 }
 
 ExpFuncCall *ExpFuncCall::deep_copy() const
 {
-	ExpFuncCall *exp = new ExpFuncCall(this->f, NULL, NULL);
+	std::vector<Exp *> cp_args = std::vector<Exp *>();
 
-    exp->sys = new System();
-	for (int i = 0; i < this->sys->size(); ++i)
-		exp->sys->add_equ(this->sys->equs[i]->deep_copy());
-	
-	return exp;
+	for (int i = 0; i < this->args.size(); ++i)
+		cp_args.push_back(this->args[i]->deep_copy());
+
+	ExpFuncCall *ret = new ExpFuncCall();
+
+	ret->f = this->f->deep_copy();
+	ret->args = cp_args;
+	ret->sys = this->sys->deep_copy();
+
+	return ret;
 }
 
 std::string ExpFuncCall::to_latex() const
@@ -252,6 +265,28 @@ void ExpFuncCall::print() const
 	std::cout << this->f->name << "(";
 	this->sys->print();
 	std::cout << ")";
+}
+
+Function *Function::deep_copy() const
+{
+    std::vector<std::string> *cp_args_names = new std::vector<std::string>();
+    for (int i = 0; i < this->args_names->size(); ++i)
+        cp_args_names->push_back(this->args_names->at(i));
+
+    return new Function(this->name, cp_args_names, this->sys->deep_copy(), this->exp->deep_copy());
+}
+
+void Function::print() const
+{
+    std::cerr << "Function: " << this->name << std::endl;
+    std::cerr << "Args " << this->args_names << " ";
+    for (int i = 0; i < this->args_names->size(); ++i)
+        std::cerr << (*this->args_names)[i] << " ";
+    std::cerr << std::endl;
+    std::cerr << "Fn system: " << std::endl;
+   	this->sys->print();
+    std::cerr << "Expression: " << std::endl;
+    this->exp->print();
 }
 
 std::string Function::to_latex() const

@@ -70,7 +70,7 @@ $(BIN_PATH)/$(BIN_NAME): $(OBJECTS)
 .PHONY: bison
 bison:
 	@echo "Bison: $(PARSER_PATH) -> $(PARSER_OUT)"
-	bison -d -o $(PARSER_OUT) $(PARSER_PATH)
+	bison --debug -d -o $(PARSER_OUT) $(PARSER_PATH)
 
 .PHONY: flex
 flex:

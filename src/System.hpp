@@ -14,6 +14,7 @@
 #include "expressions/ExpExp.hpp"
 #include "expressions/ExpPar.hpp"
 #include "expressions/ExpFuncCall.hpp"
+#include "expressions/ExpAbs.hpp"
 
 #include "Function.hpp"
 
@@ -27,7 +28,6 @@ private:
 public:
     std::vector<Exp *> equs;
     std::vector<std::string> vars;
-    // std::vector<Function *> funcs;
 
 public:
     System();
@@ -38,4 +38,5 @@ public:
     void load_vars_from_equs();
     int solve(std::vector<double> &res);
     void print() const;
+    System *deep_copy() const;
 };

@@ -23,6 +23,7 @@ void yyerror(const char* s);
 #include "../src/expressions/ExpExp.hpp"
 #include "../src/expressions/ExpPar.hpp"
 #include "../src/expressions/ExpFuncCall.hpp"
+#include "../src/expressions/ExpAbs.hpp"
 
 #include "../src/Function.hpp"
 
@@ -47,7 +48,7 @@ std::map<std::string, Function *> funcs;
 	char* sval;
 	void *exp_val;
 	void *sys_val;
-	void *args_def_val;
+	void *args_names_val;
 	void *func_val;
 	void *args_val;
 }
@@ -67,7 +68,7 @@ std::map<std::string, Function *> funcs;
 %type<exp_val> exp
 %type<exp_val> equ
 %type<sys_val> sys
-%type<args_def_val> args_def
+%type<args_names_val> args_names
 %type<func_val> func
 %type<args_val> args
 
@@ -80,46 +81,46 @@ prog:
 ;
 
 block:
-	  func				{ funcs[((Function *)$1)->name] = (Function *)$1; }
-	| sys				{ main_sys.add_sys((System *)$1); }
+	  func				{ debug("block: func\n"); funcs[((Function *)$1)->name] = (Function *)$1; }
+	| sys				{ debug("block: sys\n"); main_sys.add_sys((System *)$1); }
 
 func:
-	  T_FUNC T_VAR T_LPAR args_def T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA
-	  { $$ = new Function(std::string($2), (std::vector<std::string> *)$4, (System *)$9, (Exp *)$11); }
+	  T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), (std::vector<std::string> *)$4, (System *)$9, (Exp *)$11); }
+	| T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), (std::vector<std::string> *)$4, new System(), (Exp *)$10); }
 ;
 
-args_def:
-	  T_VAR T_COMMA args_def	{ ((std::vector<std::string> *)$$)->push_back(std::string($1)); }
-	| T_VAR						{ $$ = new std::vector<std::string>(); ((std::vector<std::string> *)$$)->push_back(std::string($1)); }
+args_names:
+	  T_VAR T_COMMA args_names	{ debug("args_names: T_VAR T_COMMA args_names\n"); $$ = $3; ((std::vector<std::string> *)$$)->insert(((std::vector<std::string> *)$$)->begin(), std::string($1)); }
+	| T_VAR						{ debug("args_names: T_VAR\n"); $$ = new std::vector<std::string>(); ((std::vector<std::string> *)$$)->insert(((std::vector<std::string> *)$$)->begin(), std::string($1)); }
 ;
 
 sys:
-	  T_NEWLINE				{ $$ = new System(); }
-	| equ T_NEWLINE			{ $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
-	| equ T_EOF				{ $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
-	| sys equ T_NEWLINE		{ ((System *)$$)->add_equ((Exp *)$2); }
-	| sys T_NEWLINE			{ }
-	| sys T_EOF				{ }
+	  T_NEWLINE				{ debug("sys: T_NEWLINE\n"); $$ = new System(); }
+	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE\n"); $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
+	| equ T_EOF				{ debug("sys: equ T_EOF\n"); $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
+	| sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE\n"); ((System *)$1)->add_equ((Exp *)$2); }
+	| sys T_NEWLINE			{ debug("sys: sys T_NEWLINE\n"); }
+	| sys T_EOF				{ debug("sys: sys T_EOF\n"); }
 ;
 
-equ: exp T_EQU exp		{ $$ = new ExpEqu((Exp *)$1, (Exp *)$3); }
+equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp\n"); $$ = new ExpEqu((Exp *)$1, (Exp *)$3); }
 ;
 
 exp:
-	  T_DOUBLE			{ $$ = new ExpNum($1); }
-	| T_VAR				{ $$ = new ExpVar($1); }
-	| exp T_ADD exp		{ $$ = new ExpAdd((Exp *)$1, (Exp *)$3); }
-	| exp T_SUB exp		{ $$ = new ExpSub((Exp *)$1, (Exp *)$3); }
-	| exp T_MUL exp		{ $$ = new ExpMul((Exp *)$1, (Exp *)$3); }
-	| exp T_DIV exp		{ $$ = new ExpDiv((Exp *)$1, (Exp *)$3); }
-	| exp T_EXP exp		{ $$ = new ExpExp((Exp *)$1, (Exp *)$3); }
-	| T_LPAR exp T_RPAR	{ $$ = new ExpPar((Exp *)$2); }
-	| T_VAR T_LPAR args T_RPAR	{ $$ = new ExpFuncCall(funcs[$1], (std::vector<Exp *> *)$3, new System()); }
+	  T_DOUBLE			{ debug("exp: T_DOUBLE(%f)\n", $1); $$ = new ExpNum($1); }
+	| T_VAR				{ debug("exp: T_VAR(%s)\n", $1); $$ = new ExpVar($1); }
+	| exp T_ADD exp		{ debug("exp: exp T_ADD exp\n"); $$ = new ExpAdd((Exp *)$1, (Exp *)$3); }
+	| exp T_SUB exp		{ debug("exp: exp T_SUB exp\n"); $$ = new ExpSub((Exp *)$1, (Exp *)$3); }
+	| exp T_MUL exp		{ debug("exp: exp T_MUL exp\n"); $$ = new ExpMul((Exp *)$1, (Exp *)$3); }
+	| exp T_DIV exp		{ debug("exp: exp T_DIV exp\n"); $$ = new ExpDiv((Exp *)$1, (Exp *)$3); }
+	| exp T_EXP exp		{ debug("exp: exp T_EXP exp\n"); $$ = new ExpExp((Exp *)$1, (Exp *)$3); }
+	| T_LPAR exp T_RPAR	{ debug("exp: T_LPAR exp T_RPAR\n"); $$ = new ExpPar((Exp *)$2); }
+	| T_VAR T_LPAR args T_RPAR	{ debug("exp: T_VAR T_LPAR args T_RPAR\n"); $$ = new ExpFuncCall(funcs[$1], (std::vector<Exp *> *)$3, new System()); }
 ;
 
 args:
-	  exp T_COMMA args	{ ((std::vector<Exp *> *)$$)->push_back((Exp *)$1); }
-	| exp				{ $$ = new std::vector<Exp *>(); ((std::vector<Exp *> *)$$)->push_back((Exp *)$1); }
+	  exp T_COMMA args	{ debug("args: exp T_COMMA args\n"); $$ = $3; ((std::vector<Exp *> *)$$)->push_back((Exp *)$1); }
+	| exp				{ debug("args: exp\n"); $$ = new std::vector<Exp *>(); ((std::vector<Exp *> *)$$)->push_back((Exp *)$1); }
 
 %%
 
@@ -128,13 +129,13 @@ int main(int argc, char* argv[])
 	if (argc != 2)
 		std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl, exit(1);
 
-	// yydebug = 1;
-
 	std::string fname(argv[1]);
 	
 	yyin = fopen(argv[1], "r");
 	if (yyin == NULL)
 		std::cerr << "Can't open file " << argv[1] << std::endl, exit(1);
+
+	funcs["abs"] = new Function("abs", new std::vector<std::string>({ "x" }), new System(), new ExpAbs());
 
 	do
 		yyparse();
@@ -144,6 +145,7 @@ int main(int argc, char* argv[])
 
 	main_sys.load_vars_from_equs();
 
+	printf("----------- SYSTEM PARSED ------------\n");
 	main_sys.print();
 	printf("----------- SOLVE ------------\n");
 
