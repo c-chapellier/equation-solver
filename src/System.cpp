@@ -206,11 +206,11 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 		ExpVar *var = dynamic_cast<ExpVar *>(equ->eleft);
 		if (var != nullptr && var->var.front() == '@')
 		{
-			std::string var = cp_sys->vars[i];
-			var.erase(0, 1);
+			std::string new_name = var->var;
+			
 			cp_sys->add_equ(
 				new ExpEqu(
-					new ExpVar(var),
+					new ExpVar(new_name.erase(0, 1)),
 					new ExpNum(args[i])
 				)
 			);

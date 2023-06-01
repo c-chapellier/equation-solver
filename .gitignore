@@ -1,2 +1,4 @@
 build/
 es
+**/**.ees.md
+**/**.ees.res

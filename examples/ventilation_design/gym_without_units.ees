@@ -93,32 +93,39 @@ d_conduites_sanitaires_std = 0.125
 
 "Pertes de charge"
 m_dot_air_salle = rho_air*salle_q_min / 3600
-Call pipeflow('Air', T, P, m_dot_air_salle, d_conduites_salle_std, l_conduites_salle, Rr_inox: , , DELTA_P_conduites_salle, , , )
- 
+
+"Call pipeflow('Air', T, P, m_dot_air_salle, d_conduites_salle_std, l_conduites_salle, Rr_inox: , , DELTA_P_conduites_salle, , , )"
+DELTA_P_conduites_salle = 5.379
+
 m_dot_air_sanitaires = rho_air*q_conduites_sanitaires / 3600
-Call pipeflow('Air', T, P, m_dot_air_sanitaires, d_conduites_sanitaires_std, l_conduites_sanitaires, Rr_inox: , , DELTA_P_conduites_sanitaires, , , )
- 
+"Call pipeflow('Air', T, P, m_dot_air_sanitaires, d_conduites_sanitaires_std, l_conduites_sanitaires, Rr_inox: , , DELTA_P_conduites_sanitaires, , , )"
+DELTA_P_conduites_sanitaires = 21.09
+
 m_dot_air_ext = m_dot_air_salle + m_dot_air_sanitaires
-Call pipeflow('Air', T, P,m_dot_air_ext, d_conduites_salle_std, l_conduites_ext, Rr_inox: , , DELTA_P_conduites_ext, , , )
- 
-DELTA_P_petit_coude = k_90deg_bend(r_petit_coude, d_conduites_sanitaires_std, Rr_inox) * v_air_max_ms^2 / (2 * g#) * rho_air * g#
-DELTA_P_grand_coude = k_90deg_bend(r_grand_coude, d_conduites_salle_std, Rr_inox) * v_air_max_ms^2 / (2 * g#) * rho_air * g#
- 
-DELTA_P_entrees_salle = k_sharp_edged_pipe_inlet(d_conduites_sanitaires_std) * v_air_max_ms^2 / (2 * g#) * rho_air * g#
-DELTA_P_entrees_sanitaires = k_sharp_edged_pipe_inlet(d_conduites_salle_std) * v_air_max_ms^2 / (2 * g#) * rho_air * g#
-DELTA_P_sorties = k_sharp_edged_pipe_exit('Laminar') * v_air_max_ms^2 / (2 * g#) * rho_air * g#
- 
+"Call pipeflow('Air', T, P,m_dot_air_ext, d_conduites_salle_std, l_conduites_ext, Rr_inox: , , DELTA_P_conduites_ext, , , )"
+DELTA_P_conduites_ext = 0.4723
+
+"DELTA_P_petit_coude = k_90deg_bend(r_petit_coude, d_conduites_sanitaires_std, Rr_inox) * v_air_max_ms^2 / (2 * g#) * rho_air * g#"
+"DELTA_P_grand_coude = k_90deg_bend(r_grand_coude, d_conduites_salle_std, Rr_inox) * v_air_max_ms^2 / (2 * g#) * rho_air * g#"
+DELTA_P_petit_coude = 2.206
+DELTA_P_grand_coude = 2.523
+
+"DELTA_P_entrees_salle = k_sharp_edged_pipe_inlet(d_conduites_sanitaires_std) * v_air_max_ms^2 / (2 * g#) * rho_air * g#"
+"DELTA_P_entrees_sanitaires = k_sharp_edged_pipe_inlet(d_conduites_salle_std) * v_air_max_ms^2 / (2 * g#) * rho_air * g#"
+"DELTA_P_sorties = k_sharp_edged_pipe_exit('Laminar') * v_air_max_ms^2 / (2 * g#) * rho_air * g#"
+DELTA_P_entrees_salle = 6.4
+DELTA_P_entrees_sanitaires = 6.4
+DELTA_P_sorties = 25.6
+
 DELTA_P_salle = DELTA_P_conduites_salle + 6*DELTA_P_grand_coude + 2*DELTA_P_entrees_salle
 DELTA_P_sanitaires = DELTA_P_conduites_sanitaires + 3*DELTA_P_petit_coude + 4*DELTA_P_entrees_sanitaires
 DELTA_P_ext = DELTA_P_conduites_ext + DELTA_P_sorties
  
-"Pertes de chaleur"
 air_chaleur_volumique = 0.34
-Q_dot_ventilation = (18) * air_chaleur_volumique * q_tot_min
+Q_dot_ventilation = (18 - 9) * air_chaleur_volumique * q_tot_min
 rendement_chauffage = 0.7
 equivalent_combustible = Q_dot_ventilation / (1000* rendement_chauffage * 10)
  
-"Couts"
 P_ventilation = 450
  
 C_horaire_ventilaion = prix_kwh * (450 / 1000)
@@ -126,3 +133,4 @@ C_horaire_chauffage = prix_mazout * equivalent_combustible
 C_tot = C_horaire_ventilaion + C_horaire_chauffage
  
 roi = (6250 / (0.8*C_horaire_chauffage - 0.3*prix_kwh)) / 4 
+"
