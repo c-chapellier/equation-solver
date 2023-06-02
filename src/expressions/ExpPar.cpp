@@ -6,6 +6,11 @@ ExpPar::ExpPar(Exp *left) : Exp()
 	this->eleft = left;
 }
 
+ExpPar::~ExpPar()
+{
+	delete this->eleft;
+}
+
 void ExpPar::load_vars_into_sys(System *sys) const
 {
 	this->eleft->load_vars_into_sys(sys);

@@ -7,6 +7,12 @@ ExpEqu::ExpEqu(Exp *left, Exp *right) : Exp()
     this->eright = right;
 }
 
+ExpEqu::~ExpEqu()
+{
+    delete this->eleft;
+    delete this->eright;
+}
+
 void ExpEqu::load_vars_into_sys(System *sys) const
 {
 	this->eleft->load_vars_into_sys(sys);

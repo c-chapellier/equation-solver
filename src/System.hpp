@@ -31,6 +31,7 @@ public:
 
 public:
     System();
+    ~System();
     void add_equ(Exp *equ);
     void add_var(const std::string &var);
     void add_sys(System *sys);

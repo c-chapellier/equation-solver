@@ -8,3 +8,10 @@ Function::Function(std::string name, std::vector<std::string> *args_names, Syste
     this->sys = sys;
     this->exp = exp;
 }
+
+Function::~Function()
+{
+    delete this->args_names;
+    delete this->sys;
+    delete this->exp;
+}

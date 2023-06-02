@@ -1478,7 +1478,7 @@ yyreduce:
 
   case 13:
 #line 101 "src/parser.y"
-    { debug("sys: sys equ T_NEWLINE\n"); ((System *)(yyvsp[(1) - (3)].sys_val))->add_equ((Exp *)(yyvsp[(2) - (3)].exp_val)); ;}
+    { debug("sys: sys equ T_NEWLINE\n"); (yyval.sys_val) = (yyvsp[(1) - (3)].sys_val); ((System *)(yyval.sys_val))->add_equ((Exp *)(yyvsp[(2) - (3)].exp_val)); ;}
     break;
 
   case 14:
@@ -1796,7 +1796,7 @@ int main(int argc, char* argv[])
 	printf("----------- SOLVE ------------\n");
 
 	std::vector<double> res;
-	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1);
+	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1  );
 	main_sys.solve(res, guesses);
 
 	debug("Solution:\n");
@@ -1804,8 +1804,11 @@ int main(int argc, char* argv[])
 		debug("  %s = %f\n", main_sys.vars[i].c_str(), res[i]);
 
 	Saver::save_to_file(fname + ".res", funcs, main_sys, res);
-
 	Saver::save_to_markdown(fname + ".md", funcs, main_sys, res);
+
+	delete funcs["abs"];
+
+	// system("leaks -q es");
 
 	return 0;
 }

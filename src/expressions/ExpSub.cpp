@@ -7,6 +7,12 @@ ExpSub::ExpSub(Exp *left, Exp *right) : Exp()
     this->eright = right;
 }
 
+ExpSub::~ExpSub()
+{
+    delete this->eleft;
+    delete this->eright;
+}
+
 void ExpSub::load_vars_into_sys(System *sys) const
 {
 	this->eleft->load_vars_into_sys(sys);

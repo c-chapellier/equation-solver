@@ -98,7 +98,7 @@ sys:
 	  T_NEWLINE				{ debug("sys: T_NEWLINE\n"); $$ = new System(); }
 	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE\n"); $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
 	| equ T_EOF				{ debug("sys: equ T_EOF\n"); $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
-	| sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE\n"); ((System *)$1)->add_equ((Exp *)$2); }
+	| sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE\n"); $$ = $1; ((System *)$$)->add_equ((Exp *)$2); }
 	| sys T_NEWLINE			{ debug("sys: sys T_NEWLINE\n"); }
 	| sys T_EOF				{ debug("sys: sys T_EOF\n"); }
 ;
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 	printf("----------- SOLVE ------------\n");
 
 	std::vector<double> res;
-	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1);
+	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1  );
 	main_sys.solve(res, guesses);
 
 	debug("Solution:\n");
@@ -158,8 +158,11 @@ int main(int argc, char* argv[])
 		debug("  %s = %f\n", main_sys.vars[i].c_str(), res[i]);
 
 	Saver::save_to_file(fname + ".res", funcs, main_sys, res);
-
 	Saver::save_to_markdown(fname + ".md", funcs, main_sys, res);
+
+	delete funcs["abs"];
+
+	// system("leaks -q es");
 
 	return 0;
 }

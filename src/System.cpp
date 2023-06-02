@@ -7,6 +7,12 @@ System::System()
 	this->vars = std::vector<std::string>();
 }
 
+System::~System()
+{
+	for (int i = 0; i < this->equs.size(); ++i)
+		delete this->equs[i];
+}
+
 int System::size() const
 {
 	return this->equs.size();
@@ -29,9 +35,7 @@ void System::add_var(const std::string &var)
 void System::add_sys(System *sys)
 {
 	for (int i = 0; i < sys->equs.size(); ++i)
-		this->add_equ(sys->equs[i]);
-	// for (int i = 0; i < sys->vars.size(); ++i)
-	// 	this->add_var(sys->vars[i]);
+		this->add_equ(sys->equs[i]->deep_copy());
 }
 
 void System::print() const
@@ -88,14 +92,7 @@ int System::solve(std::vector<double> &res, std::vector<double> &guesses)
     
     gsl_vector *x = gsl_vector_alloc(this->equs.size());
     for (int i = 0; i < this->equs.size(); i++)
-	{
-		// std::cerr << this->vars[i] << ": " << i << std::endl;
-        // gsl_vector_set(x, i, 1. * std::rand() / pow(2, 4*8));
-        // gsl_vector_set(x, i, 1. * (std::rand() - pow(2, 4*8)/2) / pow(2, 4*8));
-        // gsl_vector_set(x, i, 0.);
-      	// gsl_vector_set(x, i, 1.);
         gsl_vector_set(x, i, guesses[i]);
-	}
 
     gsl_multiroot_fsolver_set(s, &f, x);
 
@@ -175,11 +172,11 @@ ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> *args, System *sys) : E
 	if (f->args_names->size() != args->size())
 		std::cerr << "Error: function " << f->name << " takes " << f->args_names->size() << " arguments, but " << args->size() << " were given" << std::endl, exit(1);
 
-	this->sys = sys;
-	this->f = f;
+	this->sys = sys->deep_copy();
+	this->f = f->deep_copy();
 
 	for (int i = 0; i < args->size(); ++i)
-		this->args.push_back((*args)[i]);
+		this->args.push_back((*args)[i]->deep_copy());
 
 	for (int i = 0; i < f->args_names->size(); ++i)
 	{
@@ -247,11 +244,18 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	
 	cp_sys->solve(res, guesses);
 
+	double r;
+	int found = 0;
 	for (int i = 0; i < cp_sys->vars.size(); ++i)
 		if (cp_sys->vars[i] == "#ret")
-			return res[i];
+			found = 1, r = res[i];
 
-	std::cerr << "cannot found #res" << std::endl, exit(1);
+	if (!found)
+		std::cerr << "cannot found #res" << std::endl, exit(1);
+
+	delete cp_sys;
+
+	return r;
 }
 
 ExpFuncCall *ExpFuncCall::deep_copy() const

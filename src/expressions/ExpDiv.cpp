@@ -7,6 +7,12 @@ ExpDiv::ExpDiv(Exp *left, Exp *right) : Exp()
     this->eright = right;
 }
 
+ExpDiv::~ExpDiv()
+{
+    delete this->eleft;
+    delete this->eright;
+}
+
 void ExpDiv::load_vars_into_sys(System *sys) const
 {
 	this->eleft->load_vars_into_sys(sys);

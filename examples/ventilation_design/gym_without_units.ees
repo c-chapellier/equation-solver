@@ -76,7 +76,7 @@ vestiaire_femme_q_min = max(vestiaire_femme_q_min_calc, 50)
  
 q_tot_min =  salle_q_min + 2*toilettes_q_min + vestiaire_homme_q_min + vestiaire_femme_q_min
  
-PI = 3.1416
+pi = 3.1416
 
 function sqrt(x)
 {
@@ -84,11 +84,11 @@ function sqrt(x)
 }
 
 "Reseau"
-d_conduites_salle_min = 2 * sqrt(salle_q_min / (v_air_max_mh * PI))
+d_conduites_salle_min = 2 * sqrt(salle_q_min / (v_air_max_mh * pi))
 d_conduites_salle_std = 0.315
  
 q_conduites_sanitaires = 2*toilettes_q_min + vestiaire_homme_q_min + vestiaire_femme_q_min
-d_conduites_sanitaires_min = 2 * sqrt(q_conduites_sanitaires / (v_air_max_mh * PI))
+d_conduites_sanitaires_min = 2 * sqrt(q_conduites_sanitaires / (v_air_max_mh * pi))
 d_conduites_sanitaires_std = 0.125
 
 "Pertes de charge"

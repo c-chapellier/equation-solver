@@ -13,6 +13,7 @@ public:
 
 public:
     ExpDiv(Exp *left, Exp *right);
+    ~ExpDiv();
     void load_vars_into_sys(System *sys) const override;
     double eval(System *mother_sys, const gsl_vector *x) const override;
     ExpDiv *deep_copy() const override;

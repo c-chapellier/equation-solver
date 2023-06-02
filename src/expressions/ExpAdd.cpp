@@ -7,6 +7,12 @@ ExpAdd::ExpAdd(Exp *left, Exp *right) : Exp()
     this->eright = right;
 }
 
+ExpAdd::~ExpAdd()
+{
+    delete this->eleft;
+    delete this->eright;
+}
+
 void ExpAdd::load_vars_into_sys(System *sys) const
 {
 	this->eleft->load_vars_into_sys(sys);
