@@ -39,7 +39,7 @@ public:
             f << "$$" << std::endl << std::endl;
         }
 
-        f << "## System of equations" << std::endl << std::endl;
+        f << "## Equations" << std::endl << std::endl;
         for (int i = 0; i < sys.equs.size(); ++i)
         {
             f << "$$";

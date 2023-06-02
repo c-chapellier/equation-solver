@@ -53,8 +53,6 @@ public:
     {
         Latex::replace_greek_letters(var);
 
-        std::cerr << "1: " << var << std::endl;
-
         int i = var.find('_');
 
         if (i == -1)

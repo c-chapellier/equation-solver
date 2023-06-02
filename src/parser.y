@@ -150,7 +150,8 @@ int main(int argc, char* argv[])
 	printf("----------- SOLVE ------------\n");
 
 	std::vector<double> res;
-	main_sys.solve(res);
+	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1);
+	main_sys.solve(res, guesses);
 
 	debug("Solution:\n");
 	for (int i = 0; i < main_sys.size(); ++i)

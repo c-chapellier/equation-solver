@@ -36,7 +36,7 @@ public:
     void add_sys(System *sys);
     int size() const;
     void load_vars_from_equs();
-    int solve(std::vector<double> &res);
+    int solve(std::vector<double> &res, std::vector<double> &guesses);
     void print() const;
     System *deep_copy() const;
 };
