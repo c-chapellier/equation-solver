@@ -52,16 +52,11 @@ int main(int argc, char* argv[])
 	funcs["abs"] = new Function("abs", abs_args, new System(), new ExpAbs());
 
 	std::string fname = argv[1];
-	
 	parse(fname);
 
 	std::vector<double> res;
 	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1  );
 	main_sys.solve(res, guesses);
-
-	debug("Solution:\n");
-	for (int i = 0; i < main_sys.size(); ++i)
-		debug("  %s = %f\n", main_sys.vars[i].c_str(), res[i]);
 
 	Saver::save_to_file(fname + ".res", funcs, main_sys, res);
 	Saver::save_to_markdown(fname + ".md", funcs, main_sys, res);

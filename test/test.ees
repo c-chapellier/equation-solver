@@ -1,1 +1,7 @@
 
+function max(a, b)
+{
+    return a
+}
+
+x = 0

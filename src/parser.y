@@ -80,8 +80,8 @@ block:
 	| sys				{ debug("block: sys\n"); main_sys.add_sys((System *)$1); delete (System *)$1; }
 
 func:
-	  T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), *((std::vector<std::string> *)$4), (System *)$9, (Exp *)$11); delete $2; }
-	| T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), *((std::vector<std::string> *)$4), new System(), (Exp *)$10); delete $2; }
+	  T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), *((std::vector<std::string> *)$4), (System *)$9, (Exp *)$11); delete $2; delete (std::vector<std::string> *)$4; }
+	| T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), *((std::vector<std::string> *)$4), new System(), (Exp *)$10); delete $2; delete (std::vector<std::string> *)$4; }
 ;
 
 args_names:
