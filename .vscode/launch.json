@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/es",
-            "args": [ "examples/ventilation_design/gym_without_units.eqs" ],
+            "args": [ "examples/ventilation_design/gym_without_units.ees" ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
