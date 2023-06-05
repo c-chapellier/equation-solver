@@ -4,4 +4,6 @@ function max(a, b)
     return a
 }
 
-x = max(4, 5)
+x = max(4, 5.3)
+
+e = 1.54334e-3

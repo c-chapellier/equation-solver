@@ -25,6 +25,7 @@ extern FILE* yyin;
 
 System main_sys = System();
 std::map<std::string, Function *> funcs;
+int n_parsing_errors = 0;
 
 void parse(const std::string &fname)
 {
@@ -37,6 +38,16 @@ void parse(const std::string &fname)
 	while(!feof(yyin));
 
 	fclose(yyin);
+
+	float ok = 1.54334e-34;
+
+	if (n_parsing_errors > 0)
+	{
+		std::cerr << n_parsing_errors << " error"
+			<< ((n_parsing_errors != 1) ? "s" : "")
+			<< " generated." << std::endl;
+		exit(1);
+	}
 
 	main_sys.load_vars_from_equs();
 }
@@ -63,7 +74,7 @@ int main(int argc, char* argv[])
 
 	delete funcs["abs"];
 
-	system("leaks -q es");
+	// system("leaks -q es");
 
 	return 0;
 }

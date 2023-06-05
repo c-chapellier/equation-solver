@@ -2,6 +2,7 @@
 %option noyywrap
 %option perf-report
 %option warn
+%option yylineno
 
 %{
 
@@ -11,21 +12,23 @@
 
 #include "parser.hpp"
 
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno;
+
 %}
 
 comments        \"(\\.|[^\"\\])*\"
 whitespaces     [ \t]
 var             [a-zA-Z_][a-zA-Z0-9_]{0,31}
-num             ([0-9]+\.[0-9]+)|([0-9]+)
+num             [0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?
 
 %%
 
 {comments}      ;
 {whitespaces}	; // ignore all whitespace
+{num}           { yylval.dval = atof(yytext); debug("T_VAR(%f)\n", yylval.dval); return T_DOUBLE; }
 "function"      { debug("T_FUNC\n"); return T_FUNC; }
 "return"        { debug("T_RETURN\n"); return T_RETURN; }
 {var}           { yylval.sval = strdup(yytext); debug("T_VAR(%s)\n", yylval.sval); return T_VAR; }
-{num}           { yylval.dval = atof(yytext); debug("T_VAR(%f)\n", yylval.dval); return T_DOUBLE; }
 \n		        { debug("T_NEWLINE\n"); return T_NEWLINE; }
 "="		        { debug("T_EQU\n"); return T_EQU; }
 "+"		        { debug("T_ADD\n"); return T_ADD; }

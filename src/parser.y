@@ -2,31 +2,28 @@
 
 extern int yylex();
 
-void yyerror(const char* s);
+typedef struct yyltype
+{
+	int first_line;
+	int first_column;
+	int last_line;
+	int last_column;
+} yyltype;
+
+void yyerror2(void *loc, const char *s);
 
 #include "../include/es.hpp"
 
-#include "../src/expressions/Exp.hpp"
-#include "../src/expressions/ExpEqu.hpp"
-#include "../src/expressions/ExpNum.hpp"
-#include "../src/expressions/ExpVar.hpp"
-#include "../src/expressions/ExpAdd.hpp"
-#include "../src/expressions/ExpSub.hpp"
-#include "../src/expressions/ExpMul.hpp"
-#include "../src/expressions/ExpDiv.hpp"
-#include "../src/expressions/ExpExp.hpp"
-#include "../src/expressions/ExpPar.hpp"
-#include "../src/expressions/ExpFuncCall.hpp"
-#include "../src/expressions/ExpAbs.hpp"
-
-#include "../src/Function.hpp"
-
-#include "../src/System.hpp"
+#define YYERROR_VERBOSE 1
+#define yyerror(msg) yyerror2(&yylloc, msg)
 
 extern System main_sys;
 extern std::map<std::string, Function *> funcs;
+extern int n_parsing_errors;
 
 %}
+
+%locations
 
 %define "api.pure" "full"
 %define "api.token.prefix" "T_"
@@ -115,8 +112,9 @@ args:
 
 %%
 
-void yyerror(const char *s)
+void yyerror2(void *loc, const char *s)
 {
-	std::cerr << "Parse error: " << s << std::endl;
-	exit(1);
+	yyltype *yylloc = (yyltype *)loc;
+	std::cerr << "\033[1mtest/test.ees:" << yylloc->first_line << ":" << yylloc->first_column << ": \033[1;31merror:\033[0m\033[1m " << s << "\033[0m" << std::endl;
+	++n_parsing_errors;
 }
