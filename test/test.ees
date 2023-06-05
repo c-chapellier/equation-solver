@@ -4,4 +4,4 @@ function max(a, b)
     return a
 }
 
-x = 0
+x = max(4, 5)

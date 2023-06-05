@@ -1,9 +1,5 @@
 %{
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 extern int yylex();
 
 void yyerror(const char* s);
@@ -110,7 +106,7 @@ exp:
 	| exp T_DIV exp		{ debug("exp: exp T_DIV exp\n"); $$ = new ExpDiv((Exp *)$1, (Exp *)$3); }
 	| exp T_EXP exp		{ debug("exp: exp T_EXP exp\n"); $$ = new ExpExp((Exp *)$1, (Exp *)$3); }
 	| T_LPAR exp T_RPAR	{ debug("exp: T_LPAR exp T_RPAR\n"); $$ = new ExpPar((Exp *)$2); }
-	| T_VAR T_LPAR args T_RPAR	{ debug("exp: T_VAR T_LPAR args T_RPAR\n"); $$ = new ExpFuncCall(funcs[$1]->deep_copy(), (std::vector<Exp *> *)$3); delete $1; }
+	| T_VAR T_LPAR args T_RPAR	{ debug("exp: T_VAR T_LPAR args T_RPAR\n"); $$ = new ExpFuncCall(funcs[$1]->deep_copy(), *(std::vector<Exp *> *)$3); delete $1; delete (std::vector<Exp *> *)$3; }
 ;
 
 args:

@@ -167,24 +167,24 @@ double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
     return gsl_vector_get(x, var_index);
 }
 
-ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> *args) : Exp()
+ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
 {
-	if (f->args_names.size() != args->size())
-		std::cerr << "Error: function " << f->name << " takes " << f->args_names.size() << " arguments, but " << args->size() << " were given" << std::endl, exit(1);
+	if (f->args_names.size() != args.size())
+		std::cerr << "Error: function " << f->name << " takes " << f->args_names.size() << " arguments, but " << args.size() << " were given" << std::endl, exit(1);
 
 	this->sys = new System();
 	this->f = f;
-	this->args = *args;
+	this->args = args;
 
 	for (int i = 0; i < this->f->args_names.size(); ++i)
 	{
-		if (dynamic_cast<ExpEqu *>((*args)[i]) != nullptr)
+		if (dynamic_cast<ExpEqu *>(args[i]) != nullptr)
 			std::cerr << "Error: argument " << this->f->args_names[i] << " is an equation" << std::endl, exit(1);
 
 		this->sys->add_equ(
 			new ExpEqu(
 				new ExpVar(std::string("@") + this->f->args_names[i]),
-				(*args)[args->size() - 1 - i]->deep_copy()
+				args[args.size() - 1 - i]->deep_copy()
 			)
 		);
 	}
