@@ -3,10 +3,10 @@
 
 void Latex::replace_greek_letters(std::string &s)
 {
-    for (int i = 0; i < Latex::size; ++i)
+    for (auto greek_letter : Latex::greek_letters)
     {
-        std::string match = Latex::greek_letters[i];
-        std::string replace = std::string("\\") + Latex::greek_letters[i] + " ";
+        std::string const match = greek_letter;
+        std::string const replace = std::string("\\") + greek_letter + " ";
 
         size_t pos = s.find(match);
 
@@ -29,31 +29,32 @@ void Latex::replace_all(std::string &data, const std::string &match, const std::
     }
 }
 
-std::string Latex::var_to_latex(std::string var)
+auto Latex::var_to_latex(std::string var) -> std::string
 {
     Latex::replace_greek_letters(var);
 
-    int i = var.find('_');
+    int const i = var.find('_');
 
-    if (i == -1)
+    if (i == -1) {
         return var;
-    else
-    {
-        std::string sub = var.substr(i + 1);
+    } 
+            std::string sub = var.substr(i + 1);
         Latex::replace_all(sub, "_", "\\_");
         return var.substr(0, i) + "_{" + sub + "}";
-    }
+   
 }
 
-std::string Latex::double_to_latex(double n)
+auto Latex::double_to_latex(double n) -> std::string
 {
     std::string s = std::to_string(n);
 
-    while (s.back() == '0')
+    while (s.back() == '0') {
         s.pop_back();
+}
 
-    if (s.back() == '.')
+    if (s.back() == '.') {
         s.pop_back();
+}
 
     return s;
 }

@@ -1,19 +1,19 @@
 
 #include "ExpVar.hpp"
 
-ExpVar::ExpVar(std::string var) : Exp()
+ExpVar::ExpVar(std::string var) : Exp(), var(var)
 {
-	this->var = var;
+	
 }
 
-ExpVar *ExpVar::deep_copy() const
+auto ExpVar::deep_copy() const -> ExpVar *
 {
 	return new ExpVar(this->var);
 }
 
-std::string ExpVar::to_latex() const
+auto ExpVar::to_latex() const -> std::string
 {
-	return Latex::var_to_latex(this->var.c_str());
+	return Latex::var_to_latex(this->var);
 }
 
 void ExpVar::print() const
