@@ -3,8 +3,6 @@
 
 #include "es.hpp"
 
-#include "Exp.hpp"
-
 class ExpEqu : public Exp
 {
 public:

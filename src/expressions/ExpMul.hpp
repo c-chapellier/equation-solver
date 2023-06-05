@@ -3,11 +3,9 @@
 
 #include "es.hpp"
 
-#include "Exp.hpp"
-
 class ExpMul : public Exp
 {
-public:
+private:
     Exp *eleft;
     Exp *eright;
     

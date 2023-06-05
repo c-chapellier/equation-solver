@@ -3,11 +3,9 @@
 
 #include "es.hpp"
 
-#include "Exp.hpp"
-
 class ExpNum : public Exp
 {
-public:
+private:
     double dval;
     
 public:

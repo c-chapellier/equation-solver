@@ -3,11 +3,9 @@
 
 #include "es.hpp"
 
-#include "Exp.hpp"
-
 class ExpPar : public Exp
 {
-public:
+private:
     Exp *eleft;
     
 public:

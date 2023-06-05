@@ -3,21 +3,6 @@
 
 #include "es.hpp"
 
-#include "expressions/Exp.hpp"
-#include "expressions/ExpEqu.hpp"
-#include "expressions/ExpNum.hpp"
-#include "expressions/ExpVar.hpp"
-#include "expressions/ExpAdd.hpp"
-#include "expressions/ExpSub.hpp"
-#include "expressions/ExpMul.hpp"
-#include "expressions/ExpDiv.hpp"
-#include "expressions/ExpExp.hpp"
-#include "expressions/ExpPar.hpp"
-#include "expressions/ExpFuncCall.hpp"
-#include "expressions/ExpAbs.hpp"
-
-#include "Function.hpp"
-
 class System
 {
 private:
