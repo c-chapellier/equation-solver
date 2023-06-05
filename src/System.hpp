@@ -7,7 +7,7 @@ class System
 {
 private:
     static int rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f);
-    void print_state(size_t iter, int n, gsl_multiroot_fsolver *s);
+    static void print_state(size_t iter, int n, gsl_multiroot_fsolver *s);
     void load_vars_from_exp(Exp *exp);
 
 public:

@@ -20,7 +20,7 @@
 
 #include "../src/Saver.hpp"
 
-extern int yyparse();
+extern auto yyparse() -> int;
 extern FILE* yyin;
 
 System main_sys = System();
@@ -30,16 +30,15 @@ int n_parsing_errors = 0;
 void parse(const std::string &fname)
 {
 	yyin = fopen(fname.c_str(), "r");
-	if (yyin == NULL)
+	if (yyin == nullptr) {
 		std::cerr << "Can't open file " << fname << std::endl, exit(1);
+}
 
-	do
+	do {
 		yyparse();
-	while(!feof(yyin));
+	} while(feof(yyin) == 0);
 
 	fclose(yyin);
-
-	float ok = 1.54334e-34;
 
 	if (n_parsing_errors > 0)
 	{
@@ -52,17 +51,18 @@ void parse(const std::string &fname)
 	main_sys.load_vars_from_equs();
 }
 
-int main(int argc, char* argv[])
+auto main(int argc, char* argv[]) -> int
 {
 	// while (getchar() != '\n');
 
-	if (argc != 2)
+	if (argc != 2) {
 		std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl, exit(1);
+}
 
 	std::vector<std::string> abs_args({ "x" });
 	funcs["abs"] = new Function("abs", abs_args, new System(), new ExpAbs());
 
-	std::string fname = argv[1];
+	std::string const fname = argv[1];
 	parse(fname);
 
 	std::vector<double> res;

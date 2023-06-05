@@ -1,10 +1,10 @@
 
 #include "ExpAdd.hpp"
 
-ExpAdd::ExpAdd(Exp *left, Exp *right) : Exp()
+ExpAdd::ExpAdd(Exp *left, Exp *right) : Exp(), eleft(left), eright(right)
 {
-    this->eleft = left;
-    this->eright = right;
+    
+    
 }
 
 ExpAdd::~ExpAdd()
@@ -19,17 +19,17 @@ void ExpAdd::load_vars_into_sys(System *sys) const
 	this->eright->load_vars_into_sys(sys);
 }
 
-double ExpAdd::eval(System *mother_sys, const gsl_vector *x) const
+auto ExpAdd::eval(System *mother_sys, const gsl_vector *x) const -> double
 {
     return this->eleft->eval(mother_sys, x) + this->eright->eval(mother_sys, x);
 }
 
-ExpAdd *ExpAdd::deep_copy() const
+auto ExpAdd::deep_copy() const -> ExpAdd *
 {
 	return new ExpAdd(this->eleft->deep_copy(), this->eright->deep_copy());
 }
 
-std::string ExpAdd::to_latex() const
+auto ExpAdd::to_latex() const -> std::string
 {
 	return this->eleft->to_latex() + " + " + this->eright->to_latex();
 }

@@ -11,21 +11,22 @@ void ExpAbs::load_vars_into_sys(System *sys) const
 
 }
 
-double ExpAbs::eval(System *mother_sys, const gsl_vector *x) const
+auto ExpAbs::eval(System * /*mother_sys*/, const gsl_vector *x) const -> double
 {
-    if (x->size < 2)
+    if (x->size < 2) {
         std::cerr << "ExpAbs::eval: x->size < 2" << std::endl, exit(1);
+}
     return abs(gsl_vector_get(x, 1));
 }
 
-ExpAbs *ExpAbs::deep_copy() const
+auto ExpAbs::deep_copy() const -> ExpAbs *
 {
     return new ExpAbs();
 }
 
-std::string ExpAbs::to_latex() const
+auto ExpAbs::to_latex() const -> std::string
 {
-    return std::string("\\mid x \\mid");
+    return {"\\mid x \\mid"};
 }
 
 void ExpAbs::print() const

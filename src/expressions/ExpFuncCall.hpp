@@ -9,9 +9,9 @@ class ExpFuncCall : public Exp
 {
 public:
     std::string var;
-    System *sys;
+    System *sys{nullptr};
     std::vector<Exp *> args;
-    Function *f;
+    Function *f{nullptr};
     
 public:
     ExpFuncCall();

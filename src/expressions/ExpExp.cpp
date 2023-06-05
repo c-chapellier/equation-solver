@@ -1,10 +1,10 @@
 
 #include "ExpExp.hpp"
 
-ExpExp::ExpExp(Exp *left, Exp *right) : Exp()
+ExpExp::ExpExp(Exp *left, Exp *right) : Exp(), eleft(left), eright(right)
 {
-    this->eleft = left;
-    this->eright = right;
+    
+    
 }
 
 ExpExp::~ExpExp()
@@ -19,17 +19,17 @@ void ExpExp::load_vars_into_sys(System *sys) const
 	this->eright->load_vars_into_sys(sys);
 }
 
-double ExpExp::eval(System *mother_sys, const gsl_vector *x) const
+auto ExpExp::eval(System *mother_sys, const gsl_vector *x) const -> double
 {
     return pow(this->eleft->eval(mother_sys, x), this->eright->eval(mother_sys, x));
 }
 
-ExpExp *ExpExp::deep_copy() const
+auto ExpExp::deep_copy() const -> ExpExp *
 {
 	return new ExpExp(this->eleft->deep_copy(), this->eright->deep_copy());
 }
 
-std::string ExpExp::to_latex() const
+auto ExpExp::to_latex() const -> std::string
 {
 	return this->eleft->to_latex() + "^{" + this->eright->to_latex() + "}";
 }
