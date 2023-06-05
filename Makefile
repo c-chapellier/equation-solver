@@ -19,7 +19,7 @@ OBJECTS = $(SOURCES:$(SRC_PATH)/%.$(SRC_EXT)=$(BUILD_PATH)/%.o)
 DEPS = $(OBJECTS:.o=.d)
 
 COMPILE_FLAGS = --std=c++17 -g -O0
-INCLUDES = -Iinclude/ -I/usr/local/include
+INCLUDES = -I include/ -I /usr/local/include
 LIBS = -lgsl -lgslcblas -lm
 
 .PHONY: default_target
@@ -65,11 +65,6 @@ parser:
 lexer:
 	@echo "Creating lexer: $(LEXER_PATH) -> $(LEXER_OUT)"
 	flex -o $(LEXER_OUT) $(LEXER_PATH)
-
-.PHONY: static-analyzer
-static-analyzer:
-	@echo "Running static analyzer"
-	clang-tidy $(SOURCES) -- $(CFLAGS) $(INCLUDES)
 
 -include $(DEPS)
 
