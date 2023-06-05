@@ -121,7 +121,7 @@ extern FILE* yyin;
 
 void yyerror(const char* s);
 
-#include "es.hpp"
+#include "../include/es.hpp"
 
 #include "../src/expressions/Exp.hpp"
 #include "../src/expressions/ExpEqu.hpp"
@@ -1438,27 +1438,27 @@ yyreduce:
 
   case 5:
 #line 85 "src/parser.y"
-    { debug("block: sys\n"); main_sys.add_sys((System *)(yyvsp[(1) - (1)].sys_val)); ;}
+    { debug("block: sys\n"); main_sys.add_sys((System *)(yyvsp[(1) - (1)].sys_val)); delete (System *)(yyvsp[(1) - (1)].sys_val); ;}
     break;
 
   case 6:
 #line 88 "src/parser.y"
-    { debug("func:\n"); (yyval.func_val) = new Function(std::string((yyvsp[(2) - (13)].sval)), (std::vector<std::string> *)(yyvsp[(4) - (13)].args_names_val), (System *)(yyvsp[(9) - (13)].sys_val), (Exp *)(yyvsp[(11) - (13)].exp_val)); ;}
+    { debug("func:\n"); (yyval.func_val) = new Function(std::string((yyvsp[(2) - (13)].sval)), (std::vector<std::string> *)(yyvsp[(4) - (13)].args_names_val), (System *)(yyvsp[(9) - (13)].sys_val), (Exp *)(yyvsp[(11) - (13)].exp_val)); delete (yyvsp[(2) - (13)].sval); ;}
     break;
 
   case 7:
 #line 89 "src/parser.y"
-    { debug("func:\n"); (yyval.func_val) = new Function(std::string((yyvsp[(2) - (12)].sval)), (std::vector<std::string> *)(yyvsp[(4) - (12)].args_names_val), new System(), (Exp *)(yyvsp[(10) - (12)].exp_val)); ;}
+    { debug("func:\n"); (yyval.func_val) = new Function(std::string((yyvsp[(2) - (12)].sval)), (std::vector<std::string> *)(yyvsp[(4) - (12)].args_names_val), new System(), (Exp *)(yyvsp[(10) - (12)].exp_val)); delete (yyvsp[(2) - (12)].sval); ;}
     break;
 
   case 8:
 #line 93 "src/parser.y"
-    { debug("args_names: T_VAR T_COMMA args_names\n"); (yyval.args_names_val) = (yyvsp[(3) - (3)].args_names_val); ((std::vector<std::string> *)(yyval.args_names_val))->insert(((std::vector<std::string> *)(yyval.args_names_val))->begin(), std::string((yyvsp[(1) - (3)].sval))); ;}
+    { debug("args_names: T_VAR T_COMMA args_names\n"); (yyval.args_names_val) = (yyvsp[(3) - (3)].args_names_val); ((std::vector<std::string> *)(yyval.args_names_val))->insert(((std::vector<std::string> *)(yyval.args_names_val))->begin(), std::string((yyvsp[(1) - (3)].sval))); delete (yyvsp[(1) - (3)].sval); ;}
     break;
 
   case 9:
 #line 94 "src/parser.y"
-    { debug("args_names: T_VAR\n"); (yyval.args_names_val) = new std::vector<std::string>(); ((std::vector<std::string> *)(yyval.args_names_val))->insert(((std::vector<std::string> *)(yyval.args_names_val))->begin(), std::string((yyvsp[(1) - (1)].sval))); ;}
+    { debug("args_names: T_VAR\n"); (yyval.args_names_val) = new std::vector<std::string>(); ((std::vector<std::string> *)(yyval.args_names_val))->insert(((std::vector<std::string> *)(yyval.args_names_val))->begin(), std::string((yyvsp[(1) - (1)].sval))); delete (yyvsp[(1) - (1)].sval); ;}
     break;
 
   case 10:
@@ -1503,7 +1503,7 @@ yyreduce:
 
   case 18:
 #line 111 "src/parser.y"
-    { debug("exp: T_VAR(%s)\n", (yyvsp[(1) - (1)].sval)); (yyval.exp_val) = new ExpVar((yyvsp[(1) - (1)].sval)); ;}
+    { debug("exp: T_VAR(%s)\n", (yyvsp[(1) - (1)].sval)); (yyval.exp_val) = new ExpVar((yyvsp[(1) - (1)].sval)); delete (yyvsp[(1) - (1)].sval); ;}
     break;
 
   case 19:
@@ -1538,7 +1538,7 @@ yyreduce:
 
   case 25:
 #line 118 "src/parser.y"
-    { debug("exp: T_VAR T_LPAR args T_RPAR\n"); (yyval.exp_val) = new ExpFuncCall(funcs[(yyvsp[(1) - (4)].sval)], (std::vector<Exp *> *)(yyvsp[(3) - (4)].args_val), new System()); ;}
+    { debug("exp: T_VAR T_LPAR args T_RPAR\n"); (yyval.exp_val) = new ExpFuncCall(funcs[(yyvsp[(1) - (4)].sval)]->deep_copy(), (std::vector<Exp *> *)(yyvsp[(3) - (4)].args_val)); delete (yyvsp[(1) - (4)].sval); ;}
     break;
 
   case 26:
@@ -1808,7 +1808,7 @@ int main(int argc, char* argv[])
 
 	delete funcs["abs"];
 
-	// system("leaks -q es");
+	system("leaks es");
 
 	return 0;
 }

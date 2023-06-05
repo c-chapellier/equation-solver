@@ -10,7 +10,7 @@ extern FILE* yyin;
 
 void yyerror(const char* s);
 
-#include "es.hpp"
+#include "../include/es.hpp"
 
 #include "../src/expressions/Exp.hpp"
 #include "../src/expressions/ExpEqu.hpp"
@@ -82,16 +82,16 @@ prog:
 
 block:
 	  func				{ debug("block: func\n"); funcs[((Function *)$1)->name] = (Function *)$1; }
-	| sys				{ debug("block: sys\n"); main_sys.add_sys((System *)$1); }
+	| sys				{ debug("block: sys\n"); main_sys.add_sys((System *)$1); delete (System *)$1; }
 
 func:
-	  T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), (std::vector<std::string> *)$4, (System *)$9, (Exp *)$11); }
-	| T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), (std::vector<std::string> *)$4, new System(), (Exp *)$10); }
+	  T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), (std::vector<std::string> *)$4, (System *)$9, (Exp *)$11); delete $2; }
+	| T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), (std::vector<std::string> *)$4, new System(), (Exp *)$10); delete $2; }
 ;
 
 args_names:
-	  T_VAR T_COMMA args_names	{ debug("args_names: T_VAR T_COMMA args_names\n"); $$ = $3; ((std::vector<std::string> *)$$)->insert(((std::vector<std::string> *)$$)->begin(), std::string($1)); }
-	| T_VAR						{ debug("args_names: T_VAR\n"); $$ = new std::vector<std::string>(); ((std::vector<std::string> *)$$)->insert(((std::vector<std::string> *)$$)->begin(), std::string($1)); }
+	  T_VAR T_COMMA args_names	{ debug("args_names: T_VAR T_COMMA args_names\n"); $$ = $3; ((std::vector<std::string> *)$$)->insert(((std::vector<std::string> *)$$)->begin(), std::string($1)); delete $1; }
+	| T_VAR						{ debug("args_names: T_VAR\n"); $$ = new std::vector<std::string>(); ((std::vector<std::string> *)$$)->insert(((std::vector<std::string> *)$$)->begin(), std::string($1)); delete $1; }
 ;
 
 sys:
@@ -108,14 +108,14 @@ equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp\n"); $$ = new ExpEqu((Exp *)$1, 
 
 exp:
 	  T_DOUBLE			{ debug("exp: T_DOUBLE(%f)\n", $1); $$ = new ExpNum($1); }
-	| T_VAR				{ debug("exp: T_VAR(%s)\n", $1); $$ = new ExpVar($1); }
+	| T_VAR				{ debug("exp: T_VAR(%s)\n", $1); $$ = new ExpVar($1); delete $1; }
 	| exp T_ADD exp		{ debug("exp: exp T_ADD exp\n"); $$ = new ExpAdd((Exp *)$1, (Exp *)$3); }
 	| exp T_SUB exp		{ debug("exp: exp T_SUB exp\n"); $$ = new ExpSub((Exp *)$1, (Exp *)$3); }
 	| exp T_MUL exp		{ debug("exp: exp T_MUL exp\n"); $$ = new ExpMul((Exp *)$1, (Exp *)$3); }
 	| exp T_DIV exp		{ debug("exp: exp T_DIV exp\n"); $$ = new ExpDiv((Exp *)$1, (Exp *)$3); }
 	| exp T_EXP exp		{ debug("exp: exp T_EXP exp\n"); $$ = new ExpExp((Exp *)$1, (Exp *)$3); }
 	| T_LPAR exp T_RPAR	{ debug("exp: T_LPAR exp T_RPAR\n"); $$ = new ExpPar((Exp *)$2); }
-	| T_VAR T_LPAR args T_RPAR	{ debug("exp: T_VAR T_LPAR args T_RPAR\n"); $$ = new ExpFuncCall(funcs[$1], (std::vector<Exp *> *)$3, new System()); }
+	| T_VAR T_LPAR args T_RPAR	{ debug("exp: T_VAR T_LPAR args T_RPAR\n"); $$ = new ExpFuncCall(funcs[$1]->deep_copy(), (std::vector<Exp *> *)$3); delete $1; }
 ;
 
 args:
@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
 
 	delete funcs["abs"];
 
-	// system("leaks -q es");
+	system("leaks es");
 
 	return 0;
 }

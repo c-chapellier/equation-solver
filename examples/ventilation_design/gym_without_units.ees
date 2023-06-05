@@ -133,4 +133,3 @@ C_horaire_chauffage = prix_mazout * equivalent_combustible
 C_tot = C_horaire_ventilaion + C_horaire_chauffage
  
 roi = (6250 / (0.8*C_horaire_chauffage - 0.3*prix_kwh)) / 4 
-"

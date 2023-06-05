@@ -1,0 +1,43 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "bison",
+            "type": "shell",
+            "command": "make bison"
+        },
+        {
+            "label": "flex",
+            "type": "shell",
+            "command": "make flex"
+        },
+        {
+            "label": "compile",
+            "type": "shell",
+            "command": "make",
+            "group": {
+                "kind": "build",
+                "isDefault": true,
+                "problemMatcher": "$gcc"
+            }
+        },
+        {
+            "label": "build",
+            "dependsOn": [
+                "bison",
+                "flex",
+                "compile"
+            ]
+        },
+        {
+            "label": "run",
+            "type": "shell",
+            "command": "./build/bin/es"
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "make clean"
+        }
+    ]
+}

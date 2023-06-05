@@ -167,16 +167,14 @@ double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
     return gsl_vector_get(x, var_index);
 }
 
-ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> *args, System *sys) : Exp()
+ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> *args) : Exp()
 {
 	if (f->args_names->size() != args->size())
 		std::cerr << "Error: function " << f->name << " takes " << f->args_names->size() << " arguments, but " << args->size() << " were given" << std::endl, exit(1);
 
-	this->sys = sys->deep_copy();
-	this->f = f->deep_copy();
-
-	for (int i = 0; i < args->size(); ++i)
-		this->args.push_back((*args)[i]->deep_copy());
+	this->sys = new System();
+	this->f = f;
+	this->args = *args;
 
 	for (int i = 0; i < f->args_names->size(); ++i)
 	{
@@ -235,7 +233,10 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	}
 
 	for (int i = 0; i < j; ++i)
+	{
+		delete cp_sys->equs.front();
 		cp_sys->equs.erase(cp_sys->equs.begin());
+	}
 
 	cp_sys->load_vars_from_equs();
 

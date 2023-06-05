@@ -17,7 +17,7 @@ public:
     
 public:
     ExpFuncCall();
-    ExpFuncCall(Function *f, std::vector<Exp *> *args, System *sys);
+    ExpFuncCall(Function *f, std::vector<Exp *> *args);
     ~ExpFuncCall();
     void load_vars_into_sys(System *sys) const override;
     double eval(System *mother_sys, const gsl_vector *x) const override;
