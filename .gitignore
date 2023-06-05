@@ -2,3 +2,6 @@ build/
 es
 **/**.ees.md
 **/**.ees.res
+src/parser.cpp
+src/parser.hpp
+src/lexer.cpp

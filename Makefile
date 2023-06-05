@@ -9,6 +9,7 @@ BIN_NAME = es
 
 # extensions #
 SRC_EXT = cpp
+HEADER_EXT = hpp
 
 PARSER_PATH = src/parser.y
 LEXER_PATH = src/lexer.l
@@ -53,6 +54,8 @@ clean:
 	@echo "Deleting directories"
 	@$(RM) -r $(BUILD_PATH)
 	@$(RM) -r $(BIN_PATH)
+	@echo "Deleting parser and lexer"
+	@$(RM) -r $(PARSER_OUT) $(PARSER_OUT:%.$(SRC_EXT)=%.$(HEADER_EXT)) $(LEXER_OUT)
 
 # checks the executable and symlinks to the output
 .PHONY: all
