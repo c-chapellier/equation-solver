@@ -1,7 +1,7 @@
 build/
 es
-**/**.ees.md
-**/**.ees.res
+**/**.eqs.md
+**/**.eqs.res
 src/parser.cpp
 src/parser.hpp
 src/lexer.cpp
