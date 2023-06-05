@@ -11,7 +11,7 @@ ExpFuncCall::ExpFuncCall()
 
 void ExpFuncCall::load_vars_into_sys(System *sys) const
 {
-	for (auto *arg : this->args) {
+	for (auto arg : this->args) {
 		arg->load_vars_into_sys(sys);
 }
 }

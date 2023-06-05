@@ -1,7 +1,7 @@
 
 #include "System.hpp"
 
-#include <cmath>
+#include <math.h>
 
 System::System()
 {
@@ -28,8 +28,8 @@ void System::add_equ(Exp *equ)
 
 void System::add_var(const std::string &var)
 {
-	for (const auto & i : this->vars) {
-		if (i == var) {
+	for (int i = 0; i < this->vars.size(); ++i) {
+		if (this->vars[i] == var) {
 			return;
 }
 }
@@ -48,7 +48,7 @@ void System::print() const
 {
 	printf("System:\n");
 	printf("  Equations(%lu):\n", this->equs.size());
-	for (auto *equ : this->equs)
+	for (auto equ : this->equs)
 	{
 		printf("    ");
 		equ->print();
@@ -153,7 +153,7 @@ auto System::deep_copy() const -> System *
 {
 	auto *cp_sys = new System();
 
-	for (auto *equ : this->equs) {
+	for (auto equ : this->equs) {
 		cp_sys->add_equ(equ->deep_copy());
 }
 	
@@ -233,7 +233,7 @@ auto ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const -> double
 {
 	std::vector<double> args;
 	args.reserve(this->args.size());
-for (auto *arg : this->args) {
+for (auto arg : this->args) {
 		args.push_back(arg->eval(mother_sys, x));
 }
 	
@@ -296,7 +296,7 @@ auto ExpFuncCall::deep_copy() const -> ExpFuncCall *
 {
 	std::vector<Exp *> cp_args = std::vector<Exp *>();
 
-	for (auto *arg : this->args) {
+	for (auto arg : this->args) {
 		cp_args.push_back(arg->deep_copy());
 }
 
