@@ -5,8 +5,6 @@
 #include <string.h>
 
 extern int yylex();
-extern int yyparse();
-extern FILE* yyin;
 
 void yyerror(const char* s);
 
@@ -29,11 +27,8 @@ void yyerror(const char* s);
 
 #include "../src/System.hpp"
 
-#include "../src/Saver.hpp"
-
-System main_sys = System();
-
-std::map<std::string, Function *> funcs;
+extern System main_sys;
+extern std::map<std::string, Function *> funcs;
 
 %}
 
@@ -85,8 +80,8 @@ block:
 	| sys				{ debug("block: sys\n"); main_sys.add_sys((System *)$1); delete (System *)$1; }
 
 func:
-	  T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), (std::vector<std::string> *)$4, (System *)$9, (Exp *)$11); delete $2; }
-	| T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), (std::vector<std::string> *)$4, new System(), (Exp *)$10); delete $2; }
+	  T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), *((std::vector<std::string> *)$4), (System *)$9, (Exp *)$11); delete $2; }
+	| T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), *((std::vector<std::string> *)$4), new System(), (Exp *)$10); delete $2; }
 ;
 
 args_names:
@@ -124,51 +119,8 @@ args:
 
 %%
 
-int main(int argc, char* argv[])
+void yyerror(const char *s)
 {
-	if (argc != 2)
-		std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl, exit(1);
-
-	std::string fname(argv[1]);
-	
-	yyin = fopen(argv[1], "r");
-	if (yyin == NULL)
-		std::cerr << "Can't open file " << argv[1] << std::endl, exit(1);
-
-	funcs["abs"] = new Function("abs", new std::vector<std::string>({ "x" }), new System(), new ExpAbs());
-
-	do
-		yyparse();
-	while(!feof(yyin));
-
-	fclose(yyin);
-
-	main_sys.load_vars_from_equs();
-
-	printf("----------- SYSTEM PARSED ------------\n");
-	main_sys.print();
-	printf("----------- SOLVE ------------\n");
-
-	std::vector<double> res;
-	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1  );
-	main_sys.solve(res, guesses);
-
-	debug("Solution:\n");
-	for (int i = 0; i < main_sys.size(); ++i)
-		debug("  %s = %f\n", main_sys.vars[i].c_str(), res[i]);
-
-	Saver::save_to_file(fname + ".res", funcs, main_sys, res);
-	Saver::save_to_markdown(fname + ".md", funcs, main_sys, res);
-
-	delete funcs["abs"];
-
-	system("leaks es");
-
-	return 0;
-}
-
-void yyerror(const char* s)
-{
-	fprintf(stderr, "Parse error: %s\n", s);
+	std::cerr << "Parse error: " << s << std::endl;
 	exit(1);
 }

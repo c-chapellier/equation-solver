@@ -116,8 +116,6 @@
 #include <string.h>
 
 extern int yylex();
-extern int yyparse();
-extern FILE* yyin;
 
 void yyerror(const char* s);
 
@@ -140,11 +138,8 @@ void yyerror(const char* s);
 
 #include "../src/System.hpp"
 
-#include "../src/Saver.hpp"
-
-System main_sys = System();
-
-std::map<std::string, Function *> funcs;
+extern System main_sys;
+extern std::map<std::string, Function *> funcs;
 
 
 
@@ -168,7 +163,7 @@ std::map<std::string, Function *> funcs;
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 46 "src/parser.y"
+#line 41 "src/parser.y"
 {
 	double dval;
 	char* sval;
@@ -179,7 +174,7 @@ typedef union YYSTYPE
 	void *args_val;
 }
 /* Line 193 of yacc.c.  */
-#line 183 "src/parser.cpp"
+#line 178 "src/parser.cpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -192,7 +187,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 196 "src/parser.cpp"
+#line 191 "src/parser.cpp"
 
 #ifdef short
 # undef short
@@ -487,9 +482,9 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    79,    79,    80,    84,    85,    88,    89,    93,    94,
-      98,    99,   100,   101,   102,   103,   106,   110,   111,   112,
-     113,   114,   115,   116,   117,   118,   122,   123
+       0,    74,    74,    75,    79,    80,    83,    84,    88,    89,
+      93,    94,    95,    96,    97,    98,   101,   105,   106,   107,
+     108,   109,   110,   111,   112,   113,   117,   118
 };
 #endif
 
@@ -1427,133 +1422,133 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 80 "src/parser.y"
+#line 75 "src/parser.y"
     { ;}
     break;
 
   case 4:
-#line 84 "src/parser.y"
+#line 79 "src/parser.y"
     { debug("block: func\n"); funcs[((Function *)(yyvsp[(1) - (1)].func_val))->name] = (Function *)(yyvsp[(1) - (1)].func_val); ;}
     break;
 
   case 5:
-#line 85 "src/parser.y"
+#line 80 "src/parser.y"
     { debug("block: sys\n"); main_sys.add_sys((System *)(yyvsp[(1) - (1)].sys_val)); delete (System *)(yyvsp[(1) - (1)].sys_val); ;}
     break;
 
   case 6:
-#line 88 "src/parser.y"
-    { debug("func:\n"); (yyval.func_val) = new Function(std::string((yyvsp[(2) - (13)].sval)), (std::vector<std::string> *)(yyvsp[(4) - (13)].args_names_val), (System *)(yyvsp[(9) - (13)].sys_val), (Exp *)(yyvsp[(11) - (13)].exp_val)); delete (yyvsp[(2) - (13)].sval); ;}
+#line 83 "src/parser.y"
+    { debug("func:\n"); (yyval.func_val) = new Function(std::string((yyvsp[(2) - (13)].sval)), *((std::vector<std::string> *)(yyvsp[(4) - (13)].args_names_val)), (System *)(yyvsp[(9) - (13)].sys_val), (Exp *)(yyvsp[(11) - (13)].exp_val)); delete (yyvsp[(2) - (13)].sval); ;}
     break;
 
   case 7:
-#line 89 "src/parser.y"
-    { debug("func:\n"); (yyval.func_val) = new Function(std::string((yyvsp[(2) - (12)].sval)), (std::vector<std::string> *)(yyvsp[(4) - (12)].args_names_val), new System(), (Exp *)(yyvsp[(10) - (12)].exp_val)); delete (yyvsp[(2) - (12)].sval); ;}
+#line 84 "src/parser.y"
+    { debug("func:\n"); (yyval.func_val) = new Function(std::string((yyvsp[(2) - (12)].sval)), *((std::vector<std::string> *)(yyvsp[(4) - (12)].args_names_val)), new System(), (Exp *)(yyvsp[(10) - (12)].exp_val)); delete (yyvsp[(2) - (12)].sval); ;}
     break;
 
   case 8:
-#line 93 "src/parser.y"
+#line 88 "src/parser.y"
     { debug("args_names: T_VAR T_COMMA args_names\n"); (yyval.args_names_val) = (yyvsp[(3) - (3)].args_names_val); ((std::vector<std::string> *)(yyval.args_names_val))->insert(((std::vector<std::string> *)(yyval.args_names_val))->begin(), std::string((yyvsp[(1) - (3)].sval))); delete (yyvsp[(1) - (3)].sval); ;}
     break;
 
   case 9:
-#line 94 "src/parser.y"
+#line 89 "src/parser.y"
     { debug("args_names: T_VAR\n"); (yyval.args_names_val) = new std::vector<std::string>(); ((std::vector<std::string> *)(yyval.args_names_val))->insert(((std::vector<std::string> *)(yyval.args_names_val))->begin(), std::string((yyvsp[(1) - (1)].sval))); delete (yyvsp[(1) - (1)].sval); ;}
     break;
 
   case 10:
-#line 98 "src/parser.y"
+#line 93 "src/parser.y"
     { debug("sys: T_NEWLINE\n"); (yyval.sys_val) = new System(); ;}
     break;
 
   case 11:
-#line 99 "src/parser.y"
+#line 94 "src/parser.y"
     { debug("sys: equ T_NEWLINE\n"); (yyval.sys_val) = new System(); ((System *)(yyval.sys_val))->add_equ((Exp *)(yyvsp[(1) - (2)].exp_val)); ;}
     break;
 
   case 12:
-#line 100 "src/parser.y"
+#line 95 "src/parser.y"
     { debug("sys: equ T_EOF\n"); (yyval.sys_val) = new System(); ((System *)(yyval.sys_val))->add_equ((Exp *)(yyvsp[(1) - (2)].exp_val)); ;}
     break;
 
   case 13:
-#line 101 "src/parser.y"
+#line 96 "src/parser.y"
     { debug("sys: sys equ T_NEWLINE\n"); (yyval.sys_val) = (yyvsp[(1) - (3)].sys_val); ((System *)(yyval.sys_val))->add_equ((Exp *)(yyvsp[(2) - (3)].exp_val)); ;}
     break;
 
   case 14:
-#line 102 "src/parser.y"
+#line 97 "src/parser.y"
     { debug("sys: sys T_NEWLINE\n"); ;}
     break;
 
   case 15:
-#line 103 "src/parser.y"
+#line 98 "src/parser.y"
     { debug("sys: sys T_EOF\n"); ;}
     break;
 
   case 16:
-#line 106 "src/parser.y"
+#line 101 "src/parser.y"
     { debug("equ: exp T_EQU exp\n"); (yyval.exp_val) = new ExpEqu((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 17:
-#line 110 "src/parser.y"
+#line 105 "src/parser.y"
     { debug("exp: T_DOUBLE(%f)\n", (yyvsp[(1) - (1)].dval)); (yyval.exp_val) = new ExpNum((yyvsp[(1) - (1)].dval)); ;}
     break;
 
   case 18:
-#line 111 "src/parser.y"
+#line 106 "src/parser.y"
     { debug("exp: T_VAR(%s)\n", (yyvsp[(1) - (1)].sval)); (yyval.exp_val) = new ExpVar((yyvsp[(1) - (1)].sval)); delete (yyvsp[(1) - (1)].sval); ;}
     break;
 
   case 19:
-#line 112 "src/parser.y"
+#line 107 "src/parser.y"
     { debug("exp: exp T_ADD exp\n"); (yyval.exp_val) = new ExpAdd((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 20:
-#line 113 "src/parser.y"
+#line 108 "src/parser.y"
     { debug("exp: exp T_SUB exp\n"); (yyval.exp_val) = new ExpSub((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 21:
-#line 114 "src/parser.y"
+#line 109 "src/parser.y"
     { debug("exp: exp T_MUL exp\n"); (yyval.exp_val) = new ExpMul((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 22:
-#line 115 "src/parser.y"
+#line 110 "src/parser.y"
     { debug("exp: exp T_DIV exp\n"); (yyval.exp_val) = new ExpDiv((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 23:
-#line 116 "src/parser.y"
+#line 111 "src/parser.y"
     { debug("exp: exp T_EXP exp\n"); (yyval.exp_val) = new ExpExp((Exp *)(yyvsp[(1) - (3)].exp_val), (Exp *)(yyvsp[(3) - (3)].exp_val)); ;}
     break;
 
   case 24:
-#line 117 "src/parser.y"
+#line 112 "src/parser.y"
     { debug("exp: T_LPAR exp T_RPAR\n"); (yyval.exp_val) = new ExpPar((Exp *)(yyvsp[(2) - (3)].exp_val)); ;}
     break;
 
   case 25:
-#line 118 "src/parser.y"
+#line 113 "src/parser.y"
     { debug("exp: T_VAR T_LPAR args T_RPAR\n"); (yyval.exp_val) = new ExpFuncCall(funcs[(yyvsp[(1) - (4)].sval)]->deep_copy(), (std::vector<Exp *> *)(yyvsp[(3) - (4)].args_val)); delete (yyvsp[(1) - (4)].sval); ;}
     break;
 
   case 26:
-#line 122 "src/parser.y"
+#line 117 "src/parser.y"
     { debug("args: exp T_COMMA args\n"); (yyval.args_val) = (yyvsp[(3) - (3)].args_val); ((std::vector<Exp *> *)(yyval.args_val))->push_back((Exp *)(yyvsp[(1) - (3)].exp_val)); ;}
     break;
 
   case 27:
-#line 123 "src/parser.y"
+#line 118 "src/parser.y"
     { debug("args: exp\n"); (yyval.args_val) = new std::vector<Exp *>(); ((std::vector<Exp *> *)(yyval.args_val))->push_back((Exp *)(yyvsp[(1) - (1)].exp_val)); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1557 "src/parser.cpp"
+#line 1552 "src/parser.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1767,55 +1762,12 @@ yyreturn:
 }
 
 
-#line 125 "src/parser.y"
+#line 120 "src/parser.y"
 
 
-int main(int argc, char* argv[])
+void yyerror(const char *s)
 {
-	if (argc != 2)
-		std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl, exit(1);
-
-	std::string fname(argv[1]);
-	
-	yyin = fopen(argv[1], "r");
-	if (yyin == NULL)
-		std::cerr << "Can't open file " << argv[1] << std::endl, exit(1);
-
-	funcs["abs"] = new Function("abs", new std::vector<std::string>({ "x" }), new System(), new ExpAbs());
-
-	do
-		yyparse();
-	while(!feof(yyin));
-
-	fclose(yyin);
-
-	main_sys.load_vars_from_equs();
-
-	printf("----------- SYSTEM PARSED ------------\n");
-	main_sys.print();
-	printf("----------- SOLVE ------------\n");
-
-	std::vector<double> res;
-	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1  );
-	main_sys.solve(res, guesses);
-
-	debug("Solution:\n");
-	for (int i = 0; i < main_sys.size(); ++i)
-		debug("  %s = %f\n", main_sys.vars[i].c_str(), res[i]);
-
-	Saver::save_to_file(fname + ".res", funcs, main_sys, res);
-	Saver::save_to_markdown(fname + ".md", funcs, main_sys, res);
-
-	delete funcs["abs"];
-
-	system("leaks es");
-
-	return 0;
-}
-
-void yyerror(const char* s)
-{
-	fprintf(stderr, "Parse error: %s\n", s);
+	std::cerr << "Parse error: " << s << std::endl;
 	exit(1);
 }
 

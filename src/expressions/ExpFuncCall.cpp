@@ -9,14 +9,6 @@ ExpFuncCall::ExpFuncCall()
 	this->f = nullptr;
 }
 
-ExpFuncCall::~ExpFuncCall()
-{
-	delete this->sys;
-	delete this->f;
-	for (int i = 0; i < this->args.size(); ++i)
-		delete this->args[i];
-}
-
 void ExpFuncCall::load_vars_into_sys(System *sys) const
 {
 	for (int i = 0; i < this->args.size(); ++i)

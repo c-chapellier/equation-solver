@@ -99,17 +99,17 @@ int System::solve(std::vector<double> &res, std::vector<double> &guesses)
     int status = GSL_CONTINUE;
     size_t iter = 0;
 
-    if (DEBUG_MODE) print_state(iter, this->equs.size(), s);
+    // print_state(iter, this->equs.size(), s);
     while (status == GSL_CONTINUE && iter++ < 1000)
     {
         status = gsl_multiroot_fsolver_iterate(s);
-        if (DEBUG_MODE) print_state(iter, this->equs.size(), s);
+        // print_state(iter, this->equs.size(), s);
         if (status) /* check if solver is stuck */
             break;
         status = gsl_multiroot_test_residual(s->f, 1e-7);
     }
 
-    debug("status = %s\n", gsl_strerror(status));
+    // std::cout << "status = " << gsl_strerror(status) << std::endl;
 
 	if (s->x->size != this->equs.size())
 		std::cerr << "Error 2: x size is " << s->x->size << ", but system size is " << this->equs.size() << std::endl, exit(1);
@@ -169,33 +169,33 @@ double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 
 ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> *args) : Exp()
 {
-	if (f->args_names->size() != args->size())
-		std::cerr << "Error: function " << f->name << " takes " << f->args_names->size() << " arguments, but " << args->size() << " were given" << std::endl, exit(1);
+	if (f->args_names.size() != args->size())
+		std::cerr << "Error: function " << f->name << " takes " << f->args_names.size() << " arguments, but " << args->size() << " were given" << std::endl, exit(1);
 
 	this->sys = new System();
 	this->f = f;
 	this->args = *args;
 
-	for (int i = 0; i < f->args_names->size(); ++i)
+	for (int i = 0; i < this->f->args_names.size(); ++i)
 	{
 		if (dynamic_cast<ExpEqu *>((*args)[i]) != nullptr)
-			std::cerr << "Error: argument " << (*f->args_names)[i] << " is an equation" << std::endl, exit(1);
+			std::cerr << "Error: argument " << this->f->args_names[i] << " is an equation" << std::endl, exit(1);
 
 		this->sys->add_equ(
 			new ExpEqu(
-				new ExpVar(std::string("@") + (*f->args_names)[i]),
-				(*args)[args->size() - 1 - i]
+				new ExpVar(std::string("@") + this->f->args_names[i]),
+				(*args)[args->size() - 1 - i]->deep_copy()
 			)
 		);
 	}
 
-	for (int i = 0; i < f->sys->size(); ++i)
-		this->sys->add_equ(f->sys->equs[i]);
+	for (int i = 0; i < this->f->sys->size(); ++i)
+		this->sys->add_equ(f->sys->equs[i]->deep_copy());
 
 	this->sys->add_equ(
 		new ExpEqu(
 			new ExpVar(std::string("#ret")),
-			f->exp
+			this->f->exp->deep_copy()
 		)
 	);
 
@@ -299,9 +299,9 @@ void ExpFuncCall::print() const
 
 Function *Function::deep_copy() const
 {
-    std::vector<std::string> *cp_args_names = new std::vector<std::string>();
-    for (int i = 0; i < this->args_names->size(); ++i)
-        cp_args_names->push_back(this->args_names->at(i));
+    std::vector<std::string> cp_args_names = std::vector<std::string>();
+    for (int i = 0; i < this->args_names.size(); ++i)
+        cp_args_names.push_back(this->args_names[i]);
 
     return new Function(this->name, cp_args_names, this->sys->deep_copy(), this->exp->deep_copy());
 }
@@ -309,9 +309,9 @@ Function *Function::deep_copy() const
 void Function::print() const
 {
     std::cerr << "Function: " << this->name << std::endl;
-    std::cerr << "Args " << this->args_names << " ";
-    for (int i = 0; i < this->args_names->size(); ++i)
-        std::cerr << (*this->args_names)[i] << " ";
+    std::cerr << "Args: ";
+    for (int i = 0; i < this->args_names.size(); ++i)
+        std::cerr << this->args_names[i] << " ";
     std::cerr << std::endl;
     std::cerr << "Fn system: " << std::endl;
    	this->sys->print();
@@ -323,10 +323,10 @@ std::string Function::to_latex() const
 {
     std::string res = "";
     res += "" + Latex::var_to_latex(this->name) + "(";
-    for (int i = 0; i < this->args_names->size(); ++i)
+    for (int i = 0; i < this->args_names.size(); ++i)
     {
-        res += this->args_names->at(i);
-        if (i != this->args_names->size() - 1)
+        res += this->args_names.at(i);
+        if (i != this->args_names.size() - 1)
             res += ", ";
     }
 	res += ")";
@@ -335,4 +335,18 @@ std::string Function::to_latex() const
         res += this->sys->equs[i]->to_latex() + " ; ";
     res += " \\rArr " + this->exp->to_latex() + "";
     return res;
+}
+
+Function::~Function()
+{
+    delete this->sys;
+    delete this->exp;
+}
+
+ExpFuncCall::~ExpFuncCall()
+{
+	delete this->sys;
+	delete this->f;
+	for (int i = 0; i < this->args.size(); ++i)
+		delete this->args[i];
 }
