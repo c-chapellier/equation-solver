@@ -1,9 +1,9 @@
 
 #include "ExpPar.hpp"
 
-ExpPar::ExpPar(Exp *left) : Exp()
+ExpPar::ExpPar(Exp *left) : Exp(), eleft(left)
 {
-	this->eleft = left;
+	
 }
 
 ExpPar::~ExpPar()
@@ -16,17 +16,17 @@ void ExpPar::load_vars_into_sys(System *sys) const
 	this->eleft->load_vars_into_sys(sys);
 }
 
-double ExpPar::eval(System *mother_sys, const gsl_vector *x) const
+auto ExpPar::eval(System *mother_sys, const gsl_vector *x) const -> double
 {
     return this->eleft->eval(mother_sys, x);
 }
 
-ExpPar *ExpPar::deep_copy() const
+auto ExpPar::deep_copy() const -> ExpPar *
 {
 	return new ExpPar(this->eleft->deep_copy());
 }
 
-std::string ExpPar::to_latex() const
+auto ExpPar::to_latex() const -> std::string
 {
 	return std::string("\\left(") + this->eleft->to_latex() + "\\right)";
 }
