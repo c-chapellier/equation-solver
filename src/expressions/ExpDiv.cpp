@@ -1,10 +1,10 @@
 
 #include "ExpDiv.hpp"
 
-ExpDiv::ExpDiv(Exp *left, Exp *right) : Exp(), eleft(left), eright(right)
+ExpDiv::ExpDiv(Exp *left, Exp *right) : Exp()
 {
-    
-    
+    this->eleft = left;
+    this->eright = right;
 }
 
 ExpDiv::~ExpDiv()
@@ -19,17 +19,17 @@ void ExpDiv::load_vars_into_sys(System *sys) const
 	this->eright->load_vars_into_sys(sys);
 }
 
-auto ExpDiv::eval(System *mother_sys, const gsl_vector *x) const -> double
+double ExpDiv::eval(System *mother_sys, const gsl_vector *x) const
 {
     return this->eleft->eval(mother_sys, x) / this->eright->eval(mother_sys, x);
 }
 
-auto ExpDiv::deep_copy() const -> ExpDiv *
+ExpDiv *ExpDiv::deep_copy() const
 {
 	return new ExpDiv(this->eleft->deep_copy(), this->eright->deep_copy());
 }
 
-auto ExpDiv::to_latex() const -> std::string
+std::string ExpDiv::to_latex() const
 {
 	return std::string("\\frac{") + this->eleft->to_latex() + "}{" + this->eright->to_latex() + "}";
 }
