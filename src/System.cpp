@@ -214,9 +214,9 @@ ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
 
 double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 {
-	std::vector<double> args;
+	std::vector<double> args_values(this->args.size());
 	for (int i = 0; i < this->args.size(); ++i)
-		args.push_back(this->args[i]->eval(mother_sys, x));
+		args_values[i] = this->args[i]->eval(mother_sys, x);
 	
 	System *cp_sys = this->sys->deep_copy();
 
@@ -235,7 +235,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 			cp_sys->add_equ(
 				new ExpEqu(
 					new ExpVar(new_name.erase(0, 1)),
-					new ExpNum(args[args.size() - 1 - i])
+					new ExpNum(args_values[args_values.size() - 1 - i])
 				)
 			);
 			++j;

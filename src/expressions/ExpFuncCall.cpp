@@ -2,7 +2,7 @@
 #include "ExpFuncCall.hpp"
 
 ExpFuncCall::ExpFuncCall()
-	: Exp(), var(std::string()), sys(nullptr), args(std::vector<Exp *>()), f(nullptr)
+	: Exp(), sys(nullptr), args(std::vector<Exp *>()), f(nullptr)
 {
 	
 }

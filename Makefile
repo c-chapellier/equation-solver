@@ -18,8 +18,8 @@ SOURCES = $(shell find $(SRC_PATH) -name '*.$(SRC_EXT)' | sort -k 1nr | cut -f2-
 OBJECTS = $(SOURCES:$(SRC_PATH)/%.$(SRC_EXT)=$(BUILD_PATH)/%.o)
 DEPS = $(OBJECTS:.o=.d)
 
-# -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic
-COMPILE_FLAGS = --std=c++20 -g -O0
+# -Wshadow
+COMPILE_FLAGS = --std=c++20 -g -O0 -Wnon-virtual-dtor -pedantic
 INCLUDES = -Iinclude/ -I/usr/local/include
 LIBS = -lgsl -lgslcblas -lm
 
@@ -48,7 +48,23 @@ clean:
 	@$(RM) -r $(PARSER_OUT) $(PARSER_OUT:%.$(SRC_EXT)=%.$(HEADER_EXT)) $(LEXER_OUT)
 
 .PHONY: all
-all: $(BIN_PATH)/$(BIN_NAME)
+all: $(PARSER_OUT) $(LEXER_OUT)
+	$(MAKE) compiler
+
+.PHONY: re
+re: clean
+	$(MAKE) release
+
+$(PARSER_OUT): $(PARSER_PATH)
+	@echo "Creating parser: $< -> $@"
+	bison --debug -d -o $@ $<
+
+$(LEXER_OUT): $(LEXER_PATH)
+	@echo "Creating lexer: $< -> $@"
+	flex -o $@ $<
+
+.PHONY: compiler
+compiler: $(BIN_PATH)/$(BIN_NAME)
 	@echo "Making symlink: $(BIN_NAME) -> $<"
 	@$(RM) $(BIN_NAME)
 	@ln -s $(BIN_PATH)/$(BIN_NAME) $(BIN_NAME)
@@ -56,16 +72,6 @@ all: $(BIN_PATH)/$(BIN_NAME)
 $(BIN_PATH)/$(BIN_NAME): $(OBJECTS)
 	@echo "Linking: $@"
 	clang++ $(OBJECTS) -o $@ ${LIBS}
-
-.PHONY: parser
-parser:
-	@echo "Creating parser: $(PARSER_PATH) -> $(PARSER_OUT)"
-	bison --debug -d -o $(PARSER_OUT) $(PARSER_PATH)
-
-.PHONY: lexer
-lexer:
-	@echo "Creating lexer: $(LEXER_PATH) -> $(LEXER_OUT)"
-	flex -o $(LEXER_OUT) $(LEXER_PATH)
 
 .PHONY: static_analyzer
 static_analyzer: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS)

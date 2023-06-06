@@ -8,7 +8,6 @@ class Function;
 class ExpFuncCall : public Exp
 {
 public:
-    std::string var;
     System *sys;
     std::vector<Exp *> args;
     Function *f;

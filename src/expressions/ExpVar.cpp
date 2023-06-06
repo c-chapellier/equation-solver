@@ -2,7 +2,7 @@
 #include "ExpVar.hpp"
 
 ExpVar::ExpVar(std::string var)
-	: Exp(), var(var), dval(0.)
+	: Exp(), dval(0.), var(var)
 {
 
 }
