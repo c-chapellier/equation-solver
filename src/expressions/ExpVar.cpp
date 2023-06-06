@@ -1,7 +1,10 @@
 
 #include "ExpVar.hpp"
 
-ExpVar::ExpVar(std::string var) : Exp(), var(var)
+#include <utility>
+
+
+ExpVar::ExpVar(std::string var) : Exp(), var(std::move(std::move(var)))
 {
 	
 }
