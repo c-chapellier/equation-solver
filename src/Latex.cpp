@@ -3,7 +3,7 @@
 
 void Latex::replace_greek_letters(std::string &s)
 {
-    for (const auto *greek_letter : Latex::greek_letters)
+    for (auto greek_letter : Latex::greek_letters)
     {
         std::string const match = greek_letter;
         std::string const replace = std::string("\\") + greek_letter + " ";

@@ -38,7 +38,7 @@ auto Saver::save_to_markdown(const std::string &fname, const std::map<std::strin
     }
 
     f << "## Equations" << std::endl << std::endl;
-    for (auto *equ : sys.equs)
+    for (auto equ : sys.equs)
     {
         f << "$$";
         f << equ->to_latex();
