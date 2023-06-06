@@ -4,16 +4,15 @@
 ExpFuncCall::ExpFuncCall()
 {
 	this->var = std::string();
-	
+	this->sys = nullptr;
 	this->args = std::vector<Exp *>();
-	
+	this->f = nullptr;
 }
 
 void ExpFuncCall::load_vars_into_sys(System *sys) const
 {
-	for (auto arg : this->args) {
-		arg->load_vars_into_sys(sys);
-}
+	for (int i = 0; i < this->args.size(); ++i)
+		this->args[i]->load_vars_into_sys(sys);
 }
 
 void ExpFuncCall::add_arg(Exp *arg)

@@ -1,47 +1,44 @@
 
 #include "Saver.hpp"
 
-auto Saver::save_to_file(const std::string &fname, const std::map<std::string, Function *> & /*funcs*/, const System &sys, const std::vector<double> &res) -> int
+int Saver::save_to_file(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys, const std::vector<double> &res)
 {
     std::ofstream f;
 
     f.open(fname);
-    if (!f.is_open()) {
+    if (!f.is_open())
         return -1;
-}
 
-    for (int i = 0; i < sys.vars.size(); ++i) {
+    for (int i = 0; i < sys.vars.size(); ++i)
         f << sys.vars[i] << " = " << res[i] << std::endl;
-}
 
     f.close();
     return 0;
 }
 
-auto Saver::save_to_markdown(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys, const std::vector<double> &res) -> int
+int Saver::save_to_markdown(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys, const std::vector<double> &res)
 {
     std::ofstream f;
 
     f.open(fname);
-    if (!f.is_open()) {
+    if (!f.is_open())
         return -1;
-}
 
     f << "# " << fname << std::endl << std::endl;
     
     f << "## Functions" << std::endl << std::endl;
-    for (const auto & func : funcs)
+    for (auto it = funcs.begin(); it != funcs.end(); ++it)
     {
         f << "$$";
-        f << func.second->to_latex();
+        f << it->second->to_latex();
         f << "$$" << std::endl << std::endl;
     }
 
     f << "## Equations" << std::endl << std::endl;
-    for (auto equ : sys.equs)
+    for (int i = 0; i < sys.equs.size(); ++i)
     {
         f << "$$";
-        f << equ->to_latex();
+        f << sys.equs[i]->to_latex();
         f << "$$" << std::endl << std::endl;
     }
 
@@ -49,7 +46,7 @@ auto Saver::save_to_markdown(const std::string &fname, const std::map<std::strin
     for (int i = 0; i < sys.vars.size(); ++i)
     {
         f << "$$";
-        f << Latex::var_to_latex(sys.vars[i]);
+        f << Latex::var_to_latex(sys.vars[i].c_str());
         f << " = ";
         f << Latex::double_to_latex(res[i]);
         f << "$$" << std::endl << std::endl;

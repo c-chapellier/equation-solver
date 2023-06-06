@@ -6,7 +6,7 @@
 class ExpVar : public Exp
 {
 public:
-    double dval{};
+    double dval;
     std::string var;
     
 public:
