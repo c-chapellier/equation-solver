@@ -1,10 +1,10 @@
 
 #include "ExpMul.hpp"
 
-ExpMul::ExpMul(Exp *left, Exp *right) : Exp()
+ExpMul::ExpMul(Exp *left, Exp *right)
+    : Exp(), eleft(left), eright(right)
 {
-    this->eleft = left;
-    this->eright = right;
+
 }
 
 ExpMul::~ExpMul()

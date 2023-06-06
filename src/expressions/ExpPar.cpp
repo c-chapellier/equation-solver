@@ -1,9 +1,10 @@
 
 #include "ExpPar.hpp"
 
-ExpPar::ExpPar(Exp *left) : Exp()
+ExpPar::ExpPar(Exp *left)
+	: Exp(), eleft(left)
 {
-	this->eleft = left;
+
 }
 
 ExpPar::~ExpPar()

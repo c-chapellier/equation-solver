@@ -3,10 +3,9 @@
 
 void Latex::replace_greek_letters(std::string &s)
 {
-    for (int i = 0; i < Latex::size; ++i)
+    for (const std::string_view &match : Latex::greek_letters)
     {
-        std::string match = Latex::greek_letters[i];
-        std::string replace = std::string("\\") + Latex::greek_letters[i] + " ";
+        std::string replace = std::string("\\") + match.data() + " ";
 
         size_t pos = s.find(match);
 
@@ -33,7 +32,7 @@ std::string Latex::var_to_latex(std::string var)
 {
     Latex::replace_greek_letters(var);
 
-    int i = var.find('_');
+    size_t i = var.find('_');
 
     if (i == -1)
         return var;

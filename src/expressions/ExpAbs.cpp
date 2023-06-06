@@ -1,7 +1,8 @@
 
 #include "ExpAbs.hpp"
 
-ExpAbs::ExpAbs() : Exp()
+ExpAbs::ExpAbs()
+    : Exp()
 {
 
 }

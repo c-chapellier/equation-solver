@@ -11,7 +11,7 @@ private:
     
 public:
     ExpSub(Exp *left, Exp *right);
-    ~ExpSub();
+    ~ExpSub() override;
     void load_vars_into_sys(System *sys) const override;
     double eval(System *mother_sys, const gsl_vector *x) const override;
     ExpSub *deep_copy() const override;

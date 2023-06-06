@@ -1,10 +1,10 @@
 
 #include "ExpSub.hpp"
 
-ExpSub::ExpSub(Exp *left, Exp *right) : Exp()
+ExpSub::ExpSub(Exp *left, Exp *right)
+    : Exp(), eleft(left), eright(right)
 {
-    this->eleft = left;
-    this->eright = right;
+
 }
 
 ExpSub::~ExpSub()

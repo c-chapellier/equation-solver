@@ -1,10 +1,10 @@
 
 #include "ExpExp.hpp"
 
-ExpExp::ExpExp(Exp *left, Exp *right) : Exp()
+ExpExp::ExpExp(Exp *left, Exp *right)
+    : Exp(), eleft(left), eright(right)
 {
-    this->eleft = left;
-    this->eright = right;
+
 }
 
 ExpExp::~ExpExp()

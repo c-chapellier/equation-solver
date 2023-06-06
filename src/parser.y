@@ -78,37 +78,37 @@ func:
 ;
 
 args_names:
-	  T_VAR T_COMMA args_names	{ debug("args_names: T_VAR T_COMMA args_names\n"); $$ = $3; ((std::vector<std::string> *)$$)->insert(((std::vector<std::string> *)$$)->begin(), std::string($1)); delete $1; }
-	| T_VAR						{ debug("args_names: T_VAR\n"); $$ = new std::vector<std::string>(); ((std::vector<std::string> *)$$)->insert(((std::vector<std::string> *)$$)->begin(), std::string($1)); delete $1; }
+	  T_VAR T_COMMA args_names	{ debug("args_names: T_VAR T_COMMA args_names"); $$ = $3; ((std::vector<std::string> *)$$)->insert(((std::vector<std::string> *)$$)->begin(), std::string($1)); delete $1; }
+	| T_VAR						{ debug("args_names: T_VAR"); $$ = new std::vector<std::string>(); ((std::vector<std::string> *)$$)->insert(((std::vector<std::string> *)$$)->begin(), std::string($1)); delete $1; }
 ;
 
 sys:
-	  T_NEWLINE				{ debug("sys: T_NEWLINE\n"); $$ = new System(); }
-	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE\n"); $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
-	| equ T_EOF				{ debug("sys: equ T_EOF\n"); $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
-	| sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE\n"); $$ = $1; ((System *)$$)->add_equ((Exp *)$2); }
-	| sys T_NEWLINE			{ debug("sys: sys T_NEWLINE\n"); }
-	| sys T_EOF				{ debug("sys: sys T_EOF\n"); }
+	  T_NEWLINE				{ debug("sys: T_NEWLINE"); $$ = new System(); }
+	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE"); $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
+	| equ T_EOF				{ debug("sys: equ T_EOF"); $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
+	| sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE"); $$ = $1; ((System *)$$)->add_equ((Exp *)$2); }
+	| sys T_NEWLINE			{ debug("sys: sys T_NEWLINE"); }
+	| sys T_EOF				{ debug("sys: sys T_EOF"); }
 ;
 
-equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp\n"); $$ = new ExpEqu((Exp *)$1, (Exp *)$3); }
+equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp"); $$ = new ExpEqu((Exp *)$1, (Exp *)$3); }
 ;
 
 exp:
-	  T_DOUBLE			{ debug("exp: T_DOUBLE(%f)\n", $1); $$ = new ExpNum($1); }
-	| T_VAR				{ debug("exp: T_VAR(%s)\n", $1); $$ = new ExpVar($1); delete $1; }
-	| exp T_ADD exp		{ debug("exp: exp T_ADD exp\n"); $$ = new ExpAdd((Exp *)$1, (Exp *)$3); }
-	| exp T_SUB exp		{ debug("exp: exp T_SUB exp\n"); $$ = new ExpSub((Exp *)$1, (Exp *)$3); }
-	| exp T_MUL exp		{ debug("exp: exp T_MUL exp\n"); $$ = new ExpMul((Exp *)$1, (Exp *)$3); }
-	| exp T_DIV exp		{ debug("exp: exp T_DIV exp\n"); $$ = new ExpDiv((Exp *)$1, (Exp *)$3); }
-	| exp T_EXP exp		{ debug("exp: exp T_EXP exp\n"); $$ = new ExpExp((Exp *)$1, (Exp *)$3); }
-	| T_LPAR exp T_RPAR	{ debug("exp: T_LPAR exp T_RPAR\n"); $$ = new ExpPar((Exp *)$2); }
-	| T_VAR T_LPAR args T_RPAR	{ debug("exp: T_VAR T_LPAR args T_RPAR\n"); $$ = new ExpFuncCall(funcs[$1]->deep_copy(), *(std::vector<Exp *> *)$3); delete $1; delete (std::vector<Exp *> *)$3; }
+	  T_DOUBLE			{ debug("exp: T_DOUBLE(" + std::to_string($1) + ")"); $$ = new ExpNum($1); }
+	| T_VAR				{ debug("exp: T_VAR(" + std::string($1) + ")"); $$ = new ExpVar($1); delete $1; }
+	| exp T_ADD exp		{ debug("exp: exp T_ADD exp"); $$ = new ExpAdd((Exp *)$1, (Exp *)$3); }
+	| exp T_SUB exp		{ debug("exp: exp T_SUB exp"); $$ = new ExpSub((Exp *)$1, (Exp *)$3); }
+	| exp T_MUL exp		{ debug("exp: exp T_MUL exp"); $$ = new ExpMul((Exp *)$1, (Exp *)$3); }
+	| exp T_DIV exp		{ debug("exp: exp T_DIV exp"); $$ = new ExpDiv((Exp *)$1, (Exp *)$3); }
+	| exp T_EXP exp		{ debug("exp: exp T_EXP exp"); $$ = new ExpExp((Exp *)$1, (Exp *)$3); }
+	| T_LPAR exp T_RPAR	{ debug("exp: T_LPAR exp T_RPAR"); $$ = new ExpPar((Exp *)$2); }
+	| T_VAR T_LPAR args T_RPAR	{ debug("exp: T_VAR T_LPAR args T_RPAR"); $$ = new ExpFuncCall(funcs[$1]->deep_copy(), *(std::vector<Exp *> *)$3); delete $1; delete (std::vector<Exp *> *)$3; }
 ;
 
 args:
-	  exp T_COMMA args	{ debug("args: exp T_COMMA args\n"); $$ = $3; ((std::vector<Exp *> *)$$)->push_back((Exp *)$1); }
-	| exp				{ debug("args: exp\n"); $$ = new std::vector<Exp *>(); ((std::vector<Exp *> *)$$)->push_back((Exp *)$1); }
+	  exp T_COMMA args	{ debug("args: exp T_COMMA args"); $$ = $3; ((std::vector<Exp *> *)$$)->push_back((Exp *)$1); }
+	| exp				{ debug("args: exp"); $$ = new std::vector<Exp *>(); ((std::vector<Exp *> *)$$)->push_back((Exp *)$1); }
 
 %%
 

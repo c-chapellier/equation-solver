@@ -6,11 +6,16 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <span>
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>
 
-#include "debug.hpp"
+template<typename T>
+constexpr void debug(const T &x)
+{
+    if (0) std::cerr << x << std::endl;
+}
 
 #include "../src/Latex.hpp"
 
@@ -30,3 +35,5 @@
 #include "../src/Function.hpp"
 
 #include "../src/System.hpp"
+
+#include "../src/Saver.hpp"

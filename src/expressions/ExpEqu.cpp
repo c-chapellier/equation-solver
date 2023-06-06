@@ -1,10 +1,10 @@
 
 #include "ExpEqu.hpp"
 
-ExpEqu::ExpEqu(Exp *left, Exp *right) : Exp()
+ExpEqu::ExpEqu(Exp *left, Exp *right)
+    : Exp(), eleft(left), eright(right)
 {
-    this->eleft = left;
-    this->eright = right;
+
 }
 
 ExpEqu::~ExpEqu()

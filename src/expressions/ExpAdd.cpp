@@ -1,10 +1,10 @@
 
 #include "ExpAdd.hpp"
 
-ExpAdd::ExpAdd(Exp *left, Exp *right) : Exp()
+ExpAdd::ExpAdd(Exp *left, Exp *right)
+    : Exp(), eleft(left), eright(right)
 {
-    this->eleft = left;
-    this->eright = right;
+
 }
 
 ExpAdd::~ExpAdd()

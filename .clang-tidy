@@ -1,0 +1,7 @@
+---
+Checks:          '-*,cppcoreguidelines-*,-cppcoreguidelines-owning-memory,-cppcoreguidelines-avoid-do-while,-cppcoreguidelines-avoid-non-const-global-variables,-cppcoreguidelines-special-member-functions'
+WarningsAsErrors: true
+# include .hpp headers in include directory or in src directory and its subdirectories
+HeaderFilterRegex: 'include/.*\.hpp|src/.*\.hpp'
+AnalyzeTemporaryDtors: false
+...

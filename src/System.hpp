@@ -20,7 +20,7 @@ public:
     void add_equ(Exp *equ);
     void add_var(const std::string &var);
     void add_sys(System *sys);
-    int size() const;
+    size_t size() const;
     void load_vars_from_equs();
     int solve(std::vector<double> &res, std::vector<double> &guesses);
     void print() const;

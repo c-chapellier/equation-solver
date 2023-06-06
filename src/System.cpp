@@ -13,7 +13,7 @@ System::~System()
 		delete this->equs[i];
 }
 
-int System::size() const
+size_t System::size() const
 {
 	return this->equs.size();
 }
@@ -40,24 +40,25 @@ void System::add_sys(System *sys)
 
 void System::print() const
 {
-	printf("System:\n");
-	printf("  Equations(%lu):\n", this->equs.size());
+	std::cout << "System:" << std::endl;
+	std::cout << "  Equations(" << this->equs.size() << "):" << std::endl;
 	for (int i = 0; i < this->equs.size(); ++i)
 	{
-		printf("    ");
+		std::cout << "    ";
 		this->equs[i]->print();
-		printf("\n");
+		std::cout << std::endl;
 	}
-	printf("  Variables(%lu):\n", this->vars.size());
+	std::cout << "  Variables(" << this->vars.size() << "):" << std::endl;
 	for (int i = 0; i < this->vars.size(); ++i)
-		printf("    %s\n", this->vars[i].c_str());
+		std::cout << "    " << this->vars[i] << std::endl;
 }
 
 int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
-    System *sys = (System *)params;
+    System *sys = static_cast<System *>(params);
 
-    double y[sys->equs.size()];
+	std::vector<double> y(sys->equs.size());
+
     for (int i = 0; i < sys->equs.size(); ++i)
         y[i] = sys->equs[i]->eval(sys, x);
 
@@ -72,17 +73,19 @@ int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 
 void System::print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
 {
-	printf("iter = %3lu x = ", iter);
+	std::cout << "iter = " << iter << " x = ";
 	for (int i = 0; i < n; ++i)
-		printf("% .3f ", gsl_vector_get(s->x, i));
-	printf("f(x) = ");
+		std::cout << gsl_vector_get(s->x, i) << " ";
+	std::cout << "f(x) = ";
 	for (int i = 0; i < n; ++i)
-		printf("% .3e ", gsl_vector_get(s->f, i));
-	printf("\n");
+		std::cout << gsl_vector_get(s->f, i) << " ";
+	std::cout << std::endl;
 }
 
 int System::solve(std::vector<double> &res, std::vector<double> &guesses)
 {
+	const double EPSILON = 1e-7;
+	const int MAX_ITERATIONS = 1000;
     const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
     gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, this->equs.size());
     gsl_multiroot_function f = { &System::rosenbrock_f, (size_t)this->equs.size(), this };
@@ -100,13 +103,13 @@ int System::solve(std::vector<double> &res, std::vector<double> &guesses)
     size_t iter = 0;
 
     // print_state(iter, this->equs.size(), s);
-    while (status == GSL_CONTINUE && iter++ < 1000)
+    while (status == GSL_CONTINUE && iter++ < MAX_ITERATIONS)
     {
         status = gsl_multiroot_fsolver_iterate(s);
         // print_state(iter, this->equs.size(), s);
         if (status) /* check if solver is stuck */
             break;
-        status = gsl_multiroot_test_residual(s->f, 1e-7);
+        status = gsl_multiroot_test_residual(s->f, EPSILON);
     }
 
     // std::cout << "status = " << gsl_strerror(status) << std::endl;
@@ -159,10 +162,17 @@ double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 			var_index = i;
 
 	if (var_index == -1)
-		fprintf(stderr, "Error: variable %s not found\n", this->var.c_str()), exit(1);
+	{
+		std::cerr << "Error: variable " << this->var << " not found" << std::endl;
+		exit(1);
+	}
 
 	if (var_index >= x->size)
-		fprintf(stderr, "Error: variable %s index is %d, but x size is %lu\n", this->var.c_str(), var_index, x->size), exit(1);
+	{
+		std::cerr << "Error: variable " << this->var << " index is " << var_index;
+		std::cerr << ", but x size is " << x->size << std::endl;
+		exit(1);
+	}
 
     return gsl_vector_get(x, var_index);
 }
@@ -215,7 +225,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	{
 		ExpEqu *equ = dynamic_cast<ExpEqu *>(cp_sys->equs[i]);
 		if (equ == nullptr)
-			fprintf(stderr, "Error: expression is not an equation\n"), exit(1);
+			std::cerr << "Error: expression is not an equation" << std::endl, exit(1);
 
 		ExpVar *var = dynamic_cast<ExpVar *>(equ->eleft);
 		if (var != nullptr && var->var.front() == '@')
@@ -245,7 +255,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	
 	cp_sys->solve(res, guesses);
 
-	double r;
+	double r = NAN;
 	int found = 0;
 	for (int i = 0; i < cp_sys->vars.size(); ++i)
 		if (cp_sys->vars[i] == "#ret")

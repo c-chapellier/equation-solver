@@ -2,11 +2,9 @@
 #include "ExpFuncCall.hpp"
 
 ExpFuncCall::ExpFuncCall()
+	: Exp(), var(std::string()), sys(nullptr), args(std::vector<Exp *>()), f(nullptr)
 {
-	this->var = std::string();
-	this->sys = nullptr;
-	this->args = std::vector<Exp *>();
-	this->f = nullptr;
+	
 }
 
 void ExpFuncCall::load_vars_into_sys(System *sys) const

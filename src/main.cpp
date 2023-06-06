@@ -1,24 +1,5 @@
 
-#include "../include/es.hpp"
-
-#include "../src/expressions/Exp.hpp"
-#include "../src/expressions/ExpEqu.hpp"
-#include "../src/expressions/ExpNum.hpp"
-#include "../src/expressions/ExpVar.hpp"
-#include "../src/expressions/ExpAdd.hpp"
-#include "../src/expressions/ExpSub.hpp"
-#include "../src/expressions/ExpMul.hpp"
-#include "../src/expressions/ExpDiv.hpp"
-#include "../src/expressions/ExpExp.hpp"
-#include "../src/expressions/ExpPar.hpp"
-#include "../src/expressions/ExpFuncCall.hpp"
-#include "../src/expressions/ExpAbs.hpp"
-
-#include "../src/Function.hpp"
-
-#include "../src/System.hpp"
-
-#include "../src/Saver.hpp"
+#include "es.hpp"
 
 extern int yyparse();
 extern FILE* yyin;
@@ -39,8 +20,6 @@ void parse(const std::string &fname)
 
 	fclose(yyin);
 
-	float ok = 1.54334e-34;
-
 	if (n_parsing_errors > 0)
 	{
 		std::cerr << n_parsing_errors << " error"
@@ -54,15 +33,17 @@ void parse(const std::string &fname)
 
 int main(int argc, char* argv[])
 {
-	// while (getchar() != '\n');
+	std::span<char *> args = std::span(argv, size_t (argc));
+
+	std::string exec_name(args[0]);
 
 	if (argc != 2)
-		std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl, exit(1);
+		std::cerr << "Usage: " << exec_name << " <filename>" << std::endl, exit(1);
 
 	std::vector<std::string> abs_args({ "x" });
 	funcs["abs"] = new Function("abs", abs_args, new System(), new ExpAbs());
 
-	std::string fname = argv[1];
+	std::string fname(args[1]);
 	parse(fname);
 
 	std::vector<double> res;

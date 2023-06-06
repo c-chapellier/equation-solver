@@ -1,9 +1,10 @@
 
 #include "ExpVar.hpp"
 
-ExpVar::ExpVar(std::string var) : Exp()
+ExpVar::ExpVar(std::string var)
+	: Exp(), var(var), dval(0.)
 {
-	this->var = var;
+
 }
 
 ExpVar *ExpVar::deep_copy() const

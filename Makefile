@@ -18,8 +18,9 @@ SOURCES = $(shell find $(SRC_PATH) -name '*.$(SRC_EXT)' | sort -k 1nr | cut -f2-
 OBJECTS = $(SOURCES:$(SRC_PATH)/%.$(SRC_EXT)=$(BUILD_PATH)/%.o)
 DEPS = $(OBJECTS:.o=.d)
 
-COMPILE_FLAGS = --std=c++17 -g -O0
-INCLUDES = -I include/ -I /usr/local/include
+# -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic
+COMPILE_FLAGS = --std=c++20 -g -O0
+INCLUDES = -Iinclude/ -I/usr/local/include
 LIBS = -lgsl -lgslcblas -lm
 
 .PHONY: default_target
@@ -54,7 +55,7 @@ all: $(BIN_PATH)/$(BIN_NAME)
 
 $(BIN_PATH)/$(BIN_NAME): $(OBJECTS)
 	@echo "Linking: $@"
-	clang++ $(OBJECTS) -o $@ ${LIBS} -lSDL2
+	clang++ $(OBJECTS) -o $@ ${LIBS}
 
 .PHONY: parser
 parser:
@@ -65,6 +66,12 @@ parser:
 lexer:
 	@echo "Creating lexer: $(LEXER_PATH) -> $(LEXER_OUT)"
 	flex -o $(LEXER_OUT) $(LEXER_PATH)
+
+.PHONY: static_analyzer
+static_analyzer: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS)
+static_analyzer: clean
+	@echo "Running static analyzer"
+	clang-tidy --config-file=.clang-tidy $(SOURCES) -- $(CFLAGS) $(INCLUDES)
 
 -include $(DEPS)
 

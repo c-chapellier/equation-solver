@@ -1,10 +1,10 @@
 
 #include "ExpDiv.hpp"
 
-ExpDiv::ExpDiv(Exp *left, Exp *right) : Exp()
+ExpDiv::ExpDiv(Exp *left, Exp *right)
+    : Exp(), eleft(left), eright(right)
 {
-    this->eleft = left;
-    this->eright = right;
+
 }
 
 ExpDiv::~ExpDiv()

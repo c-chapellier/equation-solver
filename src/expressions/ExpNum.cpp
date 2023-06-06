@@ -1,9 +1,10 @@
 
 #include "ExpNum.hpp"
 
-ExpNum::ExpNum(double dval) : Exp()
+ExpNum::ExpNum(double dval)
+	: Exp(), dval(dval)
 {
-	this->dval = dval;
+
 }
 
 void ExpNum::load_vars_into_sys(System *sys) const

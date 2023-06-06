@@ -7,8 +7,7 @@ class Latex
 {
 private:
     static constexpr int size = 68;
-    static constexpr int max_len = 12;
-    static constexpr char greek_letters[size][max_len] = {
+    static constexpr std::array<std::string_view, size> greek_letters = {
         "Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta",
         "Iota", "Kappa", "Lambda", "Mu", "Nu", "Xi", "Omicron", "Pi",
         "Rho", "Sigma", "Tau", "Upsilon", "Phi", "Chi", "Psi", "Omega",
