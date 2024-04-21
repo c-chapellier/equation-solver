@@ -148,13 +148,17 @@ System *System::deep_copy() const
 
 void ExpVar::load_vars_into_sys(System *sys) const
 {
+	if (this->var == "pi") return;
+	if (this->var == "e") return;
+
 	sys->add_var(this->var);
 }
 
 double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 {
-	if (this->var == "")
-		return this->dval;
+	if (this->var == "") return this->dval;
+	if (this->var == "pi") return M_PI;
+	if (this->var == "e") return M_E;
 
 	int var_index = -1;
 	for (int i = 0; i < mother_sys->vars.size(); ++i)
@@ -210,6 +214,8 @@ ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
 
 double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 {
+	funcs[this->f->name]->been_called = true;
+
 	std::vector<double> args_values(this->args.size());
 	for (int i = 0; i < this->args.size(); ++i)
 		args_values[i] = this->args[i]->eval(mother_sys, x);
@@ -243,6 +249,12 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	}
 
 	cp_sys->load_vars_from_equs();
+
+	// for (auto &var : default_vars)
+	// {
+	// 	cp_sys->add_equ(new ExpEqu(new ExpVar(var.first), new ExpNum(var.second)));
+	// 	cp_sys->add_var(var.first);
+	// }
 
 	std::vector<double> res;
 	std::vector<double> guesses = std::vector<double>(cp_sys->equs.size(), 1.);

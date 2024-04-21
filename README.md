@@ -1,38 +1,53 @@
 # equation-solver
-Equation solver
+Equation solving language
 
-double ceil(double)
-double floor(double)
-double nearbyint(double)
-double round(double)
+## Usage
+```sh
+./es equation_system.eqs
+```
 
-double fmax(double, double)
-double fmin(double, double)
+## Example 1
 
-double fabs(double)
-double sqrt(double)
+This equation system
+```txt
+y = x - 1
+2*x + y = 1
+```
 
-double exp(double)
+Will produce this markdown document:
 
-double log(double)
-double log2(double)
-double log10(double)
+> ## Equations
+> $$y = x - 1$$
+> $$2 \cdot x + y = 1$$
+> ## Solution
+> $$y = -0.333333$$
+> $$x = 0.666667$$
 
-double pow(double, double)
+## Example 2
 
-double cos(double)
-double sin(double)
-double tan(double)
+This equation system
+```txt
+function square_area(r)
+{
+    return pi * r^2
+}
 
-double cosh(double)
-double sinh(double)
-double tanh(double)
+a = square_area(b)
+sqrt(a) = b + c
+c / a = b
+```
 
-double acos(double)
-double asin(double)
-double atan(double)
-double atan2(double, double)
+Will produce this markdown document:
 
-double acosh(double)
-double asinh(double)
-double atanh(double)
+> ## Functions
+> $$sqrt(x) \rArr \sqrt{x}$$
+> $$square_{area}(r) \rArr \pi  \cdot r^{2}$$
+> ## Equations
+> $$a = square_{area}\left(
+> b\right)$$
+> $$\sqrt{a} = b + c$$
+> $$\frac{c}{a} = b$$
+> ## Solution
+> $$a = 0.772454$$
+> $$b = 0.495863$$
+> $$c = 0.383031$$

@@ -10,6 +10,7 @@ public:
 	std::vector<std::string> args_names;
 	System *sys;
 	Exp *exp;
+	bool been_called;
 
 public:
     Function(std::string name, std::vector<std::string> args_names, System *sys, Exp *exp);

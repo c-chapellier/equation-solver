@@ -1,0 +1,9 @@
+
+function square_area(r)
+{
+    return pi * r^2
+}
+
+a = square_area(b)
+sqrt(a) = b + c
+c / a = b

@@ -2,7 +2,6 @@
 SRC_PATH = src
 BUILD_PATH = build
 BIN_PATH = $(BUILD_PATH)/bin
-TEST_PATH = test
 
 BIN_NAME = es
 
@@ -47,8 +46,6 @@ clean:
 	@$(RM) -r $(BIN_PATH)
 	@echo "Deleting parser and lexer"
 	@$(RM) -r $(PARSER_OUT) $(PARSER_OUT:%.$(SRC_EXT)=%.$(HEADER_EXT)) $(LEXER_OUT)
-	@echo "Deleting test results"
-	@$(RM) -r $(TEST_PATH)/*.eqs.md $(TEST_PATH)/*.eqs.res
 
 .PHONY: all
 all: $(PARSER_OUT) $(LEXER_OUT)
