@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <iostream>
@@ -17,26 +16,26 @@ constexpr void debug(const T &x)
     if (0) std::cerr << x << std::endl;
 }
 
-#include "../src/Latex.hpp"
+#include "../src/lib/expressions/Exp.hpp"
+#include "../src/lib/expressions/ExpEqu.hpp"
+#include "../src/lib/expressions/ExpNum.hpp"
+#include "../src/lib/expressions/ExpVar.hpp"
+#include "../src/lib/expressions/ExpAdd.hpp"
+#include "../src/lib/expressions/ExpSub.hpp"
+#include "../src/lib/expressions/ExpMul.hpp"
+#include "../src/lib/expressions/ExpDiv.hpp"
+#include "../src/lib/expressions/ExpExp.hpp"
+#include "../src/lib/expressions/ExpPar.hpp"
+#include "../src/lib/expressions/ExpFuncCall.hpp"
+#include "../src/lib/expressions/ExpCustom.hpp"
 
-#include "../src/expressions/Exp.hpp"
-#include "../src/expressions/ExpEqu.hpp"
-#include "../src/expressions/ExpNum.hpp"
-#include "../src/expressions/ExpVar.hpp"
-#include "../src/expressions/ExpAdd.hpp"
-#include "../src/expressions/ExpSub.hpp"
-#include "../src/expressions/ExpMul.hpp"
-#include "../src/expressions/ExpDiv.hpp"
-#include "../src/expressions/ExpExp.hpp"
-#include "../src/expressions/ExpPar.hpp"
-#include "../src/expressions/ExpFuncCall.hpp"
-#include "../src/expressions/ExpCustom.hpp"
+#include "../src/lib/Latex.hpp"
 
-#include "../src/Function.hpp"
+#include "../src/lib/Function.hpp"
 
-#include "../src/System.hpp"
+#include "../src/lib/Saver.hpp"
 
-#include "../src/Saver.hpp"
+#include "../src/lib/System.hpp"
 
 inline std::map<std::string, Function *> funcs;
 

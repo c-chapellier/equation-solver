@@ -102,17 +102,13 @@ int System::solve(std::vector<double> &res, std::vector<double> &guesses)
 	int status = GSL_CONTINUE;
 	size_t iter = 0;
 
-	// print_state(iter, this->equs.size(), s);
 	while (status == GSL_CONTINUE && iter++ < MAX_ITERATIONS)
 	{
 		status = gsl_multiroot_fsolver_iterate(s);
-		// print_state(iter, this->equs.size(), s);
 		if (status) /* check if solver is stuck */
 			break;
 		status = gsl_multiroot_test_residual(s->f, EPSILON);
 	}
-
-	// std::cout << "status = " << gsl_strerror(status) << std::endl;
 
 	if (s->x->size != this->equs.size())
 		std::cerr << "Error 2: x size is " << s->x->size << ", but system size is " << this->equs.size() << std::endl, exit(1);
@@ -249,12 +245,6 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	}
 
 	cp_sys->load_vars_from_equs();
-
-	// for (auto &var : default_vars)
-	// {
-	// 	cp_sys->add_equ(new ExpEqu(new ExpVar(var.first), new ExpNum(var.second)));
-	// 	cp_sys->add_var(var.first);
-	// }
 
 	std::vector<double> res;
 	std::vector<double> guesses = std::vector<double>(cp_sys->equs.size(), 1.);

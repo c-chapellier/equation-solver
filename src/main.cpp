@@ -7,7 +7,7 @@ extern FILE* yyin;
 System main_sys = System();
 int n_parsing_errors = 0;
 
-void parse(const std::string &fname)
+static void parse_file(const std::string &fname)
 {
 	yyin = fopen(fname.c_str(), "r");
 	if (yyin == NULL)
@@ -30,13 +30,8 @@ void parse(const std::string &fname)
 	main_sys.load_vars_from_equs();
 }
 
-int main(int argc, char* argv[])
+static void add_default_funcs()
 {
-	std::span<char *> args = std::span(argv, size_t (argc));
-
-	if (argc != 2)
-		std::cerr << "Usage: " << args[0] << " <filename>" << std::endl, exit(1);
-	
 	for (auto &func_data : default_funcs)
 	{
 		funcs[func_data.name] = new Function(
@@ -46,22 +41,24 @@ int main(int argc, char* argv[])
 			new ExpCustom(func_data.args.size(), func_data.func, func_data.str_repr, func_data.latex_repr)
 		);
 	}
+}
 
-	std::string fname(args[1]);
-	parse(fname);
+int main(int argc, char* argv[])
+{
+	std::span<char *> args = std::span(argv, size_t (argc));
 
-	// for (auto &var : default_vars)
-	// {
-	// 	main_sys.add_equ(new ExpEqu(new ExpVar(var.first), new ExpNum(var.second)));
-	// 	main_sys.add_var(var.first);
-	// }
+	if (argc != 2)
+		std::cerr << "Usage: " << args[0] << " <filename>" << std::endl, exit(1);
+	
+	add_default_funcs();
+	parse_file(args[1]);
 
 	std::vector<double> res;
-	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1  );
+	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1 );
 	main_sys.solve(res, guesses);
 
-	Saver::save_to_file(fname + ".res", funcs, main_sys, res);
-	Saver::save_to_markdown(fname + ".md", funcs, main_sys, res);
+	Saver::save_to_file(std::string(args[1]) + ".res", funcs, main_sys, res);
+	Saver::save_to_markdown(std::string(args[1]) + ".md", funcs, main_sys, res);
 
 	for (auto &func : funcs)
 		delete func.second;
