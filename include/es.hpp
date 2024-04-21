@@ -30,7 +30,7 @@ constexpr void debug(const T &x)
 #include "../src/expressions/ExpExp.hpp"
 #include "../src/expressions/ExpPar.hpp"
 #include "../src/expressions/ExpFuncCall.hpp"
-#include "../src/expressions/ExpAbs.hpp"
+#include "../src/expressions/ExpCustom.hpp"
 
 #include "../src/Function.hpp"
 

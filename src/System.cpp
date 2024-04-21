@@ -55,20 +55,20 @@ void System::print() const
 
 int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
-    System *sys = static_cast<System *>(params);
+	System *sys = static_cast<System *>(params);
 
 	std::vector<double> y(sys->equs.size());
 
-    for (int i = 0; i < sys->equs.size(); ++i)
-        y[i] = sys->equs[i]->eval(sys, x);
+	for (int i = 0; i < sys->equs.size(); ++i)
+		y[i] = sys->equs[i]->eval(sys, x);
 
 	if (x->size != sys->equs.size())
 		std::cerr << "Error: x size is " << x->size << ", but system size is " << sys->equs.size() << std::endl, exit(1);
 
-    for (int i = 0; i < sys->equs.size(); ++i)
-        gsl_vector_set(f, i, y[i]);
+	for (int i = 0; i < sys->equs.size(); ++i)
+		gsl_vector_set(f, i, y[i]);
 
-    return GSL_SUCCESS;
+	return GSL_SUCCESS;
 }
 
 void System::print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
@@ -86,44 +86,44 @@ int System::solve(std::vector<double> &res, std::vector<double> &guesses)
 {
 	const double EPSILON = 1e-7;
 	const int MAX_ITERATIONS = 1000;
-    const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
-    gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, this->equs.size());
-    gsl_multiroot_function f = { &System::rosenbrock_f, (size_t)this->equs.size(), this };
+	const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
+	gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, this->equs.size());
+	gsl_multiroot_function f = {&System::rosenbrock_f, (size_t)this->equs.size(), this};
 
 	if (guesses.size() != this->equs.size())
 		std::cerr << "Error: guesses size is " << guesses.size() << ", but system size is " << this->equs.size() << std::endl, exit(1);
-    
-    gsl_vector *x = gsl_vector_alloc(this->equs.size());
-    for (int i = 0; i < this->equs.size(); i++)
-        gsl_vector_set(x, i, guesses[i]);
 
-    gsl_multiroot_fsolver_set(s, &f, x);
+	gsl_vector *x = gsl_vector_alloc(this->equs.size());
+	for (int i = 0; i < this->equs.size(); i++)
+		gsl_vector_set(x, i, guesses[i]);
 
-    int status = GSL_CONTINUE;
-    size_t iter = 0;
+	gsl_multiroot_fsolver_set(s, &f, x);
 
-    // print_state(iter, this->equs.size(), s);
-    while (status == GSL_CONTINUE && iter++ < MAX_ITERATIONS)
-    {
-        status = gsl_multiroot_fsolver_iterate(s);
-        // print_state(iter, this->equs.size(), s);
-        if (status) /* check if solver is stuck */
-            break;
-        status = gsl_multiroot_test_residual(s->f, EPSILON);
-    }
+	int status = GSL_CONTINUE;
+	size_t iter = 0;
 
-    // std::cout << "status = " << gsl_strerror(status) << std::endl;
+	// print_state(iter, this->equs.size(), s);
+	while (status == GSL_CONTINUE && iter++ < MAX_ITERATIONS)
+	{
+		status = gsl_multiroot_fsolver_iterate(s);
+		// print_state(iter, this->equs.size(), s);
+		if (status) /* check if solver is stuck */
+			break;
+		status = gsl_multiroot_test_residual(s->f, EPSILON);
+	}
+
+	// std::cout << "status = " << gsl_strerror(status) << std::endl;
 
 	if (s->x->size != this->equs.size())
 		std::cerr << "Error 2: x size is " << s->x->size << ", but system size is " << this->equs.size() << std::endl, exit(1);
 
 	res = std::vector<double>(this->equs.size());
-    for (int i = 0; i < this->equs.size(); i++)
-        res[i] = gsl_vector_get(s->x, i);
+	for (int i = 0; i < this->equs.size(); i++)
+		res[i] = gsl_vector_get(s->x, i);
 
-    gsl_multiroot_fsolver_free(s);
-    gsl_vector_free(x);
-    return 0;
+	gsl_multiroot_fsolver_free(s);
+	gsl_vector_free(x);
+	return 0;
 }
 
 void System::load_vars_from_equs()
@@ -140,9 +140,9 @@ System *System::deep_copy() const
 
 	for (int i = 0; i < this->equs.size(); ++i)
 		cp_sys->add_equ(this->equs[i]->deep_copy());
-	
+
 	cp_sys->load_vars_from_equs();
-	
+
 	return cp_sys;
 }
 
@@ -174,7 +174,7 @@ double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 		exit(1);
 	}
 
-    return gsl_vector_get(x, var_index);
+	return gsl_vector_get(x, var_index);
 }
 
 ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
@@ -194,9 +194,7 @@ ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
 		this->sys->add_equ(
 			new ExpEqu(
 				new ExpVar(std::string("@") + this->f->args_names[i]),
-				args[args.size() - 1 - i]->deep_copy()
-			)
-		);
+				args[args.size() - 1 - i]->deep_copy()));
 	}
 
 	for (int i = 0; i < this->f->sys->size(); ++i)
@@ -205,9 +203,7 @@ ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
 	this->sys->add_equ(
 		new ExpEqu(
 			new ExpVar(std::string("#ret")),
-			this->f->exp->deep_copy()
-		)
-	);
+			this->f->exp->deep_copy()));
 
 	this->sys->load_vars_from_equs();
 }
@@ -217,7 +213,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	std::vector<double> args_values(this->args.size());
 	for (int i = 0; i < this->args.size(); ++i)
 		args_values[i] = this->args[i]->eval(mother_sys, x);
-	
+
 	System *cp_sys = this->sys->deep_copy();
 
 	int j = 0;
@@ -231,13 +227,11 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 		if (var != nullptr && var->var.front() == '@')
 		{
 			std::string new_name = var->var;
-			
+
 			cp_sys->add_equ(
 				new ExpEqu(
 					new ExpVar(new_name.erase(0, 1)),
-					new ExpNum(args_values[args_values.size() - 1 - i])
-				)
-			);
+					new ExpNum(args_values[args_values.size() - 1 - i])));
 			++j;
 		}
 	}
@@ -252,7 +246,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 
 	std::vector<double> res;
 	std::vector<double> guesses = std::vector<double>(cp_sys->equs.size(), 1.);
-	
+
 	cp_sys->solve(res, guesses);
 
 	double r = NAN;
@@ -287,17 +281,24 @@ ExpFuncCall *ExpFuncCall::deep_copy() const
 
 std::string ExpFuncCall::to_latex() const
 {
-	std::string ret = Latex::var_to_latex(this->f->name);
-
-	ret += "\\left(\n";
-	for (int i = 0; i < this->args.size(); ++i)
+	if (this->f->name == "abs")
+		return "\\mid " + this->args[0]->to_latex() + " \\mid";
+	else if (this->f->name == "sqrt")
+		return "\\sqrt{" + this->args[0]->to_latex() + "}";
+	else
 	{
-		ret += this->args[i]->to_latex();
-		if (i != this->args.size() - 1)
-			ret += ", ";
+		std::string ret = Latex::var_to_latex(this->f->name);
+
+		ret += "\\left(\n";
+		for (int i = 0; i < this->args.size(); ++i)
+		{
+			ret += this->args[i]->to_latex();
+			if (i != this->args.size() - 1)
+				ret += ", ";
+		}
+		ret += "\\right)";
+		return ret;
 	}
-	ret += "\\right)";
-	return ret;
 }
 
 void ExpFuncCall::print() const
@@ -309,48 +310,49 @@ void ExpFuncCall::print() const
 
 Function *Function::deep_copy() const
 {
-    std::vector<std::string> cp_args_names = std::vector<std::string>();
-    for (int i = 0; i < this->args_names.size(); ++i)
-        cp_args_names.push_back(this->args_names[i]);
+	std::vector<std::string> cp_args_names = std::vector<std::string>();
+	for (int i = 0; i < this->args_names.size(); ++i)
+		cp_args_names.push_back(this->args_names[i]);
 
-    return new Function(this->name, cp_args_names, this->sys->deep_copy(), this->exp->deep_copy());
+	return new Function(this->name, cp_args_names, this->sys->deep_copy(), this->exp->deep_copy());
 }
 
 void Function::print() const
 {
-    std::cerr << "Function: " << this->name << std::endl;
-    std::cerr << "Args: ";
-    for (int i = 0; i < this->args_names.size(); ++i)
-        std::cerr << this->args_names[i] << " ";
-    std::cerr << std::endl;
-    std::cerr << "Fn system: " << std::endl;
-   	this->sys->print();
-    std::cerr << "Expression: " << std::endl;
-    this->exp->print();
+	std::cerr << "Function: " << this->name << std::endl;
+	std::cerr << "Args: ";
+	for (int i = 0; i < this->args_names.size(); ++i)
+		std::cerr << this->args_names[i] << " ";
+	std::cerr << std::endl;
+	std::cerr << "Fn system: " << std::endl;
+	this->sys->print();
+	std::cerr << "Expression: " << std::endl;
+	this->exp->print();
 }
 
 std::string Function::to_latex() const
 {
-    std::string res = "";
-    res += "" + Latex::var_to_latex(this->name) + "(";
-    for (int i = 0; i < this->args_names.size(); ++i)
-    {
-        res += this->args_names.at(i);
-        if (i != this->args_names.size() - 1)
-            res += ", ";
-    }
+	std::string res = "";
+	res += "" + Latex::var_to_latex(this->name) + "(";
+	for (int i = 0; i < this->args_names.size(); ++i)
+	{
+		res += this->args_names.at(i);
+		if (i != this->args_names.size() - 1)
+			res += ", ";
+	}
 	res += ")";
-    if (this->sys->equs.size() > 0) res += ":";
-    for (int i = 0; i < this->sys->equs.size(); ++i)
-        res += this->sys->equs[i]->to_latex() + " ; ";
-    res += " \\rArr " + this->exp->to_latex() + "";
-    return res;
+	if (this->sys->equs.size() > 0)
+		res += ":";
+	for (int i = 0; i < this->sys->equs.size(); ++i)
+		res += this->sys->equs[i]->to_latex() + " ; ";
+	res += " \\rArr " + this->exp->to_latex() + "";
+	return res;
 }
 
 Function::~Function()
 {
-    delete this->sys;
-    delete this->exp;
+	delete this->sys;
+	delete this->exp;
 }
 
 ExpFuncCall::~ExpFuncCall()

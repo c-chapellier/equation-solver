@@ -35,13 +35,42 @@ int main(int argc, char* argv[])
 {
 	std::span<char *> args = std::span(argv, size_t (argc));
 
-	std::string exec_name(args[0]);
-
 	if (argc != 2)
-		std::cerr << "Usage: " << exec_name << " <filename>" << std::endl, exit(1);
+		std::cerr << "Usage: " << args[0] << " <filename>" << std::endl, exit(1);
 
-	std::vector<std::string> abs_args({ "x" });
-	funcs["abs"] = new Function("abs", abs_args, new System(), new ExpAbs());
+
+	struct FuncData
+	{
+		std::string name;
+		std::vector<std::string> args;
+		double (*func)(double *);
+		const char *str_repr;
+		const char *latex_repr;
+	};
+
+	FuncData funcs_data[] = {
+		{ "abs", { "x" }, [](double *args) -> double { return abs(args[0]); }, "\\mid x \\mid", "|x|" },
+		{ "sin", { "x" }, [](double *args) -> double { return sin(args[0]); }, "\\sin(x)", "\\sin(x)" },
+		{ "cos", { "x" }, [](double *args) -> double { return cos(args[0]); }, "\\cos(x)", "\\cos(x)" },
+		{ "tan", { "x" }, [](double *args) -> double { return tan(args[0]); }, "\\tan(x)", "\\tan(x)" },
+		{ "exp", { "x" }, [](double *args) -> double { return exp(args[0]); }, "\\exp(x)", "e^{x}" },
+		{ "log", { "x" }, [](double *args) -> double { return log(args[0]); }, "\\log(x)", "\\log(x)" },
+		{ "sqrt", { "x" }, [](double *args) -> double { return sqrt(args[0]); }, "\\sqrt{x}", "\\sqrt{x}" },
+		{ "atan2", { "x", "y" }, [](double *args) -> double { return atan2(args[0], args[1]); }, "\\text{atan2}(x, y)", "\\text{atan2}(x, y)" },
+		{ "hypot", { "x", "y" }, [](double *args) -> double { return hypot(args[0], args[1]); }, "\\text{hypot}(x, y)", "\\text{hypot}(x, y)" },
+		{ "min", { "a", "b" }, [](double *args) -> double { return std::min(args[0], args[1]); }, "min(x, y)", "\\min(x, y)" },
+		{ "max", { "a", "b" }, [](double *args) -> double { return std::max(args[0], args[1]); }, "max(x, y)", "\\max(x, y)" }
+	};
+	
+	for (auto &func_data : funcs_data)
+	{
+		funcs[func_data.name] = new Function(
+			func_data.name,
+			func_data.args,
+			new System(),
+			new ExpCustom(func_data.args.size(), func_data.func, func_data.str_repr, func_data.latex_repr)
+		);
+	}
 
 	std::string fname(args[1]);
 	parse(fname);
