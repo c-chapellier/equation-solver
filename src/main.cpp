@@ -46,6 +46,19 @@ int main(int argc, char* argv[])
 	std::string fname(args[1]);
 	parse(fname);
 
+	std::map<std::string, double> vars = {
+		{ "pi", M_PI },
+		{ "e", M_E },
+	};
+
+	for (auto &var : vars)
+	{
+		std::cout << "Adding var: " << var.first << " = " << var.second << std::endl;
+		main_sys.add_equ(new ExpEqu(new ExpVar(var.first), new ExpNum(var.second)));
+		main_sys.add_var(var.first);
+	}
+
+
 	std::vector<double> res;
 	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1  );
 	main_sys.solve(res, guesses);
