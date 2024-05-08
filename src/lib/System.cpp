@@ -88,7 +88,7 @@ int System::solve(std::vector<double> &res, std::vector<double> &guesses)
 	const int MAX_ITERATIONS = 1000;
 	const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
 	gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, this->equs.size());
-	gsl_multiroot_function f = {&System::rosenbrock_f, (size_t)this->equs.size(), this};
+	gsl_multiroot_function f = { &System::rosenbrock_f, (size_t)this->equs.size(), this };
 
 	if (guesses.size() != this->equs.size())
 		std::cerr << "Error: guesses size is " << guesses.size() << ", but system size is " << this->equs.size() << std::endl, exit(1);

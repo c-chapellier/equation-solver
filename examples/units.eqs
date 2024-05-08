@@ -1,0 +1,8 @@
+
+function square_area(r)
+{
+    return pi * r^2
+}
+
+a = square_area(4 [m])
+b = a * 4 [kg] / 5 [s]

@@ -51,3 +51,14 @@ Will produce this markdown document:
 > $$a = 0.772454$$
 > $$b = 0.495863$$
 > $$c = 0.383031$$
+
+## Todo
+* Add support for SI units
+* Add support for prefix units
+* Add support for derived units
+* Add support for libraries
+
+## Bugs
+* Constants are just hints
+
+https://en.wikipedia.org/wiki/International_System_of_Units
