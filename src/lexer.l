@@ -39,7 +39,7 @@ unit            \[([a-zA-Z]{0,31}-?[0-9]?\ ?)+\]
 "-"		        { debug("T_SUB"); return T_SUB; }
 "*"		        { debug("T_MUL"); return T_MUL; }
 "/"		        { debug("T_DIV"); return T_DIV; }
-"^"		        { debug("T_EXP"); return T_EXP; }
+"^"		        { debug("T_POW"); return T_POW; }
 "("		        { debug("T_LPAR"); return T_LPAR; }
 ")"		        { debug("T_RPAR"); return T_RPAR; }
 ","             { debug("T_COMMA"); return T_COMMA; }

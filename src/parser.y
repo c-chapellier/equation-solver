@@ -46,14 +46,14 @@ extern int n_parsing_errors;
 %token<sval> T_UNIT
 %token<sval> T_GUESS
 
-%token T_EQU T_ADD T_SUB T_MUL T_DIV T_EXP
+%token T_EQU T_ADD T_SUB T_MUL T_DIV T_POW
 %token T_LPAR T_RPAR T_LBRA T_RBRA T_COMMA
 %token T_RETURN T_FUNC
 %token T_NEWLINE T_EOF
 
 %left T_ADD T_SUB
 %left T_MUL T_DIV
-%left T_EXP
+%left T_POW
 
 %type<exp_val> exp
 %type<exp_val> equ
@@ -105,7 +105,7 @@ exp:
 	| exp T_SUB exp		{ debug("exp: exp T_SUB exp"); $$ = new ExpOp(OpType::SUB, (Exp *)$1, (Exp *)$3); }
 	| exp T_MUL exp		{ debug("exp: exp T_MUL exp"); $$ = new ExpOp(OpType::MUL, (Exp *)$1, (Exp *)$3); }
 	| exp T_DIV exp		{ debug("exp: exp T_DIV exp"); $$ = new ExpOp(OpType::DIV, (Exp *)$1, (Exp *)$3); }
-	| exp T_EXP exp		{ debug("exp: exp T_EXP exp"); $$ = new ExpOp(OpType::EXP, (Exp *)$1, (Exp *)$3); }
+	| exp T_POW exp		{ debug("exp: exp T_POW exp"); $$ = new ExpOp(OpType::POW, (Exp *)$1, (Exp *)$3); }
 	| T_LPAR exp T_RPAR	{ debug("exp: T_LPAR exp T_RPAR"); $$ = new ExpPar((Exp *)$2); }
 	| T_VAR T_LPAR args T_RPAR	{ debug("exp: T_VAR T_LPAR args T_RPAR"); $$ = new ExpFuncCall(funcs[$1]->deep_copy(), *(std::vector<Exp *> *)$3); delete $1; delete (std::vector<Exp *> *)$3; }
 ;

@@ -13,7 +13,7 @@
 template<typename T>
 constexpr void debug(const T &x)
 {
-    if (1) std::cerr << x << std::endl;
+    if (0) std::cerr << x << std::endl;
 }
 
 enum OpType
@@ -22,7 +22,7 @@ enum OpType
 	SUB,
 	MUL,
 	DIV,
-	EXP
+	POW
 };
 
 #include "../src/lib/expressions/Exp.hpp"
