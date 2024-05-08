@@ -13,7 +13,7 @@
 template<typename T>
 constexpr void debug(const T &x)
 {
-    if (0) std::cerr << x << std::endl;
+    if (1) std::cerr << x << std::endl;
 }
 
 enum OpType

@@ -20,12 +20,14 @@ comments        \"(\\.|[^\"\\])*\"
 whitespaces     [ \t]
 var             [a-zA-Z_][a-zA-Z0-9_]{0,31}
 num             [0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?
+unit            \[([a-zA-Z]{0,31}-?[0-9]?\ ?)+\]
 
 %%
 
 {comments}      ;
 {whitespaces}	; // ignore all whitespace
 {num}           { yylval.dval = atof(yytext); debug("T_NUM(" + std::to_string(yylval.dval) + ")"); return T_DOUBLE; }
+{unit}          { yylval.sval = strdup(yytext); debug("T_UNIT(" + std::string(yylval.sval) + ")"); return T_UNIT; }
 "function"      { debug("T_FUNC"); return T_FUNC; }
 "return"        { debug("T_RETURN"); return T_RETURN; }
 {var}           { yylval.sval = strdup(yytext); debug("T_VAR(" + std::string(yylval.sval) + ")"); return T_VAR; }

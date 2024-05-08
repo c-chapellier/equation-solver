@@ -1,10 +1,10 @@
 
 #include "ExpNum.hpp"
 
-ExpNum::ExpNum(double dval)
-	: Exp(), dval(dval)
+ExpNum::ExpNum(double dval, std::string unit)
+	: Exp(), dval(dval), unit(unit)
 {
-
+	std::cout << "ExpNum(" << this->dval << ", " << this->unit << ")" << std::endl;
 }
 
 void ExpNum::load_vars_into_sys(System *sys) const
@@ -19,12 +19,14 @@ double ExpNum::eval(System *mother_sys, const gsl_vector *x) const
 
 ExpNum *ExpNum::deep_copy() const
 {
-	return new ExpNum(this->dval);
+	return new ExpNum(this->dval, this->unit);
 }
 
 std::string ExpNum::to_latex() const
 {
-	return Latex::double_to_latex(this->dval);
+	if (this->unit == "")
+		return Latex::double_to_latex(this->dval);
+	return Latex::double_to_latex(this->dval) + "\\,\\text{" + this->unit + "}";
 }
 
 void ExpNum::print() const

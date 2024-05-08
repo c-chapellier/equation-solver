@@ -26,8 +26,6 @@ static void parse_file(const std::string &fname)
 			<< " generated." << std::endl;
 		exit(1);
 	}
-
-	main_sys.load_vars_from_equs();
 }
 
 static void add_default_funcs()
@@ -52,6 +50,7 @@ int main(int argc, char* argv[])
 	
 	add_default_funcs();
 	parse_file(args[1]);
+	main_sys.load_vars_from_equs();
 
 	std::vector<double> res;
 	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1);
