@@ -1,8 +1,8 @@
 
-D_roue = 0.58 [m]
+D_roue {0.58} = 0.58 [m]
 p_roue = D_roue * 3.1416
-C_roue = 3 [kg m2 s-2]
-v_roue_tr_min = 627 [s-1]
+C_roue {3} = 3 [kg m2 s-2]
+v_roue_tr_min {627} = 627 [s-1]
 v_roue_rd_s = v_roue_tr_min * 2 * 3.1416 / 60
 v_roue_m_s = v_roue_tr_min * p_roue / 60
 v_roue_km_h = v_roue_m_s * 3.6
@@ -11,7 +11,7 @@ P_roue = C_roue * v_roue_rd_s
 rendement = 1
 
 P_cylindre = P_roue * rendement
-D_cylindre = 0.08 [m]
+D_cylindre {0.08} = 0.08 [m]
 p_cylindre = D_cylindre * 3.1416
 v_cylindre_km_h = v_roue_km_h
 v_cylindre_tr_min = (v_cylindre_km_h * 1000) / (60 * p_cylindre)

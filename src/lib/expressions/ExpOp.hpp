@@ -18,5 +18,4 @@ public:
     ExpOp *deep_copy() const override;
     std::string to_latex() const override;
     void print() const override;
-    Exp *get_left();
 };

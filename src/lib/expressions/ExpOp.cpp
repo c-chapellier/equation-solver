@@ -36,8 +36,6 @@ double ExpOp::eval(System *mother_sys, const gsl_vector *x) const
         return l / r;
     case OpType::EXP:
         return pow(l, r);
-    case OpType::EQU:
-        return l - r;
     default:
         std::cerr << "Error: unknown operator: ExpOp::eval" << std::endl, exit(1);
     }
@@ -62,8 +60,6 @@ std::string ExpOp::to_latex() const
 	    return std::string("\\frac{") + this->eleft->to_latex() + "}{" + this->eright->to_latex() + "}";
     case OpType::EXP:
         return this->eleft->to_latex() + "^{" + this->eright->to_latex() + "}";
-    case OpType::EQU:
-        return this->eleft->to_latex() + " = " + this->eright->to_latex();
     default:
         std::cerr << "Error: unknown operator: ExpOp::to_latex" << std::endl, exit(1);
     }
@@ -89,16 +85,8 @@ void ExpOp::print() const
     case OpType::EXP:
         std::cout << " ^ ";
         break;
-    case OpType::EQU:
-        std::cout << " = ";
-        break;
     default:
         std::cerr << "Error: unknown operator: ExpOp::print" << std::endl, exit(1);
     }
     this->eright->print();
-}
-
-Exp *ExpOp::get_left()
-{
-    return this->eleft;
 }

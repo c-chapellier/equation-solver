@@ -52,6 +52,11 @@ Will produce this markdown document:
 > $$b = 0.495863$$
 > $$c = 0.383031$$
 
+## Features
+* Solve equations systems
+* Define functions
+* Choose variable initial guess
+
 ## Todo
 * Add support for SI units
 * Add support for prefix units

@@ -3,6 +3,8 @@
 
 #include "es.hpp"
 
+class ExpEqu;
+
 class System
 {
 private:
@@ -11,14 +13,16 @@ private:
     void load_vars_from_exp(Exp *exp);
 
 public:
-    std::vector<Exp *> equs;
+    std::vector<ExpEqu *> equs;
     std::vector<std::string> vars;
+    std::vector<double> guesses;
+    // std::vector<std::pair<std::string, double>> consts;
 
 public:
     System();
     ~System();
-    void add_equ(Exp *equ);
-    void add_var(const std::string &var);
+    void add_equ(ExpEqu *equ);
+    void add_var(const std::string &var, double guess);
     void add_sys(System *sys);
     size_t size() const;
     void load_vars_from_equs();

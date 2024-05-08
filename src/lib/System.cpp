@@ -3,7 +3,7 @@
 
 System::System()
 {
-	this->equs = std::vector<Exp *>();
+	this->equs = std::vector<ExpEqu *>();
 	this->vars = std::vector<std::string>();
 }
 
@@ -18,18 +18,19 @@ size_t System::size() const
 	return this->equs.size();
 }
 
-void System::add_equ(Exp *equ)
+void System::add_equ(ExpEqu *equ)
 {
 	this->equs.push_back(equ);
 }
 
-void System::add_var(const std::string &var)
+void System::add_var(const std::string &var, double guess)
 {
 	for (int i = 0; i < this->vars.size(); ++i)
 		if (this->vars[i].compare(var) == 0)
 			return;
 
 	this->vars.push_back(std::string(var));
+	this->guesses.push_back(guess);
 }
 
 void System::add_sys(System *sys)
@@ -131,6 +132,24 @@ void System::load_vars_from_equs()
 {
 	this->vars.clear();
 
+	// // sort variables between constants and true variables
+	// int found_consts = 1;
+	// while (found_consts)
+	// {
+	// 	found_consts = 0;
+	// 	for (int i = 0; i < this->equs.size(); ++i)
+	// 	{
+	// 		std::string const_name = "";
+	// 		int value = 0;
+
+	// 		if (this->equs[i]->is_assignation(const_name, value))
+	// 		{
+	// 			this->consts.push_back(std::make_pair(const_name, value));
+	// 			++found_consts;
+	// 		}
+	// 	}
+	// }
+
 	for (int i = 0; i < this->equs.size(); ++i)
 		this->equs[i]->load_vars_into_sys(this);
 }
@@ -152,12 +171,11 @@ void ExpVar::load_vars_into_sys(System *sys) const
 	if (this->var == "pi") return;
 	if (this->var == "e") return;
 
-	sys->add_var(this->var);
+	sys->add_var(this->var, this->guess);
 }
 
 double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 {
-	if (this->var == "") return this->dval;
 	if (this->var == "pi") return M_PI;
 	if (this->var == "e") return M_E;
 
@@ -193,12 +211,11 @@ ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
 
 	for (int i = 0; i < this->f->args_names.size(); ++i)
 	{
-		if (dynamic_cast<ExpOp *>(args[i]) != nullptr)
+		if (dynamic_cast<ExpEqu *>(args[i]) != nullptr)
 			std::cerr << "Error: argument " << this->f->args_names[i] << " is an equation" << std::endl, exit(1);
 
 		this->sys->add_equ(
-			new ExpOp(
-				OpType::EQU,
+			new ExpEqu(
 				new ExpVar(std::string("@") + this->f->args_names[i]),
 				args[args.size() - 1 - i]->deep_copy()));
 	}
@@ -207,8 +224,7 @@ ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
 		this->sys->add_equ(f->sys->equs[i]->deep_copy());
 
 	this->sys->add_equ(
-		new ExpOp(
-			OpType::EQU,
+		new ExpEqu(
 			new ExpVar(std::string("#ret")),
 			this->f->exp->deep_copy()));
 
@@ -228,7 +244,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	int j = 0;
 	for (int i = 0; i < cp_sys->equs.size(); ++i)
 	{
-		ExpOp *equ = dynamic_cast<ExpOp *>(cp_sys->equs[i]);
+		ExpEqu *equ = dynamic_cast<ExpEqu *>(cp_sys->equs[i]);
 		if (equ == nullptr)
 			std::cerr << "Error: expression is not an equation" << std::endl, exit(1);
 
@@ -236,8 +252,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 		if (var != nullptr && var->var.front() == '@') // arguments of the function
 		{
 			cp_sys->add_equ(
-				new ExpOp(
-					OpType::EQU,
+				new ExpEqu(
 					new ExpVar(var->var.erase(0, 1)),
 					new ExpNum(args_values[args_values.size() - 1 - i])));
 			++j;

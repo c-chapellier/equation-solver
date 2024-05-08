@@ -44,6 +44,7 @@ extern int n_parsing_errors;
 %token<sval> T_VAR
 %token<dval> T_DOUBLE
 %token<sval> T_UNIT
+%token<sval> T_GUESS
 
 %token T_EQU T_ADD T_SUB T_MUL T_DIV T_EXP
 %token T_LPAR T_RPAR T_LBRA T_RBRA T_COMMA
@@ -85,20 +86,21 @@ args_names:
 
 sys:
 	  T_NEWLINE				{ debug("sys: T_NEWLINE"); $$ = new System(); }
-	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE"); $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
-	| equ T_EOF				{ debug("sys: equ T_EOF"); $$ = new System(); ((System *)$$)->add_equ((Exp *)$1); }
-	| sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE"); $$ = $1; ((System *)$$)->add_equ((Exp *)$2); }
+	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE"); $$ = new System(); ((System *)$$)->add_equ((ExpEqu *)$1); }
+	| equ T_EOF				{ debug("sys: equ T_EOF"); $$ = new System(); ((System *)$$)->add_equ((ExpEqu *)$1); }
+	| sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE"); $$ = $1; ((System *)$$)->add_equ((ExpEqu *)$2); }
 	| sys T_NEWLINE			{ debug("sys: sys T_NEWLINE"); }
 	| sys T_EOF				{ debug("sys: sys T_EOF"); }
 ;
 
-equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp"); $$ = new ExpOp(OpType::EQU, (Exp *)$1, (Exp *)$3); }
+equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp"); $$ = new ExpEqu((Exp *)$1, (Exp *)$3); }
 ;
 
 exp:
 	  T_DOUBLE			{ debug("exp: T_DOUBLE(" + std::to_string($1) + ")"); $$ = new ExpNum($1); }
-	| T_DOUBLE T_UNIT	{ debug("exp: T_UNIT(" + std::string($2) + ")"); $$ = new ExpNum($1, $2); delete $2; }
+	| T_DOUBLE T_UNIT	{ debug("exp: T_UNIT(" + std::to_string($1) + std::string($2) + ")"); $$ = new ExpNum($1, $2); delete $2; }
 	| T_VAR				{ debug("exp: T_VAR(" + std::string($1) + ")"); $$ = new ExpVar($1); delete $1; }
+	| T_VAR T_GUESS		{ debug("exp: T_GUESS(" + std::string($1) + std::string($2) + ")"); $$ = new ExpVar($1, $2); delete $1; delete $2; }
 	| exp T_ADD exp		{ debug("exp: exp T_ADD exp"); $$ = new ExpOp(OpType::ADD, (Exp *)$1, (Exp *)$3); }
 	| exp T_SUB exp		{ debug("exp: exp T_SUB exp"); $$ = new ExpOp(OpType::SUB, (Exp *)$1, (Exp *)$3); }
 	| exp T_MUL exp		{ debug("exp: exp T_MUL exp"); $$ = new ExpOp(OpType::MUL, (Exp *)$1, (Exp *)$3); }

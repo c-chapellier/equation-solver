@@ -4,7 +4,7 @@
 ExpNum::ExpNum(double dval, std::string unit)
 	: Exp(), dval(dval), unit(unit)
 {
-	std::cout << "ExpNum(" << this->dval << ", " << this->unit << ")" << std::endl;
+
 }
 
 void ExpNum::load_vars_into_sys(System *sys) const

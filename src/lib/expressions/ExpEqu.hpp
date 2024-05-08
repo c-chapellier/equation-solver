@@ -3,17 +3,20 @@
 
 #include "es.hpp"
 
-class ExpVar : public Exp
+class ExpEqu : public Exp
 {
 public:
-    std::string var;
-    double guess;
-    
+    Exp *eleft;
+    Exp *eright;
+
 public:
-    ExpVar(std::string var, std::string guess = "{1}");
+    ExpEqu(Exp *left, Exp *right);
+    ~ExpEqu() override;
     void load_vars_into_sys(System *sys) const override;
     double eval(System *mother_sys, const gsl_vector *x) const override;
-    ExpVar *deep_copy() const override;
+    ExpEqu *deep_copy() const override;
     std::string to_latex() const override;
     void print() const override;
+    Exp *get_left();
+    // bool is_assignation() const;
 };
