@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 	parse_file(args[1]);
 
 	std::vector<double> res;
-	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1 );
+	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1);
 	main_sys.solve(res, guesses);
 
 	Saver::save_to_file(std::string(args[1]) + ".res", funcs, main_sys, res);

@@ -101,13 +101,18 @@ int System::solve(std::vector<double> &res, std::vector<double> &guesses)
 
 	int status = GSL_CONTINUE;
 	size_t iter = 0;
+	// this->print_state(iter, this->equs.size(), s);
 
 	while (status == GSL_CONTINUE && iter++ < MAX_ITERATIONS)
 	{
 		status = gsl_multiroot_fsolver_iterate(s);
 		if (status) /* check if solver is stuck */
+		{
+			std::cerr << "Error 1: solver is stuck" << std::endl;
 			break;
+		}
 		status = gsl_multiroot_test_residual(s->f, EPSILON);
+		// this->print_state(iter, this->equs.size(), s);
 	}
 
 	if (s->x->size != this->equs.size())
@@ -188,11 +193,12 @@ ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
 
 	for (int i = 0; i < this->f->args_names.size(); ++i)
 	{
-		if (dynamic_cast<ExpEqu *>(args[i]) != nullptr)
+		if (dynamic_cast<ExpOp *>(args[i]) != nullptr)
 			std::cerr << "Error: argument " << this->f->args_names[i] << " is an equation" << std::endl, exit(1);
 
 		this->sys->add_equ(
-			new ExpEqu(
+			new ExpOp(
+				OpType::EQU,
 				new ExpVar(std::string("@") + this->f->args_names[i]),
 				args[args.size() - 1 - i]->deep_copy()));
 	}
@@ -201,7 +207,8 @@ ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
 		this->sys->add_equ(f->sys->equs[i]->deep_copy());
 
 	this->sys->add_equ(
-		new ExpEqu(
+		new ExpOp(
+			OpType::EQU,
 			new ExpVar(std::string("#ret")),
 			this->f->exp->deep_copy()));
 
@@ -221,18 +228,17 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	int j = 0;
 	for (int i = 0; i < cp_sys->equs.size(); ++i)
 	{
-		ExpEqu *equ = dynamic_cast<ExpEqu *>(cp_sys->equs[i]);
+		ExpOp *equ = dynamic_cast<ExpOp *>(cp_sys->equs[i]);
 		if (equ == nullptr)
 			std::cerr << "Error: expression is not an equation" << std::endl, exit(1);
 
-		ExpVar *var = dynamic_cast<ExpVar *>(equ->eleft);
-		if (var != nullptr && var->var.front() == '@')
+		ExpVar *var = dynamic_cast<ExpVar *>(equ->get_left());
+		if (var != nullptr && var->var.front() == '@') // arguments of the function
 		{
-			std::string new_name = var->var;
-
 			cp_sys->add_equ(
-				new ExpEqu(
-					new ExpVar(new_name.erase(0, 1)),
+				new ExpOp(
+					OpType::EQU,
+					new ExpVar(var->var.erase(0, 1)),
 					new ExpNum(args_values[args_values.size() - 1 - i])));
 			++j;
 		}

@@ -16,15 +16,20 @@ constexpr void debug(const T &x)
     if (0) std::cerr << x << std::endl;
 }
 
+enum OpType
+{
+	ADD,
+	SUB,
+	MUL,
+	DIV,
+	EXP,
+	EQU
+};
+
 #include "../src/lib/expressions/Exp.hpp"
-#include "../src/lib/expressions/ExpEqu.hpp"
 #include "../src/lib/expressions/ExpNum.hpp"
 #include "../src/lib/expressions/ExpVar.hpp"
-#include "../src/lib/expressions/ExpAdd.hpp"
-#include "../src/lib/expressions/ExpSub.hpp"
-#include "../src/lib/expressions/ExpMul.hpp"
-#include "../src/lib/expressions/ExpDiv.hpp"
-#include "../src/lib/expressions/ExpExp.hpp"
+#include "../src/lib/expressions/ExpOp.hpp"
 #include "../src/lib/expressions/ExpPar.hpp"
 #include "../src/lib/expressions/ExpFuncCall.hpp"
 #include "../src/lib/expressions/ExpCustom.hpp"

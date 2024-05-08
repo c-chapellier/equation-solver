@@ -91,17 +91,17 @@ sys:
 	| sys T_EOF				{ debug("sys: sys T_EOF"); }
 ;
 
-equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp"); $$ = new ExpEqu((Exp *)$1, (Exp *)$3); }
+equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp"); $$ = new ExpOp(OpType::EQU, (Exp *)$1, (Exp *)$3); }
 ;
 
 exp:
 	  T_DOUBLE			{ debug("exp: T_DOUBLE(" + std::to_string($1) + ")"); $$ = new ExpNum($1); }
 	| T_VAR				{ debug("exp: T_VAR(" + std::string($1) + ")"); $$ = new ExpVar($1); delete $1; }
-	| exp T_ADD exp		{ debug("exp: exp T_ADD exp"); $$ = new ExpAdd((Exp *)$1, (Exp *)$3); }
-	| exp T_SUB exp		{ debug("exp: exp T_SUB exp"); $$ = new ExpSub((Exp *)$1, (Exp *)$3); }
-	| exp T_MUL exp		{ debug("exp: exp T_MUL exp"); $$ = new ExpMul((Exp *)$1, (Exp *)$3); }
-	| exp T_DIV exp		{ debug("exp: exp T_DIV exp"); $$ = new ExpDiv((Exp *)$1, (Exp *)$3); }
-	| exp T_EXP exp		{ debug("exp: exp T_EXP exp"); $$ = new ExpExp((Exp *)$1, (Exp *)$3); }
+	| exp T_ADD exp		{ debug("exp: exp T_ADD exp"); $$ = new ExpOp(OpType::ADD, (Exp *)$1, (Exp *)$3); }
+	| exp T_SUB exp		{ debug("exp: exp T_SUB exp"); $$ = new ExpOp(OpType::SUB, (Exp *)$1, (Exp *)$3); }
+	| exp T_MUL exp		{ debug("exp: exp T_MUL exp"); $$ = new ExpOp(OpType::MUL, (Exp *)$1, (Exp *)$3); }
+	| exp T_DIV exp		{ debug("exp: exp T_DIV exp"); $$ = new ExpOp(OpType::DIV, (Exp *)$1, (Exp *)$3); }
+	| exp T_EXP exp		{ debug("exp: exp T_EXP exp"); $$ = new ExpOp(OpType::EXP, (Exp *)$1, (Exp *)$3); }
 	| T_LPAR exp T_RPAR	{ debug("exp: T_LPAR exp T_RPAR"); $$ = new ExpPar((Exp *)$2); }
 	| T_VAR T_LPAR args T_RPAR	{ debug("exp: T_VAR T_LPAR args T_RPAR"); $$ = new ExpFuncCall(funcs[$1]->deep_copy(), *(std::vector<Exp *> *)$3); delete $1; delete (std::vector<Exp *> *)$3; }
 ;

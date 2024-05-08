@@ -3,18 +3,20 @@
 
 #include "es.hpp"
 
-class ExpDiv : public Exp
+class ExpOp : public Exp
 {
-private:
+public:
+    OpType op;
     Exp *eleft;
     Exp *eright;
 
 public:
-    ExpDiv(Exp *left, Exp *right);
-    ~ExpDiv() override;
+    ExpOp(OpType op, Exp *left, Exp *right);
+    ~ExpOp() override;
     void load_vars_into_sys(System *sys) const override;
     double eval(System *mother_sys, const gsl_vector *x) const override;
-    ExpDiv *deep_copy() const override;
+    ExpOp *deep_copy() const override;
     std::string to_latex() const override;
     void print() const override;
+    Exp *get_left();
 };
