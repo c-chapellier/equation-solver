@@ -5,9 +5,9 @@
 
 #include "SIUnit.hpp"
 
-extern System main_sys;
+class ExpOp;
 
-class ExpEqu;
+extern System main_sys;
 
 typedef struct var_s
 {
@@ -24,13 +24,13 @@ private:
     static void print_state(size_t iter, int n, gsl_multiroot_fsolver *s);
 
 public:
-    std::vector<ExpEqu *> equs;
+    std::vector<ExpOp *> equs;
 	std::map<std::string, ExpVar *> vars;
 
 public:
     System();
     ~System();
-    void add_equ(ExpEqu *equ);
+    void add_equ(ExpOp *equ);
     void add_sys(System *sys);
     size_t size() const;
     void infer_units();

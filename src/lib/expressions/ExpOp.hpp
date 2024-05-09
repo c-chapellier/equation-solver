@@ -21,4 +21,5 @@ public:
     std::vector<ExpVar *> units_ascent() override;
     void units_descent(SIUnit unit) override;
     Exp * singularize_vars() override;
+    Exp *get_left();
 };

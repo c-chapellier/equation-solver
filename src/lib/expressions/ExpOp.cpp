@@ -27,6 +27,7 @@ double ExpOp::eval(System *mother_sys, const gsl_vector *x) const
     case OpType::ADD:
         return l + r;
     case OpType::SUB:
+    case OpType::EQU:
         return l - r;
     case OpType::MUL:
         return l * r;
@@ -46,18 +47,23 @@ ExpOp *ExpOp::deep_copy() const
 
 std::string ExpOp::to_latex() const
 {
+    std::string l = this->eleft->to_latex();
+    std::string r = this->eright->to_latex();
+
     switch (this->op)
     {
     case OpType::ADD:
-        return this->eleft->to_latex() + " + " + this->eright->to_latex();
+        return l + " + " + r;
     case OpType::SUB:
-        return this->eleft->to_latex() + " - " + this->eright->to_latex();
+        return l + " - " + r;
+    case OpType::EQU:
+        return l + " = " + r;
     case OpType::MUL:
-        return this->eleft->to_latex() + " \\cdot " + this->eright->to_latex();
+        return l + " \\cdot " + r;
     case OpType::DIV:
-	    return std::string("\\frac{") + this->eleft->to_latex() + "}{" + this->eright->to_latex() + "}";
+	    return std::string("\\frac{") + l + "}{" + r + "}";
     case OpType::POW:
-        return this->eleft->to_latex() + "^{" + this->eright->to_latex() + "}";
+        return l + "^{" + r + "}";
     default:
         std::cerr << "Error: unknown operator: ExpOp::to_latex" << std::endl, exit(1);
     }
@@ -74,6 +80,9 @@ void ExpOp::print() const
         break;
     case OpType::SUB:
         std::cout << " - ";
+        break;
+    case OpType::EQU:
+        std::cout << " = ";
         break;
     case OpType::MUL:
         std::cout << " * ";
@@ -97,6 +106,7 @@ bool ExpOp::is_linear() const
     {
     case OpType::ADD:
     case OpType::SUB:
+    case OpType::EQU:
     case OpType::MUL:
     case OpType::DIV:
         return this->eleft->is_linear() && this->eright->is_linear();
@@ -113,6 +123,7 @@ std::vector<ExpVar *> ExpOp::units_ascent()
     {
     case OpType::ADD:
     case OpType::SUB:
+    case OpType::EQU:
         if (this->unit.is_known && this->eleft->unit.is_known && this->unit.units != this->eleft->unit.units)
             std::cerr << "Error: unit mismatch: ExpOp::units_ascent" << std::endl, exit(1);
         else if (this->unit.is_known && this->eright->unit.is_known && this->unit.units != this->eright->unit.units)
@@ -154,6 +165,7 @@ void ExpOp::units_descent(SIUnit unit)
     {
     case OpType::ADD:
     case OpType::SUB:
+    case OpType::EQU:
         this->eleft->units_descent(this->unit);
         this->eright->units_descent(this->unit);
         break;
@@ -205,4 +217,9 @@ Exp *ExpOp::singularize_vars()
         this->eright = r;
     }
     return NULL;
+}
+
+Exp *ExpOp::get_left()
+{
+    return this->eleft;
 }

@@ -86,14 +86,14 @@ args_names:
 
 sys:
 	  T_NEWLINE				{ debug("sys: T_NEWLINE"); $$ = new System(); }
-	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE"); $$ = new System(); ((System *)$$)->add_equ((ExpEqu *)$1); }
-	| equ T_EOF				{ debug("sys: equ T_EOF"); $$ = new System(); ((System *)$$)->add_equ((ExpEqu *)$1); }
-	| sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE"); $$ = $1; ((System *)$$)->add_equ((ExpEqu *)$2); }
+	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE"); $$ = new System(); ((System *)$$)->add_equ((ExpOp *)$1); }
+	| equ T_EOF				{ debug("sys: equ T_EOF"); $$ = new System(); ((System *)$$)->add_equ((ExpOp *)$1); }
+	| sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE"); $$ = $1; ((System *)$$)->add_equ((ExpOp *)$2); }
 	| sys T_NEWLINE			{ debug("sys: sys T_NEWLINE"); }
 	| sys T_EOF				{ debug("sys: sys T_EOF"); }
 ;
 
-equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp"); $$ = new ExpEqu((Exp *)$1, (Exp *)$3); }
+equ: exp T_EQU exp		{ debug("equ: exp T_EQU exp"); $$ = new ExpOp(OpType::EQU, (Exp *)$1, (Exp *)$3); }
 ;
 
 exp:
