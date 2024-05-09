@@ -10,7 +10,7 @@ System::~System()
 {
 	for (int i = 0; i < this->equs.size(); ++i)
 		delete this->equs[i];
-	for (auto &v : this->singularized_vars_map)
+	for (auto &v : this->vars)
 		delete v.second;
 }
 
@@ -40,8 +40,8 @@ void System::print() const
 		this->equs[i]->print();
 		std::cout << std::endl;
 	}
-	std::cout << "  Variables(" << this->singularized_vars_map.size() << "):" << std::endl;
-	for (auto &v : this->singularized_vars_map)
+	std::cout << "  Variables(" << this->vars.size() << "):" << std::endl;
+	for (auto &v : this->vars)
 		std::cout << "    " << v.first << "{" /* << v.guess */ << "} [" << v.second->unit.to_string() << "]" << std::endl;
 }
 
@@ -121,30 +121,19 @@ int System::solve(std::vector<double> &res, std::vector<double> &guesses)
 
 void System::load_vars_from_equs()
 {
-	// infer variables unit from equations
 	int not_stable = 1;
 	int it = 0;
 	while (not_stable)
 	{
 		not_stable = 0;
-		std::cout << "------------ Iteration " << it++ << "-------------" << std::endl;
 		for (int i = 0; i < this->equs.size(); ++i)
 		{
-			std::cout << "\t1) Equ " << i << " -> ";
-			this->equs[i]->print();
-			std::cout << std::endl;
-
 			std::vector<ExpVar *> vars = this->equs[i]->get_vars();
 
-			std::cout << "\t2) Equ " << i << " -> ";
-			this->equs[i]->print();
-			std::cout << std::endl;
-
-			// remove all non true vars
 			int j = 0;
 			while (j < vars.size())
 			{
-				if (this->singularized_vars_map[vars[j]->var]->true_var)
+				if (this->vars[vars[j]->name]->is_true_var)
 					++j;
 				else
 				{
@@ -156,18 +145,11 @@ void System::load_vars_from_equs()
 
 			if (vars.size() == 1 && this->equs[i]->is_linear())
 			{
-				this->singularized_vars_map[vars[0]->var]->true_var = false;
-				// this->vars[j].unit = SIUnit();
-				// this->vars[j].guess = .6969;
-
+				this->vars[vars[0]->name]->is_true_var = false;
 				not_stable = 1;
 			}
 			
 			this->equs[i]->units_descent(this->equs[i]->unit);
-
-			std::cout << "\t3) Equ " << i << " -> ";
-			this->equs[i]->print();
-			std::cout << std::endl;
 		}
 	}
 }
@@ -195,12 +177,12 @@ void System::singularize_vars()
 
 double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 {
-	if (this->var == "pi") return M_PI;
-	if (this->var == "e") return M_E;
+	if (this->name == "pi") return M_PI;
+	if (this->name == "e") return M_E;
 
-	int i = mother_sys->singularized_vars_map[this->var]->index;
+	int i = mother_sys->vars[this->name]->index;
 	if (i == -1)
-		std::cerr << "Error: variable " << this->var << " not found" << std::endl, exit(1);
+		std::cerr << "Error: variable " << this->name << " not found" << std::endl, exit(1);
 
 	return gsl_vector_get(x, i);
 }
@@ -254,11 +236,11 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 			std::cerr << "Error: expression is not an equation" << std::endl, exit(1);
 
 		ExpVar *var = dynamic_cast<ExpVar *>(equ->get_left());
-		if (var != nullptr && var->var.front() == '@') // arguments of the function
+		if (var != nullptr && var->name.front() == '@') // arguments of the function
 		{
 			cp_sys->add_equ(
 				new ExpEqu(
-					new ExpVar(var->var.erase(0, 1)),
+					new ExpVar(var->name.erase(0, 1)),
 					new ExpNum(args_values[args_values.size() - 1 - i])));
 			++j;
 		}
@@ -277,7 +259,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 
 	cp_sys->solve(res, guesses);
 
-	int i = cp_sys->singularized_vars_map["#ret"]->index;
+	int i = cp_sys->vars["#ret"]->index;
 	if (i == -1)
 		std::cerr << "Error: variable #ret not found" << std::endl, exit(1);
 

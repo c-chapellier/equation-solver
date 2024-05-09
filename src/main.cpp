@@ -49,36 +49,23 @@ int main(int argc, char* argv[])
 		std::cerr << "Usage: " << args[0] << " <filename>" << std::endl, exit(1);
 	
 	add_default_funcs();
-
-	std::cout << " --------- Parsing file --------- " << std::endl;
 	parse_file(args[1]);
-
-	std::cout << " --------- Singularizing vars --------- " << std::endl;
 	main_sys.singularize_vars();
-
-	std::cout << " --------- Loading vars from equs --------- " << std::endl;
 	main_sys.load_vars_from_equs();
 
-	std::cout << " ---------  System to solve --------- " << std::endl;
-	main_sys.print();
-
-	// std::cout << " --------- Init system --------- " << std::endl;
 	std::vector<double> res;
 	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1);
 
-	for (auto &v : main_sys.singularized_vars_map)
+	for (auto &v : main_sys.vars)
 		guesses[v.second->index] = v.second->guess;
 
-	// std::cout << " --------- Solve system --------- " << std::endl;
 	main_sys.solve(res, guesses);
 
-	// std::cout << " --------- Save system --------- " << std::endl;
 	Saver::save_to_file(std::string(args[1]) + ".res", funcs, main_sys, res);
 	Saver::save_to_markdown(std::string(args[1]) + ".md", funcs, main_sys, res);
 
 	for (auto &func : funcs)
 		delete func.second;
 
-	std::cout << " --------- End --------- " << std::endl;
 	return 0;
 }

@@ -26,7 +26,7 @@ private:
 
 public:
     std::vector<ExpEqu *> equs;
-	std::map<std::string, ExpVar *> singularized_vars_map;
+	std::map<std::string, ExpVar *> vars;
     std::vector<double> guesses;
 
 public:

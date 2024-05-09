@@ -9,7 +9,7 @@ int Saver::save_to_file(const std::string &fname, const std::map<std::string, Fu
     if (!f.is_open())
         return -1;
 
-    for (auto &v : sys.singularized_vars_map)
+    for (auto &v : sys.vars)
         f << v.first << " = " << res[v.second->index] << std::endl;
 
     f.close();
@@ -48,7 +48,7 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
     f << "$\\emptyset$" << std::endl << std::endl;
     f << "## Solution" << std::endl << std::endl;
 
-    for (auto &v : sys.singularized_vars_map)
+    for (auto &v : sys.vars)
     {
         f << "$$";
         f << Latex::var_to_latex(v.first.c_str());

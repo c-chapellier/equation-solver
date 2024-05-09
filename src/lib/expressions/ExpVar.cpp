@@ -1,25 +1,25 @@
 
 #include "ExpVar.hpp"
 
-ExpVar::ExpVar(std::string var, std::string guess)
-	: Exp(), var(var), guess(std::stod(guess.substr(1, guess.size() - 2))), true_var(true), index(-1)
+ExpVar::ExpVar(std::string name, std::string guess)
+	: Exp(), name(name), guess(std::stod(guess.substr(1, guess.size() - 2))), is_true_var(true), index(-1)
 {
 
 }
 
 ExpVar *ExpVar::deep_copy() const
 {
-	return new ExpVar(this->var, "{" + std::to_string(this->guess) + "}");
+	return new ExpVar(this->name, "{" + std::to_string(this->guess) + "}");
 }
 
 std::string ExpVar::to_latex() const
 {
-	return Latex::var_to_latex(this->var.c_str());
+	return Latex::var_to_latex(this->name.c_str());
 }
 
 void ExpVar::print() const
 {
-	std::cout << this->var;
+	std::cout << this->name;
 	debug_units && std::cout << "[" << this->unit.to_string() << "]";
 }
 
@@ -44,11 +44,11 @@ void ExpVar::units_descent(SIUnit unit)
 
 Exp *ExpVar::singularize_vars()
 {
-	for (auto &v : main_sys.singularized_vars_map)
-		if (this->var == v.first)
-			return main_sys.singularized_vars_map[v.first];
+	for (auto &v : main_sys.vars)
+		if (this->name == v.first)
+			return main_sys.vars[v.first];
 
-	this->index = main_sys.singularized_vars_map.size();
-	main_sys.singularized_vars_map[this->var] = this;
+	this->index = main_sys.vars.size();
+	main_sys.vars[this->name] = this;
 	return NULL;
 }
