@@ -4,7 +4,6 @@
 System::System()
 {
 	this->equs = std::vector<ExpEqu *>();
-	this->vars = std::vector<var_t>();
 }
 
 System::~System()
@@ -25,16 +24,6 @@ void System::add_equ(ExpEqu *equ)
 	this->equs.push_back(equ);
 }
 
-void System::add_var(const std::string &name, double guess, SIUnit unit)
-{
-	for (int i = 0; i < this->vars.size(); ++i)
-		if (this->vars[i].name.compare(name) == 0)
-			return;
-
-	this->vars.push_back({name, guess, unit, true});
-	this->guesses.push_back(guess);
-}
-
 void System::add_sys(System *sys)
 {
 	for (int i = 0; i < sys->equs.size(); ++i)
@@ -51,9 +40,9 @@ void System::print() const
 		this->equs[i]->print();
 		std::cout << std::endl;
 	}
-	std::cout << "  Variables(" << this->vars.size() << "):" << std::endl;
-	for (int i = 0; i < this->vars.size(); ++i)
-		std::cout << "    " << this->vars[i].name << "{" << this->vars[i].guess << "} [" << this->vars[i].unit.to_string() << "]" << std::endl;
+	std::cout << "  Variables(" << this->singularized_vars_map.size() << "):" << std::endl;
+	for (auto &v : this->singularized_vars_map)
+		std::cout << "    " << v.first << "{" /* << v.guess */ << "} [" << v.second->unit.to_string() << "]" << std::endl;
 }
 
 int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
@@ -132,10 +121,6 @@ int System::solve(std::vector<double> &res, std::vector<double> &guesses)
 
 void System::load_vars_from_equs()
 {
-	this->vars.clear();
-	for (int i = 0; i < this->equs.size(); ++i)
-		this->equs[i]->load_vars_into_sys(this);
-
 	// infer variables unit from equations
 	int not_stable = 1;
 	int it = 0;
@@ -150,15 +135,7 @@ void System::load_vars_from_equs()
 			int j = 0;
 			while (j < vars.size())
 			{
-				int k = -1;
-				while (++k < this->vars.size())
-					if (this->vars[k].name == vars[j]->var)
-						break;
-
-				if (k == this->vars.size())
-					std::cerr << "Error: variable " << vars[0]->var << " not found" << std::endl, exit(1);
-
-				if (this->vars[k].true_var)
+				if (this->singularized_vars_map[vars[0]->var]->true_var)
 					++j;
 				else
 				{
@@ -170,15 +147,7 @@ void System::load_vars_from_equs()
 
 			if (vars.size() == 1 && this->equs[i]->is_linear())
 			{
-				int j = -1;
-				while (++j < this->vars.size())
-					if (this->vars[j].name == vars[0]->var)
-						break;
-
-				if (j == this->vars.size())
-					std::cerr << "Error: variable " << vars[0]->var << " not found" << std::endl, exit(1);
-
-				this->vars[j].true_var = false;
+				this->singularized_vars_map[vars[0]->var]->true_var = false;
 				// this->vars[j].unit = SIUnit();
 				// this->vars[j].guess = .6969;
 
@@ -211,38 +180,16 @@ void System::singularize_vars()
 	}
 }
 
-void ExpVar::load_vars_into_sys(System *sys) const
-{
-	if (this->var == "pi") return;
-	if (this->var == "e") return;
-
-	sys->add_var(this->var, this->guess, SIUnit());
-}
-
 double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 {
 	if (this->var == "pi") return M_PI;
 	if (this->var == "e") return M_E;
 
-	int var_index = -1;
-	for (int i = 0; i < mother_sys->vars.size(); ++i)
-		if (mother_sys->vars[i].name == this->var)
-			var_index = i;
+	int i = mother_sys->singularized_vars_map[this->var]->index;
+	if (i == -1)
+		std::cerr << "Error: variable " << this->var << " not found" << std::endl, exit(1);
 
-	if (var_index == -1)
-	{
-		std::cerr << "Error: variable " << this->var << " not found" << std::endl;
-		exit(1);
-	}
-
-	if (var_index >= x->size)
-	{
-		std::cerr << "Error: variable " << this->var << " index is " << var_index;
-		std::cerr << ", but x size is " << x->size << std::endl;
-		exit(1);
-	}
-
-	return gsl_vector_get(x, var_index);
+	return gsl_vector_get(x, i);
 }
 
 ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
@@ -317,18 +264,13 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 
 	cp_sys->solve(res, guesses);
 
-	double r = NAN;
-	int found = 0;
-	for (int i = 0; i < cp_sys->vars.size(); ++i)
-		if (cp_sys->vars[i].name == "#ret")
-			found = 1, r = res[i];
-
-	if (!found)
-		std::cerr << "cannot found #res" << std::endl, exit(1);
+	int i = cp_sys->singularized_vars_map["#ret"]->index;
+	if (i == -1)
+		std::cerr << "Error: variable #ret not found" << std::endl, exit(1);
 
 	delete cp_sys;
 
-	return r;
+	return res[i];
 }
 
 ExpFuncCall *ExpFuncCall::deep_copy() const
