@@ -14,6 +14,11 @@ ExpPar::~ExpPar()
         delete this->eleft;
 }
 
+void ExpPar::load_vars_into_sys(System *sys) const
+{
+	this->eleft->load_vars_into_sys(sys);
+}
+
 double ExpPar::eval(System *mother_sys, const gsl_vector *x) const
 {
     return this->eleft->eval(mother_sys, x);

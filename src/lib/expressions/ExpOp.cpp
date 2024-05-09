@@ -17,6 +17,12 @@ ExpOp::~ExpOp()
         delete this->eright;
 }
 
+void ExpOp::load_vars_into_sys(System *sys) const
+{
+	this->eleft->load_vars_into_sys(sys);
+	this->eright->load_vars_into_sys(sys);
+}
+
 double ExpOp::eval(System *mother_sys, const gsl_vector *x) const
 {
     double l = this->eleft->eval(mother_sys, x);

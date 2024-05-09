@@ -17,6 +17,12 @@ ExpEqu::~ExpEqu()
         delete this->eright;
 }
 
+void ExpEqu::load_vars_into_sys(System *sys) const
+{
+	this->eleft->load_vars_into_sys(sys);
+	this->eright->load_vars_into_sys(sys);
+}
+
 double ExpEqu::eval(System *mother_sys, const gsl_vector *x) const
 {
     return this->eleft->eval(mother_sys, x) - this->eright->eval(mother_sys, x);
