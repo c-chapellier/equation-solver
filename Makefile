@@ -19,7 +19,8 @@ OBJECTS = $(SOURCES:$(SRC_PATH)/%.$(SRC_EXT)=$(BUILD_PATH)/%.o)
 DEPS = $(OBJECTS:.o=.d)
 
 # -Wshadow
-COMPILE_FLAGS = --std=c++20 -g -O0 -Wnon-virtual-dtor -pedantic
+# COMPILE_FLAGS = --std=c++20 -g -O0 -Wnon-virtual-dtor -pedantic
+COMPILE_FLAGS = --std=c++20 -g -Wnon-virtual-dtor -pedantic
 INCLUDES = -Iinclude/ -I/usr/local/include
 LIBS = -lgsl -lgslcblas -lm
 

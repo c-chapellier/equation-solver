@@ -20,4 +20,62 @@ std::string ExpVar::to_latex() const
 void ExpVar::print() const
 {
 	std::cout << this->var;
+	debug_units && std::cout << "[" << this->unit.to_string() << "]";
+}
+
+bool ExpVar::is_linear() const
+{
+    return true;
+}
+
+std::vector<ExpVar *> ExpVar::get_vars()
+{
+	for (auto &v : main_sys.vars)
+	{
+		if (this->var == v.name)
+		{
+			if (v.unit.unit_known && this->unit.unit_known && v.unit.units != this->unit.units)
+				std::cerr << "Error: unit mismatch: ExpVar::units_descent" << std::endl, exit(1);
+			if (!v.unit.unit_known && this->unit.unit_known)
+				v.unit = this->unit;
+			if (!this->unit.unit_known && v.unit.unit_known)
+				this->unit = v.unit;
+			return std::vector<ExpVar *>({this});
+		}
+	}
+	
+	std::cerr << "Error: variable not found: ExpVar::units_descent" << std::endl, exit(1);
+}
+
+void ExpVar::units_descent(SIUnit unit)
+{
+	if (this->unit.unit_known && this->unit.units != unit.units)
+		std::cerr << "Error: unit mismatch: ExpVar::units_descent" << std::endl, exit(1);
+
+	if (!this->unit.unit_known)
+		this->unit = unit;
+
+	for (auto &v : main_sys.vars)
+	{
+		if (this->var == v.name)
+		{
+			if (v.unit.unit_known && v.unit.units != this->unit.units)
+				std::cerr << "Error: unit mismatch: ExpVar::units_descent" << std::endl, exit(1);
+			if (!v.unit.unit_known)
+				v.unit = this->unit;
+			return;
+		}
+	}
+
+	std::cerr << "Error: variable not found: ExpVar::units_descent" << std::endl, exit(1);
+}
+
+Exp *ExpVar::singularize_vars()
+{
+	for (auto &v : main_sys.singularized_vars_map)
+		if (this->var == v.first)
+			return main_sys.singularized_vars_map[v.first];
+
+	main_sys.singularized_vars_map[this->var] = this;
+	return NULL;
 }

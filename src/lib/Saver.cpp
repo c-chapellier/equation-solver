@@ -10,7 +10,7 @@ int Saver::save_to_file(const std::string &fname, const std::map<std::string, Fu
         return -1;
 
     for (int i = 0; i < sys.vars.size(); ++i)
-        f << sys.vars[i] << " = " << res[i] << std::endl;
+        f << sys.vars[i].name << " = " << res[i] << std::endl;
 
     f.close();
     return 0;
@@ -49,9 +49,12 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
     for (int i = 0; i < sys.vars.size(); ++i)
     {
         f << "$$";
-        f << Latex::var_to_latex(sys.vars[i].c_str());
+        f << Latex::var_to_latex(sys.vars[i].name.c_str());
         f << " = ";
         f << Latex::double_to_latex(res[i]);
+        std::string u = sys.vars[i].unit.to_string();
+        f << "[" << (u == "\\" ? "\\\\" : u) << "] ";
+        f << "\\{" << sys.vars[i].guess << "\\}";
         f << "$$" << std::endl << std::endl;
     }
 

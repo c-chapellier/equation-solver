@@ -17,6 +17,9 @@ public:
     ExpEqu *deep_copy() const override;
     std::string to_latex() const override;
     void print() const override;
+    bool is_linear() const override;
+    std::vector<ExpVar *> get_vars() override;
+    void units_descent(SIUnit unit) override;
+    Exp *singularize_vars() override;
     Exp *get_left();
-    // bool is_assignation() const;
 };

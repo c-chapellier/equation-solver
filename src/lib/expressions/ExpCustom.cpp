@@ -38,3 +38,23 @@ void ExpCustom::print() const
 {
     std::cout << this->str_repr;
 }
+
+bool ExpCustom::is_linear() const
+{
+    return false;   // TODO
+}
+
+std::vector<ExpVar *> ExpCustom::get_vars()
+{
+    std::cerr << "ExpCustom::get_vars: not implemented" << std::endl, exit(1);
+}
+
+void ExpCustom::units_descent(SIUnit unit)
+{
+    std::cerr << "ExpCustom::units_descent: not implemented" << std::endl, exit(1);
+}
+
+Exp *ExpCustom::singularize_vars()
+{
+    std::cerr << "ExpCustom::singularize_vars: not implemented" << std::endl, exit(1);
+}
