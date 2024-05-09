@@ -2,7 +2,7 @@
 #include "ExpVar.hpp"
 
 ExpVar::ExpVar(std::string var, std::string guess)
-	: Exp(), var(var), guess(std::stod(guess.substr(1, guess.size() - 2)))
+	: Exp(), var(var), guess(std::stod(guess.substr(1, guess.size() - 2))), true_var(true), index(-1)
 {
 
 }
@@ -30,21 +30,7 @@ bool ExpVar::is_linear() const
 
 std::vector<ExpVar *> ExpVar::get_vars()
 {
-	for (auto &v : main_sys.vars)
-	{
-		if (this->var == v.name)
-		{
-			if (v.unit.unit_known && this->unit.unit_known && v.unit.units != this->unit.units)
-				std::cerr << "Error: unit mismatch: ExpVar::units_descent" << std::endl, exit(1);
-			if (!v.unit.unit_known && this->unit.unit_known)
-				v.unit = this->unit;
-			if (!this->unit.unit_known && v.unit.unit_known)
-				this->unit = v.unit;
-			return std::vector<ExpVar *>({this});
-		}
-	}
-	
-	std::cerr << "Error: variable not found: ExpVar::units_descent" << std::endl, exit(1);
+	return std::vector<ExpVar *>({this});
 }
 
 void ExpVar::units_descent(SIUnit unit)
@@ -54,20 +40,6 @@ void ExpVar::units_descent(SIUnit unit)
 
 	if (!this->unit.unit_known)
 		this->unit = unit;
-
-	for (auto &v : main_sys.vars)
-	{
-		if (this->var == v.name)
-		{
-			if (v.unit.unit_known && v.unit.units != this->unit.units)
-				std::cerr << "Error: unit mismatch: ExpVar::units_descent" << std::endl, exit(1);
-			if (!v.unit.unit_known)
-				v.unit = this->unit;
-			return;
-		}
-	}
-
-	std::cerr << "Error: variable not found: ExpVar::units_descent" << std::endl, exit(1);
 }
 
 Exp *ExpVar::singularize_vars()
@@ -76,6 +48,7 @@ Exp *ExpVar::singularize_vars()
 		if (this->var == v.first)
 			return main_sys.singularized_vars_map[v.first];
 
+	this->index = main_sys.singularized_vars_map.size();
 	main_sys.singularized_vars_map[this->var] = this;
 	return NULL;
 }

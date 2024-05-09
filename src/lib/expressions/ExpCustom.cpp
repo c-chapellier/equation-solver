@@ -7,11 +7,6 @@ ExpCustom::ExpCustom(int n_args, double (*func)(double *), const char *str_repr,
 
 }
 
-void ExpCustom::load_vars_into_sys(System *sys) const
-{
-
-}
-
 double ExpCustom::eval(System *mother_sys, const gsl_vector *x) const
 {
     if (x->size < this->n_args + 1)
