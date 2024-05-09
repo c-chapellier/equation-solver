@@ -49,6 +49,7 @@ int main(int argc, char* argv[])
 		std::cerr << "Usage: " << args[0] << " <filename>" << std::endl, exit(1);
 	
 	add_default_funcs();
+
 	parse_file(args[1]);
 	main_sys.singularize_vars();
 	main_sys.load_vars_from_equs();
