@@ -20,6 +20,10 @@ ExpOp::~ExpOp()
 double ExpOp::eval(System *mother_sys, const gsl_vector *x) const
 {
     double l = this->eleft->eval(mother_sys, x);
+
+    if (this->op == OpType::PAR)
+        return l;
+
     double r = this->eright->eval(mother_sys, x);
 
     switch (this->op)
@@ -42,12 +46,18 @@ double ExpOp::eval(System *mother_sys, const gsl_vector *x) const
 
 ExpOp *ExpOp::deep_copy() const
 {
+    if (this->op == OpType::PAR)
+        return new ExpOp(this->op, this->eleft->deep_copy(), NULL);
 	return new ExpOp(this->op, this->eleft->deep_copy(), this->eright->deep_copy());
 }
 
 std::string ExpOp::to_latex() const
 {
     std::string l = this->eleft->to_latex();
+
+    if (this->op == OpType::PAR)
+        return std::string("\\left(") + l + "\\right)";
+
     std::string r = this->eright->to_latex();
 
     switch (this->op)
@@ -72,7 +82,12 @@ std::string ExpOp::to_latex() const
 void ExpOp::print() const
 {
     debug_units && std::cout << "(";
+
+    if (this->op == OpType::PAR)
+        std::cout << "(";
+
     this->eleft->print();
+
 	switch (this->op)
     {
     case OpType::ADD:
@@ -96,7 +111,12 @@ void ExpOp::print() const
     default:
         std::cerr << "Error: unknown operator: ExpOp::print" << std::endl, exit(1);
     }
-    this->eright->print();
+
+    if (this->op == OpType::PAR)
+        std::cout << ")";
+    else
+        this->eright->print();
+        
     debug_units && std::cout << ")[" << this->unit.to_string() << "]";
 }
 
@@ -110,6 +130,8 @@ bool ExpOp::is_linear() const
     case OpType::MUL:
     case OpType::DIV:
         return this->eleft->is_linear() && this->eright->is_linear();
+    case OpType::PAR:
+        return this->eleft->is_linear();
     case OpType::POW:
         return false;
     default:
@@ -141,6 +163,10 @@ std::vector<ExpVar *> ExpOp::units_ascent()
         if (!this->unit.is_known && this->eleft->unit.is_known && this->eright->unit.is_known)
             this->unit = this->eleft->unit.divide(this->eright->unit);
         break;
+    case OpType::PAR:
+        if (!this->unit.is_known && this->eleft->unit.is_known)
+            this->unit = this->eleft->unit;
+        break;
     case OpType::POW:
         std::cerr << "Error: not implemented: OpType::POW: unit inferation" << std::endl, exit(1);
     default:
@@ -148,6 +174,9 @@ std::vector<ExpVar *> ExpOp::units_ascent()
     }
 
     std::vector<ExpVar *> vars = this->eleft->units_ascent();
+    if (this->op == OpType::PAR)
+        return vars;
+
     std::vector<ExpVar *> right_vars = this->eright->units_ascent();
     vars.insert(vars.end(), right_vars.begin(), right_vars.end());
     return vars;
@@ -195,6 +224,9 @@ void ExpOp::units_descent(SIUnit unit)
         else if (this->eright->unit.is_known)
             this->eleft->units_descent(this->eright->unit.multiply(this->unit));
         break;
+    case OpType::PAR:
+        this->eleft->units_descent(this->unit);
+        break;
     case OpType::POW:
         std::cerr << "Error: not implemented: OpType::POW: units_descent" << std::endl, exit(1);
     default:
@@ -210,6 +242,10 @@ Exp *ExpOp::singularize_vars()
         delete this->eleft;
         this->eleft = r;
     }
+
+    if (this->op == OpType::PAR)
+        return NULL;
+
     r = this->eright->singularize_vars();
     if (r != NULL)
     {

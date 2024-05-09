@@ -25,6 +25,7 @@ enum OpType
 	EQU,
 	MUL,
 	DIV,
+	PAR,
 	POW
 };
 
@@ -32,7 +33,6 @@ enum OpType
 #include "../src/lib/expressions/ExpNum.hpp"
 #include "../src/lib/expressions/ExpVar.hpp"
 #include "../src/lib/expressions/ExpOp.hpp"
-#include "../src/lib/expressions/ExpPar.hpp"
 #include "../src/lib/expressions/ExpFuncCall.hpp"
 #include "../src/lib/expressions/ExpCustom.hpp"
 

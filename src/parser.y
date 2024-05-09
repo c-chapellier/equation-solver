@@ -106,7 +106,7 @@ exp:
 	| exp T_MUL exp		{ debug("exp: exp T_MUL exp"); $$ = new ExpOp(OpType::MUL, (Exp *)$1, (Exp *)$3); }
 	| exp T_DIV exp		{ debug("exp: exp T_DIV exp"); $$ = new ExpOp(OpType::DIV, (Exp *)$1, (Exp *)$3); }
 	| exp T_POW exp		{ debug("exp: exp T_POW exp"); $$ = new ExpOp(OpType::POW, (Exp *)$1, (Exp *)$3); }
-	| T_LPAR exp T_RPAR	{ debug("exp: T_LPAR exp T_RPAR"); $$ = new ExpPar((Exp *)$2); }
+	| T_LPAR exp T_RPAR	{ debug("exp: T_LPAR exp T_RPAR"); $$ = new ExpOp(OpType::PAR, (Exp *)$2, NULL); }
 	| T_VAR T_LPAR args T_RPAR	{ debug("exp: T_VAR T_LPAR args T_RPAR"); $$ = new ExpFuncCall(funcs[$1]->deep_copy(), *(std::vector<Exp *> *)$3); delete $1; delete (std::vector<Exp *> *)$3; }
 ;
 
