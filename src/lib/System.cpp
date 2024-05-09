@@ -127,15 +127,24 @@ void System::load_vars_from_equs()
 	while (not_stable)
 	{
 		not_stable = 0;
+		std::cout << "------------ Iteration " << it++ << "-------------" << std::endl;
 		for (int i = 0; i < this->equs.size(); ++i)
 		{
+			std::cout << "\t1) Equ " << i << " -> ";
+			this->equs[i]->print();
+			std::cout << std::endl;
+
 			std::vector<ExpVar *> vars = this->equs[i]->get_vars();
+
+			std::cout << "\t2) Equ " << i << " -> ";
+			this->equs[i]->print();
+			std::cout << std::endl;
 
 			// remove all non true vars
 			int j = 0;
 			while (j < vars.size())
 			{
-				if (this->singularized_vars_map[vars[0]->var]->true_var)
+				if (this->singularized_vars_map[vars[j]->var]->true_var)
 					++j;
 				else
 				{
@@ -155,6 +164,10 @@ void System::load_vars_from_equs()
 			}
 			
 			this->equs[i]->units_descent(this->equs[i]->unit);
+
+			std::cout << "\t3) Equ " << i << " -> ";
+			this->equs[i]->print();
+			std::cout << std::endl;
 		}
 	}
 }
