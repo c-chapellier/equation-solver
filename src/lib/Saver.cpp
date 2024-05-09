@@ -45,6 +45,7 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
         f << "$$" << std::endl << std::endl;
     }
 
+    f << "$\\emptyset$" << std::endl << std::endl;
     f << "## Solution" << std::endl << std::endl;
     for (int i = 0; i < sys.vars.size(); ++i)
     {
@@ -53,8 +54,7 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
         f << " = ";
         f << Latex::double_to_latex(res[i]);
         std::string u = sys.vars[i].unit.to_string();
-        f << "[" << (u == "\\" ? "\\\\" : u) << "] ";
-        f << "\\{" << sys.vars[i].guess << "\\}";
+        f << "\\,[" << (u == "\\" ? "/" : u) << "]";
         f << "$$" << std::endl << std::endl;
     }
 
