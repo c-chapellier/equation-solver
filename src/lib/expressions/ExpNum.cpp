@@ -20,7 +20,7 @@ double ExpNum::eval(System *mother_sys, const gsl_vector *x) const
 
 ExpNum *ExpNum::deep_copy() const
 {
-	if (this->unit.unit_known)
+	if (this->unit.is_known)
 		return new ExpNum(this->dval, "[" + this->unit.to_string() + "]");
 	return new ExpNum(this->dval);
 }
@@ -35,7 +35,7 @@ std::string ExpNum::to_latex() const
 void ExpNum::print() const
 {
 	std::cout << this->dval;
-	debug_units && std::cout << "[" << this->unit.unit_known << ", " << this->unit.to_string() << "]";
+	debug_units && std::cout << "[" << this->unit.is_known << ", " << this->unit.to_string() << "]";
 }
 
 bool ExpNum::is_linear() const
@@ -43,19 +43,15 @@ bool ExpNum::is_linear() const
     return true;
 }
 
-std::vector<ExpVar *> ExpNum::get_vars()
+std::vector<ExpVar *> ExpNum::units_ascent()
 {
-	// units ok (in constructor)
 	return std::vector<ExpVar *>();
 }
 
 void ExpNum::units_descent(SIUnit unit)
 {
 	if (this->unit.units != unit.units)
-	{
-		std::cerr << "Error: unit mismatch: ExpNum::units_descent" << std::endl;
-		exit(1);
-	}
+		std::cerr << "Error: unit mismatch: ExpNum::units_descent" << std::endl, exit(1);
 }
 
 Exp *ExpNum::singularize_vars()

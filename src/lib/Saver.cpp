@@ -45,9 +45,7 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
         f << "$$" << std::endl << std::endl;
     }
 
-    f << "$\\emptyset$" << std::endl << std::endl;
     f << "## Solution" << std::endl << std::endl;
-
     for (auto &v : sys.vars)
     {
         f << "$$";

@@ -51,24 +51,21 @@ bool ExpEqu::is_linear() const
     return this->eleft->is_linear() && this->eright->is_linear();
 }
 
-std::vector<ExpVar *> ExpEqu::get_vars()
+std::vector<ExpVar *> ExpEqu::units_ascent()
 {
-    if (this->eleft->unit.unit_known && this->eright->unit.unit_known)
-    {
-        if (this->eleft->unit.units != this->eright->unit.units)
-        {
-            std::cerr << "Error: unit mismatch: ExpEqu::get_vars: '" << this->eleft->unit.to_string();
-            std::cerr << "' != '" << this->eright->unit.to_string() << "'" << std::endl;
-            exit(1);
-        }
+    if (this->unit.is_known && this->eleft->unit.is_known && this->unit.units != this->eleft->unit.units)
+        std::cerr << "Error: unit mismatch: ExpEqu::units_ascent" << std::endl, exit(1);
+    else if (this->unit.is_known && this->eright->unit.is_known && this->unit.units != this->eright->unit.units)
+        std::cerr << "Error: unit mismatch: ExpEqu::units_ascent" << std::endl, exit(1);
+    else if (this->eleft->unit.is_known && this->eright->unit.is_known && this->eleft->unit.units != this->eright->unit.units)
+        std::cerr << "Error: unit mismatch: ExpEqu::units_ascent" << std::endl, exit(1);
+    else if (!this->unit.is_known && this->eleft->unit.is_known)
         this->unit = this->eleft->unit;
-    }
-    else if (this->eleft->unit.unit_known || this->eright->unit.unit_known)
-        this->unit = this->eleft->unit.unit_known ? this->eleft->unit : this->eright->unit;
-    else { /* stay unknown */ }
+    else if (!this->unit.is_known && this->eright->unit.is_known)
+        this->unit = this->eright->unit;
         
-    std::vector<ExpVar *> vars = this->eleft->get_vars();
-    std::vector<ExpVar *> right_vars = this->eright->get_vars();
+    std::vector<ExpVar *> vars = this->eleft->units_ascent();
+    std::vector<ExpVar *> right_vars = this->eright->units_ascent();
     vars.insert(vars.end(), right_vars.begin(), right_vars.end());
     return vars;
 }

@@ -8,8 +8,8 @@
 class SIUnit
 {
 public:
-    bool unit_known;
-    bool unitless;
+    bool is_known;
+    bool is_unitless;
     std::map<std::string, int> units = std::map<std::string, int>({
         { "s", 0 },
         { "m", 0 },

@@ -21,7 +21,7 @@ public:
     std::string to_latex() const override;
     void print() const override;
     bool is_linear() const override;
-    std::vector<ExpVar *> get_vars() override;
+    std::vector<ExpVar *> units_ascent() override;
     void units_descent(SIUnit unit) override;
     Exp *singularize_vars() override;
     void add_arg(Exp *arg);

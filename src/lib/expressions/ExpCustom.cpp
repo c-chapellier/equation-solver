@@ -39,9 +39,9 @@ bool ExpCustom::is_linear() const
     return false;   // TODO
 }
 
-std::vector<ExpVar *> ExpCustom::get_vars()
+std::vector<ExpVar *> ExpCustom::units_ascent()
 {
-    std::cerr << "ExpCustom::get_vars: not implemented" << std::endl, exit(1);
+    std::cerr << "ExpCustom::units_ascent: not implemented" << std::endl, exit(1);
 }
 
 void ExpCustom::units_descent(SIUnit unit)

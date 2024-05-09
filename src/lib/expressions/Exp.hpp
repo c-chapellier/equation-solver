@@ -22,7 +22,7 @@ public:
     virtual std::string to_latex() const = 0;
     virtual void print() const = 0;
     virtual bool is_linear() const = 0;
-    virtual std::vector<ExpVar *> get_vars() = 0;
+    virtual std::vector<ExpVar *> units_ascent() = 0;
     virtual void units_descent(SIUnit unit) = 0;
     virtual Exp *singularize_vars() = 0;
 };

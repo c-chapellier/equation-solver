@@ -17,9 +17,9 @@ bool ExpFuncCall::is_linear() const
     return false; // TODO
 }
 
-std::vector<ExpVar *> ExpFuncCall::get_vars()
+std::vector<ExpVar *> ExpFuncCall::units_ascent()
 {
-	std::cerr << "Not implemented: ExpFuncCall::get_vars()" << std::endl, exit(1);	// TODO
+	std::cerr << "Not implemented: ExpFuncCall::units_ascent()" << std::endl, exit(1);	// TODO
 }
 
 void ExpFuncCall::units_descent(SIUnit unit)

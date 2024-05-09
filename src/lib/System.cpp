@@ -119,7 +119,7 @@ int System::solve(std::vector<double> &res, std::vector<double> &guesses)
 	return 0;
 }
 
-void System::load_vars_from_equs()
+void System::infer_units()
 {
 	int not_stable = 1;
 	int it = 0;
@@ -128,7 +128,7 @@ void System::load_vars_from_equs()
 		not_stable = 0;
 		for (int i = 0; i < this->equs.size(); ++i)
 		{
-			std::vector<ExpVar *> vars = this->equs[i]->get_vars();
+			std::vector<ExpVar *> vars = this->equs[i]->units_ascent();
 
 			int j = 0;
 			while (j < vars.size())
@@ -137,7 +137,7 @@ void System::load_vars_from_equs()
 					++j;
 				else
 				{
-					if (!vars[j]->unit.unit_known)
+					if (!vars[j]->unit.is_known)
 						not_stable = 1;
 					vars.erase(vars.begin() + j);
 				}
@@ -151,7 +151,10 @@ void System::load_vars_from_equs()
 			
 			this->equs[i]->units_descent(this->equs[i]->unit);
 		}
+		++it;
 	}
+	
+	std::cout << "Infered units in " << it << " iterations" << std::endl;
 }
 
 System *System::deep_copy() const
@@ -161,7 +164,7 @@ System *System::deep_copy() const
 	for (int i = 0; i < this->equs.size(); ++i)
 		cp_sys->add_equ(this->equs[i]->deep_copy());
 
-	cp_sys->load_vars_from_equs();
+	cp_sys->infer_units();
 
 	return cp_sys;
 }
@@ -215,7 +218,7 @@ ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
 			new ExpVar(std::string("#ret")),
 			this->f->exp->deep_copy()));
 
-	this->sys->load_vars_from_equs();
+	this->sys->infer_units();
 }
 
 double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
@@ -252,7 +255,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 		cp_sys->equs.erase(cp_sys->equs.begin());
 	}
 
-	cp_sys->load_vars_from_equs();
+	cp_sys->infer_units();
 
 	std::vector<double> res;
 	std::vector<double> guesses = std::vector<double>(cp_sys->equs.size(), 1.);

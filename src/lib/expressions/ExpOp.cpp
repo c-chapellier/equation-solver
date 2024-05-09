@@ -107,43 +107,28 @@ bool ExpOp::is_linear() const
     }
 }
 
-std::vector<ExpVar *> ExpOp::get_vars()
+std::vector<ExpVar *> ExpOp::units_ascent()
 {
     switch (this->op)
     {
     case OpType::ADD:
     case OpType::SUB:
-        if (this->eleft->unit.unit_known && this->eright->unit.unit_known)
-        {
-            if (this->eleft->unit.units != this->eright->unit.units)
-            {
-                std::cerr << "Error: unit mismatch: ExpOp::get_vars: '" << this->eleft->unit.to_string();
-                std::cerr << "' != '" << this->eright->unit.to_string() << "'" << std::endl;
-                exit(1);
-            }
-            this->unit = this->eleft->unit;
-        }
-        else if (this->eleft->unit.unit_known || this->eright->unit.unit_known)
-            this->unit = this->eleft->unit.unit_known ? this->eleft->unit : this->eright->unit;
-        else { /* stay unknown */ }
+        if (this->unit.is_known && this->eleft->unit.is_known && this->unit.units != this->eleft->unit.units)
+            std::cerr << "Error: unit mismatch: ExpOp::units_ascent" << std::endl, exit(1);
+        else if (this->unit.is_known && this->eright->unit.is_known && this->unit.units != this->eright->unit.units)
+            std::cerr << "Error: unit mismatch: ExpOp::units_ascent" << std::endl, exit(1);
+        else if (this->eleft->unit.is_known && this->eright->unit.is_known && this->eleft->unit.units != this->eright->unit.units)
+            std::cerr << "Error: unit mismatch: ExpOp::units_ascent" << std::endl, exit(1);
+        else if (!this->unit.is_known && (this->eleft->unit.is_known || this->eright->unit.is_known))
+            this->unit = this->eleft->unit.is_known ? this->eleft->unit : this->eright->unit;
         break;
     case OpType::MUL:
-        if (this->eleft->unit.unit_known && this->eright->unit.unit_known)
-        {
-            this->unit.unit_known = true;
-            for (auto &unit : this->unit.units)
-                this->unit.units[unit.first] = this->eleft->unit.units[unit.first] + this->eright->unit.units[unit.first];
-        }
-        else { /* stay unknown */ }
+        if (!this->unit.is_known && this->eleft->unit.is_known && this->eright->unit.is_known)
+            this->unit = this->eleft->unit.multiply(this->eright->unit);
         break;
     case OpType::DIV:
-        if (this->eleft->unit.unit_known && this->eright->unit.unit_known)
-        {
-            this->unit.unit_known = true;
-            for (auto &unit : this->unit.units)
-                this->unit.units[unit.first] = this->eleft->unit.units[unit.first] - this->eright->unit.units[unit.first];
-        }
-        else { /* stay unknown */ }
+        if (!this->unit.is_known && this->eleft->unit.is_known && this->eright->unit.is_known)
+            this->unit = this->eleft->unit.divide(this->eright->unit);
         break;
     case OpType::POW:
         std::cerr << "Error: not implemented: OpType::POW: unit inferation" << std::endl, exit(1);
@@ -151,18 +136,18 @@ std::vector<ExpVar *> ExpOp::get_vars()
         std::cerr << "Error: unknown operator: ExpOp::is_linear" << std::endl, exit(1);
     }
 
-    std::vector<ExpVar *> vars = this->eleft->get_vars();
-    std::vector<ExpVar *> right_vars = this->eright->get_vars();
+    std::vector<ExpVar *> vars = this->eleft->units_ascent();
+    std::vector<ExpVar *> right_vars = this->eright->units_ascent();
     vars.insert(vars.end(), right_vars.begin(), right_vars.end());
     return vars;
 }
 
 void ExpOp::units_descent(SIUnit unit)
 {
-    if (unit.unit_known && this->unit.unit_known && this->unit.units != unit.units)
-        std::cerr << "Error: unit mismatch: ExpOp::units_descent: beginning: '" << this->unit.to_string() << "' != '" << unit.to_string() << "'" << std::endl, exit(1);
+    if (unit.is_known && this->unit.is_known && this->unit.units != unit.units)
+        std::cerr << "Error: unit mismatch: ExpOp::units_descent: beginning" << std::endl, exit(1);
 
-    if (!this->unit.unit_known && unit.unit_known)
+    if (!this->unit.is_known && unit.is_known)
         this->unit = unit;
 
     switch (this->op)
@@ -173,56 +158,30 @@ void ExpOp::units_descent(SIUnit unit)
         this->eright->units_descent(this->unit);
         break;
     case OpType::MUL:
-        if (this->eleft->unit.unit_known && this->eright->unit.unit_known)
+        if (this->unit.is_known && this->eleft->unit.is_known && this->eright->unit.is_known)
         {
-            if (this->unit.unit_known)
-            {
-                if (this->unit.units != this->eleft->unit.multiply(this->eright->unit).units)
-                {
-                    std::cerr << "Error: unit mismatch: ExpOp::units_descent: mult: '" << this->unit.to_string();
-                    std::cerr << "' != '" << this->eleft->unit.multiply(this->eright->unit).to_string() << "'" << std::endl;
-                    exit(1);
-                }
-            }
-            else
-            {
-                this->unit = this->eleft->unit.multiply(this->eright->unit);
-            }
+            if (this->unit.units != this->eleft->unit.multiply(this->eright->unit).units)
+                std::cerr << "Error: unit mismatch: ExpOp::units_descent: mult" << std::endl, exit(1);
         }
-        else if (this->eleft->unit.unit_known || this->eright->unit.unit_known)
-        {
-            if (this->eleft->unit.unit_known)
-                this->eright->units_descent(this->unit.divide(this->eleft->unit));
-            else
-                this->eleft->units_descent(this->unit.divide(this->eright->unit));
-        }
-        else { /* stay unknown */ }
+        else if (!this->unit.is_known && this->eleft->unit.is_known && this->eright->unit.is_known)
+            this->unit = this->eleft->unit.multiply(this->eright->unit);
+        else if (this->eleft->unit.is_known)
+            this->eright->units_descent(this->unit.divide(this->eleft->unit));
+        else if (this->eright->unit.is_known)
+            this->eleft->units_descent(this->unit.divide(this->eright->unit));
         break;
     case OpType::DIV:
-        if (this->eleft->unit.unit_known && this->eright->unit.unit_known)
+        if (this->unit.is_known && this->eleft->unit.is_known && this->eright->unit.is_known)
         {
-            if (this->unit.unit_known)
-            {
-                if (this->unit.units != this->eleft->unit.divide(this->eright->unit).units)
-                {
-                    std::cerr << "Error: unit mismatch: ExpOp::units_descent: div: '" << this->unit.to_string();
-                    std::cerr << "' != '" << this->eleft->unit.divide(this->eright->unit).to_string() << "'" << std::endl;
-                    exit(1);
-                }
-            }
-            else
-            {
-                this->unit = this->eleft->unit.divide(this->eright->unit);
-            }
+            if (this->unit.units != this->eleft->unit.divide(this->eright->unit).units)
+                std::cerr << "Error: unit mismatch: ExpOp::units_descent: div" << std::endl, exit(1);
         }
-        else if (this->eleft->unit.unit_known || this->eright->unit.unit_known)
-        {
-            if (this->eleft->unit.unit_known)
-                this->eright->units_descent(this->eleft->unit.divide(this->unit));
-            else
-                this->eleft->units_descent(this->eright->unit.multiply(this->unit));
-        }
-        else { /* stay unknown */ }
+        else if (!this->unit.is_known && this->eleft->unit.is_known && this->eright->unit.is_known)
+            this->unit = this->eleft->unit.divide(this->eright->unit);
+        else if (this->eleft->unit.is_known)
+            this->eright->units_descent(this->eleft->unit.divide(this->unit));
+        else if (this->eright->unit.is_known)
+            this->eleft->units_descent(this->eright->unit.multiply(this->unit));
         break;
     case OpType::POW:
         std::cerr << "Error: not implemented: OpType::POW: units_descent" << std::endl, exit(1);

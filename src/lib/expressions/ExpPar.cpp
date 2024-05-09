@@ -42,19 +42,22 @@ bool ExpPar::is_linear() const
     return this->eleft->is_linear();
 }
 
-std::vector<ExpVar *> ExpPar::get_vars()
+std::vector<ExpVar *> ExpPar::units_ascent()
 {
 	this->unit = this->eleft->unit;
-	return this->eleft->get_vars();
+	return this->eleft->units_ascent();
 }
 
 void ExpPar::units_descent(SIUnit unit)
 {
-	if (this->unit.unit_known && this->unit.units != unit.units)
+	if (this->unit.is_known && unit.is_known && this->unit.units != unit.units)
 		std::cerr << "Error: units mismatch in ExpPar" << std::endl;
 
-	if (!this->unit.unit_known)
+	if (!this->unit.is_known && unit.is_known)
 		this->unit = unit;
+
+	if (this->unit.is_known && !unit.is_known)
+		unit = this->unit;
 
 	this->eleft->units_descent(unit);
 }
