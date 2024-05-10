@@ -58,7 +58,7 @@ Will produce this markdown document:
 * Choose variable initial guess
 
 ## Todo
-* Add support for SI units
+* Add support for SI units in funtions
 * Add support for prefix units
 * Add support for derived units
 * Add support for libraries

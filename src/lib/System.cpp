@@ -119,8 +119,9 @@ int System::solve(std::vector<double> &res, std::vector<double> &guesses)
 
 void System::infer_units()
 {
-	int not_stable = 1;
 	int it = 0;
+	int not_stable = 1;
+	
 	while (not_stable)
 	{
 		not_stable = 0;
@@ -128,22 +129,17 @@ void System::infer_units()
 		{
 			std::vector<ExpVar *> vars = this->equs[i]->units_ascent();
 
-			int j = 0;
-			while (j < vars.size())
+			for (auto &v : this->vars)
 			{
-				if (this->vars[vars[j]->name]->is_true_var)
-					++j;
-				else
-				{
-					if (!vars[j]->unit.is_known)
-						not_stable = 1;
-					vars.erase(vars.begin() + j);
-				}
+				if (!v.second->unit.is_known)
+					not_stable = 1;
+				if (this->vars[v.second->name]->can_be_infered)
+					vars.erase(std::remove(vars.begin(), vars.end(), v.second), vars.end());
 			}
 
 			if (vars.size() == 1 && this->equs[i]->is_linear())
 			{
-				this->vars[vars[0]->name]->is_true_var = false;
+				this->vars[vars[0]->name]->can_be_infered = true;
 				not_stable = 1;
 			}
 			

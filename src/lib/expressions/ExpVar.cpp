@@ -2,7 +2,7 @@
 #include "ExpVar.hpp"
 
 ExpVar::ExpVar(std::string name, std::string guess)
-	: Exp(), name(name), guess(std::stod(guess.substr(1, guess.size() - 2))), is_true_var(true), index(-1)
+	: Exp(), name(name), guess(std::stod(guess.substr(1, guess.size() - 2))), can_be_infered(false), index(-1)
 {
 
 }
@@ -14,7 +14,9 @@ ExpVar *ExpVar::deep_copy() const
 
 std::string ExpVar::to_latex() const
 {
-	return Latex::var_to_latex(this->name.c_str());
+	if (!this->can_be_infered)
+		return "\\textcolor{red}{" + Latex::var_to_latex(this->name.c_str()) + "}";
+	return "\\textcolor{green}{" + Latex::var_to_latex(this->name.c_str()) + "}";
 }
 
 void ExpVar::print() const

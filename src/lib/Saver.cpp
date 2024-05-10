@@ -49,11 +49,19 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
     for (auto &v : sys.vars)
     {
         f << "$$";
-        f << Latex::var_to_latex(v.first.c_str());
+        f << v.second->to_latex();
         f << " = ";
         f << Latex::double_to_latex(res[v.second->index]);
-        std::string u = v.second->unit.to_string();
-        f << "\\,[" << (u == "\\" ? "/" : u) << "]";
+        if (!v.second->unit.is_known)
+            f << "\\,[?]";
+        else
+        {
+            std::string u = v.second->unit.to_string();
+            if (u == "")
+                f << "\\,[?]";
+            else if (u != "\\")
+                f << "\\,[" << u << "]";
+        }
         f << "$$" << std::endl << std::endl;
     }
 

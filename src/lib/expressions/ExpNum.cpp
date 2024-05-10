@@ -2,7 +2,7 @@
 #include "ExpNum.hpp"
 
 ExpNum::ExpNum(double dval)
-	: Exp(), dval(dval)
+	: Exp("[\\]"), dval(dval)
 {
 
 }

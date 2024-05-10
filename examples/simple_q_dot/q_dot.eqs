@@ -1,9 +1,0 @@
-
-function max(a, b)
-{
-    return (a + b + abs(a - b)) / 2
-}
-
-y = x - 1
-x^2 + y^2 = 1
-

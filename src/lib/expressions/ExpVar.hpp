@@ -10,7 +10,7 @@ class ExpVar : public Exp
 public:
     std::string name;
     double guess;
-    bool is_true_var;
+    bool can_be_infered;
     int index;
     
 public:
