@@ -25,7 +25,11 @@ private:
 
 public:
     std::vector<ExpOp *> equs;
+    std::vector<ExpOp *> inferred_equs;
+	std::vector<ExpOp *> unknown_equs;
 	std::map<std::string, ExpVar *> vars;
+    std::map<std::string, ExpVar *> inferred_vars;
+	std::map<std::string, ExpVar *> unknown_vars;
 
 public:
     System();
@@ -33,9 +37,9 @@ public:
     void add_equ(ExpOp *equ);
     void add_sys(System *sys);
     size_t size() const;
+    void singularize_vars();
     void infer_units();
-    int solve(std::vector<double> &res, std::vector<double> &guesses);
+    int solve();
     void print() const;
     System *deep_copy() const;
-    void singularize_vars();
 };

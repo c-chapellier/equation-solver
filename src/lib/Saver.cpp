@@ -1,7 +1,7 @@
 
 #include "Saver.hpp"
 
-int Saver::save_to_file(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys, const std::vector<double> &res)
+int Saver::save_to_file(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys)
 {
     std::ofstream f;
 
@@ -10,13 +10,13 @@ int Saver::save_to_file(const std::string &fname, const std::map<std::string, Fu
         return -1;
 
     for (auto &v : sys.vars)
-        f << v.first << " = " << res[v.second->index] << std::endl;
+        f << v.first << " = " << v.second->value << std::endl;
 
     f.close();
     return 0;
 }
 
-int Saver::save_to_markdown(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys, const std::vector<double> &res)
+int Saver::save_to_markdown(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys)
 {
     std::ofstream f;
 
@@ -37,21 +37,49 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
         }
     }
 
-    f << "## Equations" << std::endl << std::endl;
-    for (int i = 0; i < sys.equs.size(); ++i)
+    f << "## Inferred Equations" << std::endl << std::endl;
+    for (int i = 0; i < sys.inferred_equs.size(); ++i)
     {
         f << "$$";
-        f << sys.equs[i]->to_latex();
+        f << sys.inferred_equs[i]->to_latex();
         f << "$$" << std::endl << std::endl;
     }
 
-    f << "## Solution" << std::endl << std::endl;
-    for (auto &v : sys.vars)
+    f << "## System of Equations" << std::endl << std::endl;
+    for (int i = 0; i < sys.unknown_equs.size(); ++i)
+    {
+        f << "$$";
+        f << sys.unknown_equs[i]->to_latex();
+        f << "$$" << std::endl << std::endl;
+    }
+
+    f << "## Inferred Saolutions" << std::endl << std::endl;
+    for (auto &v : sys.inferred_vars)
     {
         f << "$$";
         f << v.second->to_latex();
         f << " = ";
-        f << Latex::double_to_latex(res[v.second->index]);
+        f << Latex::double_to_latex(v.second->value);
+        if (!v.second->unit.is_known)
+            f << "\\,[?]";
+        else
+        {
+            std::string u = v.second->unit.to_string();
+            if (u == "")
+                f << "\\,[?]";
+            else if (u != "\\")
+                f << "\\,[" << u << "]";
+        }
+        f << "$$" << std::endl << std::endl;
+    }
+
+    f << "## Variables" << std::endl << std::endl;
+    for (auto &v : sys.unknown_vars)
+    {
+        f << "$$";
+        f << v.second->to_latex();
+        f << " = ";
+        f << Latex::double_to_latex(v.second->value);
         if (!v.second->unit.is_known)
             f << "\\,[?]";
         else

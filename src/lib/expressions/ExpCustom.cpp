@@ -39,7 +39,7 @@ bool ExpCustom::is_linear() const
     return false;   // TODO
 }
 
-bool ExpCustom::infer_units(std::vector<ExpVar *> &vars, SIUnit unit)
+bool ExpCustom::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value)
 {
     std::cerr << "ExpCustom::infer_units: not implemented" << std::endl, exit(1);
 }
@@ -47,4 +47,9 @@ bool ExpCustom::infer_units(std::vector<ExpVar *> &vars, SIUnit unit)
 Exp *ExpCustom::singularize_vars()
 {
     std::cerr << "ExpCustom::singularize_vars: not implemented" << std::endl, exit(1);
+}
+
+bool ExpCustom::is_completly_infered() const
+{
+    std::cerr << "ExpCustom::is_completly_infered: not implemented" << std::endl, exit(1);
 }

@@ -51,17 +51,13 @@ int main(int argc, char* argv[])
 	add_default_funcs();
 
 	parse_file(args[1]);
+	
 	main_sys.singularize_vars();
 	main_sys.infer_units();
+	main_sys.solve();
 
-	std::vector<double> res;
-	std::vector<double> guesses = std::vector<double>(main_sys.size(), 1);
-	for (auto &v : main_sys.vars)
-		guesses[v.second->index] = v.second->guess;
-	main_sys.solve(res, guesses);
-
-	Saver::save_to_file(std::string(args[1]) + ".res", funcs, main_sys, res);
-	Saver::save_to_markdown(std::string(args[1]) + ".md", funcs, main_sys, res);
+	Saver::save_to_file(std::string(args[1]) + ".res", funcs, main_sys);
+	Saver::save_to_markdown(std::string(args[1]) + ".md", funcs, main_sys);
 
 	for (auto &func : funcs)
 		delete func.second;

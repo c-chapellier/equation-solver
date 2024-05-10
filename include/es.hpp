@@ -10,8 +10,6 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>
 
-inline int debug_units = 1;
-
 template<typename T>
 constexpr void debug(const T &x)
 {
