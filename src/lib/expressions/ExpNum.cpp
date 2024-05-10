@@ -43,15 +43,18 @@ bool ExpNum::is_linear() const
     return true;
 }
 
-std::vector<ExpVar *> ExpNum::units_ascent()
+bool ExpNum::infer_units(std::vector<ExpVar *> &vars, SIUnit unit)
 {
-	return std::vector<ExpVar *>();
-}
+	if (this->unit.is_known && unit.is_known && this->unit.units != unit.units)
+		std::cerr << "Error: unit mismatch: ExpNum::units_ascent" << std::endl, exit(1);
 
-void ExpNum::units_descent(SIUnit unit)
-{
-	if (this->unit.units != unit.units)
-		std::cerr << "Error: unit mismatch: ExpNum::units_descent" << std::endl, exit(1);
+	if (!this->unit.is_known && unit.is_known)
+	{
+		this->unit = unit;
+		return false;
+	}
+
+	return true;
 }
 
 Exp *ExpNum::singularize_vars()

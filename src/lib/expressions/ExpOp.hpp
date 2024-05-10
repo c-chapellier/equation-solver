@@ -18,8 +18,7 @@ public:
     std::string to_latex() const override;
     void print() const override;
     bool is_linear() const override;
-    std::vector<ExpVar *> units_ascent() override;
-    void units_descent(SIUnit unit) override;
+    bool infer_units(std::vector<ExpVar *> &vars, SIUnit unit) override;
     Exp * singularize_vars() override;
     Exp *get_left();
 };

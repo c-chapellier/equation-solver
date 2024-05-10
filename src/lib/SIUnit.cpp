@@ -2,23 +2,20 @@
 #include "SIUnit.hpp"
 
 SIUnit::SIUnit()
-    : is_known(false), is_unitless(false)
+    : is_known(false)
 {
 
 }
 
 // unit format example: [m] [kg m2 s-2] [s-1] [m s2]
 SIUnit::SIUnit(std::string unit)
-    : is_known(true), is_unitless(false)
+    : is_known(true)
 {
     unit = unit.substr(1, unit.size() - 2); // remove the brackets
     std::replace(unit.begin(), unit.end(), '\t', ' ');
 
     if (unit == "\\")
-    {
-        this->is_unitless = true;
         return;
-    }
 
     while (unit.size() > 0)
     {
@@ -48,17 +45,17 @@ SIUnit::SIUnit(std::string unit)
 
 std::string SIUnit::to_string() const
 {
-    std::string unit_str = "";
+    if (!this->is_known)
+        return "?";
 
-    if (this->is_known && this->is_unitless)
-        return "\\";
+    std::string unit_str = "";
 
     for (auto &unit : this->units)
         if (unit.second != 0)
             unit_str += unit.first + (unit.second == 1 ? "" : std::to_string(unit.second)) + " ";
     
     if (unit_str.size() == 0)
-        return "";
+        return "\\";
         
     return unit_str.erase(unit_str.size() - 1);
 }

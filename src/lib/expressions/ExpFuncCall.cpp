@@ -17,14 +17,9 @@ bool ExpFuncCall::is_linear() const
     return false; // TODO
 }
 
-std::vector<ExpVar *> ExpFuncCall::units_ascent()
+bool ExpFuncCall::infer_units(std::vector<ExpVar *> &vars, SIUnit unit)
 {
-	std::cerr << "Not implemented: ExpFuncCall::units_ascent()" << std::endl, exit(1);	// TODO
-}
-
-void ExpFuncCall::units_descent(SIUnit unit)
-{
-	std::cerr << "Not implemented: ExpFuncCall::units_descent()" << std::endl, exit(1);	// TODO
+	std::cerr << "Not implemented: ExpFuncCall::infer_units()" << std::endl, exit(1);	// TODO
 }
 
 Exp *ExpFuncCall::singularize_vars()

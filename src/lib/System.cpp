@@ -121,13 +121,16 @@ void System::infer_units()
 {
 	int it = 0;
 	int not_stable = 1;
-	
+
 	while (not_stable)
 	{
 		not_stable = 0;
 		for (int i = 0; i < this->equs.size(); ++i)
 		{
-			std::vector<ExpVar *> vars = this->equs[i]->units_ascent();
+			std::vector<ExpVar *> vars = std::vector<ExpVar *>();
+
+			if (!this->equs[i]->infer_units(vars, SIUnit()))
+				not_stable = 1;
 
 			for (auto &v : this->vars)
 			{
@@ -142,8 +145,6 @@ void System::infer_units()
 				this->vars[vars[0]->name]->can_be_infered = true;
 				not_stable = 1;
 			}
-			
-			this->equs[i]->units_descent(this->equs[i]->unit);
 		}
 		++it;
 	}
