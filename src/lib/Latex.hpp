@@ -8,7 +8,7 @@
 class Latex
 {
 private:
-    static constexpr int SIGNIFICANT_DIGITS = 4;
+    static constexpr int SIGNIFICANT_DIGITS = 5;
     static constexpr int GREEK_LETTERS_SIZE = 66;
     static constexpr std::array<std::string_view, GREEK_LETTERS_SIZE> GREEK_LETTERS = {
         "Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta",

@@ -58,12 +58,9 @@ Will produce this markdown document:
 * Choose variable initial guess
 
 ## Todo
-* Add support for SI units in funtions
+* Add support for SI units in functions
 * Add support for prefix units
 * Add support for derived units
 * Add support for libraries
-
-## Bugs
-* Constants are just hints
 
 https://en.wikipedia.org/wiki/International_System_of_Units
