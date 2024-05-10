@@ -22,6 +22,7 @@ class System
 private:
     static int rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f);
     static void print_state(size_t iter, int n, gsl_multiroot_fsolver *s);
+    void sort_equs_and_vars();
 
 public:
     std::vector<ExpOp *> equs;
@@ -38,8 +39,9 @@ public:
     void add_sys(System *sys);
     size_t size() const;
     void singularize_vars();
-    void infer_units();
+    void infer();
     int solve();
-    void print() const;
     System *deep_copy() const;
+
+    friend std::ostream &operator<<(std::ostream &os, const System &sys);
 };

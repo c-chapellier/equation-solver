@@ -30,19 +30,16 @@ void System::add_sys(System *sys)
 		this->add_equ(sys->equs[i]->deep_copy());
 }
 
-void System::print() const
+std::ostream &operator<<(std::ostream &os, const System &sys)
 {
-	std::cout << "System:" << std::endl;
-	std::cout << "  Equations(" << this->equs.size() << "):" << std::endl;
-	for (int i = 0; i < this->equs.size(); ++i)
-	{
-		std::cout << "    ";
-		this->equs[i]->print();
-		std::cout << std::endl;
-	}
-	std::cout << "  Variables(" << this->vars.size() << "):" << std::endl;
-	for (auto &v : this->vars)
-		std::cout << "    " << v.first << "{" /* << v.guess */ << "} [" << v.second->unit.to_string() << "]" << std::endl;
+    os << "System:" << std::endl;
+	os << "  Equations(" << sys.equs.size() << "):" << std::endl;
+	for (int i = 0; i < sys.equs.size(); ++i)
+		os << "    " << *sys.equs[i] << std::endl;
+	os << "  Variables(" << sys.vars.size() << "):" << std::endl;
+	for (auto &v : sys.vars)
+		os << "    " << v.first << "{" << v.second->guess << "} [" << v.second->unit << "]" << std::endl;
+    return os;
 }
 
 int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
@@ -54,8 +51,7 @@ int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 	for (int i = 0; i < sys->unknown_equs.size(); ++i)
 		y[i] = sys->unknown_equs[i]->eval(sys, x);
 
-	if (x->size != sys->unknown_equs.size())
-		std::cerr << "Error: x size is " << x->size << ", but system size is " << sys->unknown_equs.size() << std::endl, exit(1);
+	assert(x->size == sys->unknown_equs.size());
 
 	for (int i = 0; i < sys->unknown_equs.size(); ++i)
 		gsl_vector_set(f, i, y[i]);
@@ -76,25 +72,6 @@ void System::print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
 
 int System::solve()
 {
-	for (auto &var : this->vars)
-	{
-		if (var.second->is_value_known)
-			this->inferred_vars[var.first] = var.second;
-		else
-			this->unknown_vars[var.first] = var.second;
-	}
-
-	for (int i = 0; i < this->equs.size(); ++i)
-	{
-		if (this->equs[i]->is_completly_infered())
-			this->inferred_equs.push_back(this->equs[i]);
-		else
-			this->unknown_equs.push_back(this->equs[i]);
-	}
-
-	if (this->unknown_equs.size() != this->unknown_vars.size())
-		std::cerr << "Error: equs size is " << this->unknown_equs.size() << ", but vars size is " << this->unknown_vars.size() << std::endl, exit(1);
-
 	int n = this->unknown_equs.size();
 	const double EPSILON = 1e-7;
 	const int MAX_ITERATIONS = 1000;
@@ -123,8 +100,7 @@ int System::solve()
 		status = gsl_multiroot_test_residual(s->f, EPSILON);
 	}
 
-	if (s->x->size != this->unknown_equs.size())
-		std::cerr << "Error 2: x size is " << s->x->size << ", but system size is " << this->unknown_equs.size() << std::endl, exit(1);
+	assert(s->x->size == this->unknown_equs.size());
 
 	i = 0;
 	for (auto &v : this->unknown_vars)
@@ -138,7 +114,28 @@ int System::solve()
 	return 0;
 }
 
-void System::infer_units()
+void System::sort_equs_and_vars()
+{
+	for (auto &var : this->vars)
+	{
+		if (var.second->is_value_known)
+			this->inferred_vars[var.first] = var.second;
+		else
+			this->unknown_vars[var.first] = var.second;
+	}
+
+	for (int i = 0; i < this->equs.size(); ++i)
+	{
+		if (this->equs[i]->is_completly_infered())
+			this->inferred_equs.push_back(this->equs[i]);
+		else
+			this->unknown_equs.push_back(this->equs[i]);
+	}
+
+	assert(this->unknown_equs.size() == this->unknown_vars.size());
+}
+
+void System::infer()
 {
 	int not_stable = 1;
 
@@ -167,6 +164,8 @@ void System::infer_units()
 			}
 		}
 	}
+
+	this->sort_equs_and_vars();
 }
 
 System *System::deep_copy() const
@@ -176,7 +175,7 @@ System *System::deep_copy() const
 	for (int i = 0; i < this->equs.size(); ++i)
 		cp_sys->add_equ(this->equs[i]->deep_copy());
 
-	cp_sys->infer_units();
+	cp_sys->infer();
 
 	return cp_sys;
 }
@@ -233,7 +232,7 @@ ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
 			new ExpVar(std::string("#ret")),
 			this->f->exp->deep_copy()));
 
-	this->sys->infer_units();
+	this->sys->infer();
 }
 
 double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
@@ -279,8 +278,7 @@ double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
 	// cp_sys->solve(res, guesses);
 
 	// int i = cp_sys->vars["#ret"]->index;
-	// if (i == -1)
-	// 	std::cerr << "Error: variable #ret not found" << std::endl, exit(1);
+	// assert(i != -1)
 
 	// delete cp_sys;
 
@@ -325,11 +323,12 @@ std::string ExpFuncCall::to_latex() const
 	}
 }
 
-void ExpFuncCall::print() const
+std::ostream &ExpFuncCall::output(std::ostream &os) const
 {
-	std::cout << this->f->name << "(";
-	this->sys->print();
-	std::cout << ")";
+	os << this->f->name << "(";
+	os << this->sys;
+	os << ")";
+	return os;
 }
 
 Function *Function::deep_copy() const
@@ -343,15 +342,15 @@ Function *Function::deep_copy() const
 
 void Function::print() const
 {
-	std::cerr << "Function: " << this->name << std::endl;
-	std::cerr << "Args: ";
+	std::cout << "Function: " << this->name << std::endl;
+	std::cout << "Args: ";
 	for (int i = 0; i < this->args_names.size(); ++i)
-		std::cerr << this->args_names[i] << " ";
-	std::cerr << std::endl;
-	std::cerr << "Fn system: " << std::endl;
-	this->sys->print();
-	std::cerr << "Expression: " << std::endl;
-	this->exp->print();
+		std::cout << this->args_names[i] << " ";
+	std::cout << std::endl;
+	std::cout << "Fn system: " << std::endl;
+	std::cout << this->sys;
+	std::cout << "Expression: " << std::endl;
+	std::cout << this->exp << std::endl;
 }
 
 std::string Function::to_latex() const

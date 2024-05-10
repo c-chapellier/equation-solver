@@ -9,13 +9,17 @@ ExpCustom::ExpCustom(int n_args, double (*func)(double *), const char *str_repr,
 
 double ExpCustom::eval(System *mother_sys, const gsl_vector *x) const
 {
-    if (x->size < this->n_args + 1)
-        std::cerr << "ExpCustom::eval: x->size < 2" << std::endl, exit(1);
+    assert(x->size >= this->n_args + 1);
+
     double *args = new double[this->n_args];
+
     for (int i = 0; i < this->n_args; i++)
         args[i] = gsl_vector_get(x, i + 1);
+
     double res = this->func(args);
+
     delete[] args;
+    
     return res;
 }
 
@@ -27,11 +31,6 @@ ExpCustom *ExpCustom::deep_copy() const
 std::string ExpCustom::to_latex() const
 {
     return std::string(this->latex_repr);
-}
-
-void ExpCustom::print() const
-{
-    std::cout << this->str_repr;
 }
 
 bool ExpCustom::is_linear() const
@@ -52,4 +51,10 @@ Exp *ExpCustom::singularize_vars()
 bool ExpCustom::is_completly_infered() const
 {
     std::cerr << "ExpCustom::is_completly_infered: not implemented" << std::endl, exit(1);
+}
+
+std::ostream &ExpCustom::output(std::ostream &os) const
+{
+    os << this->str_repr;
+    return os;
 }

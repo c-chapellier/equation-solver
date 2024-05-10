@@ -3,7 +3,7 @@
 
 void Latex::replace_greek_letters(std::string &s)
 {
-    for (const std::string_view &match : Latex::greek_letters)
+    for (const std::string_view &match : Latex::GREEK_LETTERS)
     {
         std::string replace = std::string("\\") + match.data() + " ";
 
@@ -46,13 +46,12 @@ std::string Latex::var_to_latex(std::string var)
 
 std::string Latex::double_to_latex(double n)
 {
-    std::string s = std::to_string(n);
+    std::stringstream ss;
 
-    while (s.back() == '0')
-        s.pop_back();
+    if (0.0001 > n && n > -0.0001 || 10000 < n || n < -10000)
+        ss << std::scientific << std::setprecision(Latex::SIGNIFICANT_DIGITS - 1) << n;
+    else
+        ss << std::setprecision(Latex::SIGNIFICANT_DIGITS) << n;
 
-    if (s.back() == '.')
-        s.pop_back();
-
-    return s;
+    return ss.str();
 }

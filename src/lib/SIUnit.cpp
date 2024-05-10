@@ -43,21 +43,47 @@ SIUnit::SIUnit(std::string unit)
     }
 }
 
-std::string SIUnit::to_string() const
+std::ostream &operator<<(std::ostream &os, const SIUnit &sys)
 {
-    if (!this->is_known)
-        return "?";
+    if (!sys.is_known)
+    {
+        os << "?";
+        return os;
+    }
 
     std::string unit_str = "";
 
-    for (auto &unit : this->units)
+    for (auto &unit : sys.units)
         if (unit.second != 0)
             unit_str += unit.first + (unit.second == 1 ? "" : std::to_string(unit.second)) + " ";
     
     if (unit_str.size() == 0)
-        return "\\";
+    {
+        os << "\\";
+        return os;
+    }
         
-    return unit_str.erase(unit_str.size() - 1);
+    unit_str.erase(unit_str.size() - 1);
+    os << unit_str;
+    return os;
+}
+
+// [kg.m.s^{-1}]
+std::string SIUnit::to_latex() const
+{
+    if (!this->is_known)
+        return "{[?]}";
+
+    std::string unit_str = "{[";
+
+    for (auto &unit : this->units)
+        if (unit.second != 0)
+            unit_str += unit.first + (unit.second == 1 ? "." : "^{" + std::to_string(unit.second) + "}.");
+    
+    if (unit_str.size() == 2)
+        return "";
+        
+    return unit_str.erase(unit_str.size() - 1) + "]}";
 }
 
 SIUnit SIUnit::multiply(SIUnit unit)

@@ -53,23 +53,14 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
         f << "$$" << std::endl << std::endl;
     }
 
-    f << "## Inferred Saolutions" << std::endl << std::endl;
+    f << "## Inferred Solutions" << std::endl << std::endl;
     for (auto &v : sys.inferred_vars)
     {
         f << "$$";
         f << v.second->to_latex();
         f << " = ";
         f << Latex::double_to_latex(v.second->value);
-        if (!v.second->unit.is_known)
-            f << "\\,[?]";
-        else
-        {
-            std::string u = v.second->unit.to_string();
-            if (u == "")
-                f << "\\,[?]";
-            else if (u != "\\")
-                f << "\\,[" << u << "]";
-        }
+        f << "\\," << v.second->unit.to_latex();
         f << "$$" << std::endl << std::endl;
     }
 
@@ -80,16 +71,7 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
         f << v.second->to_latex();
         f << " = ";
         f << Latex::double_to_latex(v.second->value);
-        if (!v.second->unit.is_known)
-            f << "\\,[?]";
-        else
-        {
-            std::string u = v.second->unit.to_string();
-            if (u == "")
-                f << "\\,[?]";
-            else if (u != "\\")
-                f << "\\,[" << u << "]";
-        }
+        f << "\\," << v.second->unit.to_latex();
         f << "$$" << std::endl << std::endl;
     }
 

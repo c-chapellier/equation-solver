@@ -19,12 +19,6 @@ std::string ExpVar::to_latex() const
 	return "\\textcolor{green}{" + Latex::var_to_latex(this->name.c_str()) + "}";
 }
 
-void ExpVar::print() const
-{
-	std::cout << this->name;
-	std::cout << "[" << this->value << "|" << this->unit.to_string() << "]";
-}
-
 bool ExpVar::is_linear() const
 {
     return true;
@@ -32,17 +26,10 @@ bool ExpVar::is_linear() const
 
 bool ExpVar::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value)
 {
-	vars.push_back(this);
-
-	if (this->is_value_known && is_value_known && abs(this->value - value) > 1e-6)
-	{
-		std::cerr << "diff = " << abs(this->value - value) << std::endl;
-		std::cerr << "this->value: " << this->value << std::endl;
-		std::cerr << "value: " << value << std::endl;
-		std::cerr << "Error: value mismatch: ExpVar::infer_units" << std::endl, exit(1);
-	}
-	if (this->unit.is_known && unit.is_known && this->unit.units != unit.units)
-		std::cerr << "Error: unit mismatch: ExpVar::units_descent" << std::endl, exit(1);
+	if (this->is_value_known && is_value_known)
+		assert(abs(this->value - value) < 1e-6);
+	if (this->unit.is_known && unit.is_known)
+		assert(this->unit.units == unit.units);
 
 	bool is_stable = true;
 
@@ -59,6 +46,7 @@ bool ExpVar::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value
 		is_stable = false;
 	}
 
+	vars.push_back(this);
 	return is_stable;
 }
 
@@ -76,4 +64,10 @@ Exp *ExpVar::singularize_vars()
 bool ExpVar::is_completly_infered() const
 {
 	return this->is_value_known;
+}
+
+std::ostream &ExpVar::output(std::ostream &os) const
+{
+	os << this->name << "[" << this->value << "|" << this->unit << "]";
+	return os;
 }

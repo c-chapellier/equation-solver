@@ -79,49 +79,6 @@ std::string ExpOp::to_latex() const
     }
 }
 
-void ExpOp::print() const
-{
-    std::cout << "(";
-
-    if (this->op == OpType::PAR)
-        std::cout << "(";
-
-    this->eleft->print();
-
-	switch (this->op)
-    {
-    case OpType::ADD:
-        std::cout << " + ";
-        break;
-    case OpType::SUB:
-        std::cout << " - ";
-        break;
-    case OpType::EQU:
-        std::cout << " = ";
-        break;
-    case OpType::MUL:
-        std::cout << " * ";
-        break;
-    case OpType::DIV:
-        std::cout << " / ";
-        break;
-    case OpType::PAR:
-        break;
-    case OpType::POW:
-        std::cout << " ^ ";
-        break;
-    default:
-        std::cerr << "Error: unknown operator: ExpOp::print" << std::endl, exit(1);
-    }
-
-    if (this->op == OpType::PAR)
-        std::cout << ")";
-    else
-        this->eright->print();
-        
-    std::cout << ")["<< this->value <<  "|" << this->unit.to_string() << "]";
-}
-
 bool ExpOp::is_linear() const
 {
     switch (this->op)
@@ -143,16 +100,11 @@ bool ExpOp::is_linear() const
 
 bool ExpOp::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value)
 {
-    if (unit.is_known && this->unit.is_known && this->unit.units != unit.units)
-        std::cerr << "Error: unit mismatch: ExpOp::units_descent: beginning" << std::endl, exit(1);
+    if (unit.is_known && this->unit.is_known)
+        assert(this->unit.units == unit.units);
     
-    if (this->is_value_known && is_value_known && abs(this->value - value) > 1e-6)
-	{
-		std::cerr << "diff = " << abs(this->value - value) << std::endl;
-		std::cerr << "this->value: " << this->value << std::endl;
-		std::cerr << "value: " << value << std::endl;
-		std::cerr << "Error: value mismatch: ExpOp::infer_units" << std::endl, exit(1);
-	}
+    if (this->is_value_known && is_value_known)
+        assert(abs(this->value - value) < 1e-6);
     
     bool is_stable = true, l, r;
 
@@ -318,4 +270,48 @@ bool ExpOp::is_completly_infered() const
     if (this->op == OpType::PAR)
         return this->eleft->is_completly_infered();
     return this->eleft->is_completly_infered() && this->eright->is_completly_infered();
+}
+
+std::ostream &ExpOp::output(std::ostream &os) const
+{
+    os << "(";
+
+    if (this->op == OpType::PAR)
+        os << "(";
+
+    os << *this->eleft;
+
+	switch (this->op)
+    {
+    case OpType::ADD:
+        os << " + ";
+        break;
+    case OpType::SUB:
+        os << " - ";
+        break;
+    case OpType::EQU:
+        os << " = ";
+        break;
+    case OpType::MUL:
+        os << " * ";
+        break;
+    case OpType::DIV:
+        os << " / ";
+        break;
+    case OpType::PAR:
+        break;
+    case OpType::POW:
+        os << " ^ ";
+        break;
+    default:
+        std::cerr << "Error: unknown operator: ExpOp::print" << std::endl, exit(1);
+    }
+
+    if (this->op == OpType::PAR)
+        os << ")";
+    else
+        os << *this->eright;
+        
+    os << ")["<< this->value <<  "|" << this->unit << "]";
+    return os;
 }

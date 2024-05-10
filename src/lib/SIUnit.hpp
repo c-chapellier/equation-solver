@@ -22,7 +22,9 @@ public:
 public:
     SIUnit();
     SIUnit(std::string unit);
-    std::string to_string() const;
+    std::string to_latex() const;
     SIUnit multiply(SIUnit unit);
     SIUnit divide(SIUnit unit);
+
+    friend std::ostream &operator<<(std::ostream &os, const SIUnit &sys);
 };

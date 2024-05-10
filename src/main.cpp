@@ -51,10 +51,12 @@ int main(int argc, char* argv[])
 	add_default_funcs();
 
 	parse_file(args[1]);
-	
+
 	main_sys.singularize_vars();
-	main_sys.infer_units();
+	main_sys.infer();
 	main_sys.solve();
+
+	std::cout << main_sys;
 
 	Saver::save_to_file(std::string(args[1]) + ".res", funcs, main_sys);
 	Saver::save_to_markdown(std::string(args[1]) + ".md", funcs, main_sys);
