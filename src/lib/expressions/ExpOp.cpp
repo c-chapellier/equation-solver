@@ -21,7 +21,7 @@ ExpOp::~ExpOp()
     }
 }
 
-double ExpOp::eval(System *mother_sys, const gsl_vector *x) const
+double ExpOp::eval(system_t *mother_sys, const gsl_vector *x) const
 {
     double l = this->eleft->eval(mother_sys, x);
 
@@ -241,7 +241,7 @@ bool ExpOp::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_k
     }
 }
 
-Exp *ExpOp::singularize_vars(System *sys)
+Exp *ExpOp::singularize_vars(system_t *sys)
 {
     Exp *r = this->eleft->singularize_vars(sys);
     if (r != NULL)
@@ -315,7 +315,7 @@ std::ostream &ExpOp::output(std::ostream &os) const
     return os;
 }
 
-void ExpOp::add_equs_from_func_calls(System *sys)
+void ExpOp::add_equs_from_func_calls(system_t *sys)
 {
     this->eleft->add_equs_from_func_calls(sys);
     if (this->op == OpType::PAR)

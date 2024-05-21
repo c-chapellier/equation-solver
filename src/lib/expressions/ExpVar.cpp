@@ -56,7 +56,7 @@ bool ExpVar::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_
 	return is_stable;
 }
 
-Exp *ExpVar::singularize_vars(System *sys)
+Exp *ExpVar::singularize_vars(system_t *sys)
 {
 	for (auto &v : sys->vars)
 		if (this->name == v.first)
@@ -78,7 +78,7 @@ std::ostream &ExpVar::output(std::ostream &os) const
 	return os;
 }
 
-void ExpVar::add_equs_from_func_calls(System *sys)
+void ExpVar::add_equs_from_func_calls(system_t *sys)
 {
 	return ;
 }

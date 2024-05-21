@@ -22,15 +22,15 @@ public:
         siu_init(&this->unit, unit.c_str());
     }
     virtual ~Exp() {}
-    virtual double eval(System *mother_sys, const gsl_vector *x) const = 0;
+    virtual double eval(system_t *mother_sys, const gsl_vector *x) const = 0;
     virtual Exp *deep_copy() const = 0;
     virtual std::string to_latex() const = 0;
     virtual bool is_linear() const = 0;
     virtual bool infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_known, double value = -1) = 0;
-    virtual Exp *singularize_vars(System *sys) = 0;
+    virtual Exp *singularize_vars(system_t *sys) = 0;
     virtual bool is_completly_infered() const = 0;
     virtual std::ostream &output(std::ostream &os) const = 0;
-	virtual void add_equs_from_func_calls(System *sys) = 0;
+	virtual void add_equs_from_func_calls(system_t *sys) = 0;
     virtual void add_prefix_to_vars(std::string prefix) = 0;
 };
 

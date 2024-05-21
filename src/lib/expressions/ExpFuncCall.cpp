@@ -24,7 +24,7 @@ ExpFuncCall::~ExpFuncCall()
 	delete this->ret;
 }
 
-double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
+double ExpFuncCall::eval(system_t *mother_sys, const gsl_vector *x) const
 {
 	return this->ret->eval(mother_sys, x);
 }
@@ -120,7 +120,7 @@ bool ExpFuncCall::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_v
     return is_stable && ret;
 }
 
-Exp *ExpFuncCall::singularize_vars(System *sys)
+Exp *ExpFuncCall::singularize_vars(system_t *sys)
 {
 	Exp *r = this->ret->singularize_vars(sys);
     if (r != NULL)
@@ -134,7 +134,7 @@ bool ExpFuncCall::is_completly_infered() const
     return this->ret->is_completly_infered();
 }
 
-void ExpFuncCall::add_equs_from_func_calls(System *sys)
+void ExpFuncCall::add_equs_from_func_calls(system_t *sys)
 {
     std::string func_call_prefix = this->f->name + ":" + std::to_string(this->f->call_count++) + ":";
 
@@ -157,7 +157,7 @@ void ExpFuncCall::add_equs_from_func_calls(System *sys)
     this->ret = this->f->ret->deep_copy();
     this->ret->add_prefix_to_vars(func_call_prefix);
 
-    System *tmp_sys = sys_deep_copy(this->f->sys);
+    system_t *tmp_sys = sys_deep_copy(this->f->sys);
 	for (int i = 0; i < sys_size(this->f->sys); ++i)
         sys_add_prefix_to_vars(tmp_sys, func_call_prefix);
     sys_add_sys(sys, tmp_sys);

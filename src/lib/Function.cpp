@@ -1,7 +1,7 @@
 
 #include "Function.hpp"
 
-Function::Function(std::string name, std::vector<std::string> args_names, System *sys, Exp *ret)
+Function::Function(std::string name, std::vector<std::string> args_names, system_t *sys, Exp *ret)
     : name(name), args_names(args_names), sys(sys), ret(ret), call_count(0)
 {
 

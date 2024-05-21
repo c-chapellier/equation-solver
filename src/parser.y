@@ -23,7 +23,7 @@ constexpr void debug(const T &x)
 #define YYERROR_VERBOSE 1
 #define yyerror(msg) yyerror2(&yylloc, msg)
 
-extern System main_sys;
+extern system_t main_sys;
 extern std::map<std::string, Function *> funcs;
 extern int n_parsing_errors;
 
@@ -78,11 +78,11 @@ prog:
 
 block:
 	  func				{ debug("block: func\n"); funcs[((Function *)$1)->name] = (Function *)$1; }
-	| sys				{ debug("block: sys\n"); sys_add_sys(&main_sys, (System *)$1); delete (System *)$1; }
+	| sys				{ debug("block: sys\n"); sys_add_sys(&main_sys, (system_t *)$1); delete (system_t *)$1; }
 
 func:
-	  T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), *((std::vector<std::string> *)$4), (System *)$9, (Exp *)$11); delete $2; delete (std::vector<std::string> *)$4; }
-	| T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), *((std::vector<std::string> *)$4), new System(), (Exp *)$10); delete $2; delete (std::vector<std::string> *)$4; }
+	  T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE sys T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), *((std::vector<std::string> *)$4), (system_t *)$9, (Exp *)$11); delete $2; delete (std::vector<std::string> *)$4; }
+	| T_FUNC T_VAR T_LPAR args_names T_RPAR T_NEWLINE T_LBRA T_NEWLINE T_RETURN exp T_NEWLINE T_RBRA { debug("func:\n"); $$ = new Function(std::string($2), *((std::vector<std::string> *)$4), new system_t(), (Exp *)$10); delete $2; delete (std::vector<std::string> *)$4; }
 ;
 
 args_names:
@@ -91,10 +91,10 @@ args_names:
 ;
 
 sys:
-	  T_NEWLINE				{ debug("sys: T_NEWLINE"); $$ = new System(); }
-	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE"); $$ = new System(); sys_add_equ((System *)$$, (ExpOp *)$1); }
-	| equ T_EOF				{ debug("sys: equ T_EOF"); $$ = new System(); sys_add_equ((System *)$$, (ExpOp *)$1); }
-	| sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE"); $$ = $1; sys_add_equ((System *)$$, (ExpOp *)$2); }
+	  T_NEWLINE				{ debug("sys: T_NEWLINE"); $$ = new system_t(); }
+	| equ T_NEWLINE			{ debug("sys: equ T_NEWLINE"); $$ = new system_t(); sys_add_equ((system_t *)$$, (ExpOp *)$1); }
+	| equ T_EOF				{ debug("sys: equ T_EOF"); $$ = new system_t(); sys_add_equ((system_t *)$$, (ExpOp *)$1); }
+	| sys equ T_NEWLINE		{ debug("sys: sys equ T_NEWLINE"); $$ = $1; sys_add_equ((system_t *)$$, (ExpOp *)$2); }
 	| sys T_NEWLINE			{ debug("sys: sys T_NEWLINE"); }
 	| sys T_EOF				{ debug("sys: sys T_EOF"); }
 ;

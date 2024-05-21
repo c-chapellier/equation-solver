@@ -7,7 +7,7 @@ ExpCustom::ExpCustom(int n_args, double (*func)(double *), const char *str_repr,
 
 }
 
-double ExpCustom::eval(System *mother_sys, const gsl_vector *x) const
+double ExpCustom::eval(system_t *mother_sys, const gsl_vector *x) const
 {
     assert(x->size >= this->n_args + 1);
 
@@ -43,7 +43,7 @@ bool ExpCustom::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_val
     std::cerr << "ExpCustom::infer_units: not implemented" << std::endl, exit(1);
 }
 
-Exp *ExpCustom::singularize_vars(System *sys)
+Exp *ExpCustom::singularize_vars(system_t *sys)
 {
     std::cerr << "ExpCustom::singularize_vars: not implemented" << std::endl, exit(1);
 }
@@ -59,7 +59,7 @@ std::ostream &ExpCustom::output(std::ostream &os) const
     return os;
 }
 
-void ExpCustom::add_equs_from_func_calls(System *sys)
+void ExpCustom::add_equs_from_func_calls(system_t *sys)
 {
     std::cerr << "ExpCustom::add_equs_from_func_calls: not implemented" << std::endl, exit(1);
 }

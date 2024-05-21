@@ -4,7 +4,7 @@
 extern int yyparse();
 extern FILE* yyin;
 
-System main_sys;
+system_t main_sys;
 int n_parsing_errors = 0;
 
 static void parse_file(const std::string &fname)
@@ -53,12 +53,16 @@ int main(int argc, char* argv[])
 
 	printf(" --------- 1 --------- \n");
 	sys_add_equs_from_func_calls(&main_sys);
+
 	printf(" --------- 2 --------- \n");
 	sys_singularize_vars(&main_sys);
+
 	printf(" --------- 3 --------- \n");
 	sys_infer(&main_sys);
+
 	printf(" --------- 4 --------- \n");
 	sys_solve(&main_sys);
+
 	printf(" --------- 5 --------- \n");
 
 	sys_to_file(std::string(argv[1]) + ".res", funcs, main_sys);

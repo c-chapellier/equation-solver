@@ -18,7 +18,7 @@ ExpNum::~ExpNum()
 
 }
 
-double ExpNum::eval(System *mother_sys, const gsl_vector *x) const
+double ExpNum::eval(system_t *mother_sys, const gsl_vector *x) const
 {
     return this->value;
 }
@@ -58,7 +58,7 @@ bool ExpNum::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_
 	return true;
 }
 
-Exp *ExpNum::singularize_vars(System *sys)
+Exp *ExpNum::singularize_vars(system_t *sys)
 {
 	return NULL;
 }
@@ -74,7 +74,7 @@ std::ostream &ExpNum::output(std::ostream &os) const
 	return os;
 }
 
-void ExpNum::add_equs_from_func_calls(System *sys)
+void ExpNum::add_equs_from_func_calls(system_t *sys)
 {
 	return ;
 }

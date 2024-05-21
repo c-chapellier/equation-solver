@@ -1,7 +1,7 @@
 
 #include "es.hpp"
 
-int sys_to_file(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys)
+int sys_to_file(std::string fname, std::map<std::string, Function *> funcs, system_t sys)
 {
     std::ofstream f;
 
@@ -16,7 +16,7 @@ int sys_to_file(const std::string &fname, const std::map<std::string, Function *
     return 0;
 }
 
-int sys_to_markdown(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys)
+int sys_to_markdown(std::string fname, std::map<std::string, Function *> funcs, system_t sys)
 {
     std::ofstream f;
 

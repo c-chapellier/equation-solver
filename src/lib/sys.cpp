@@ -1,7 +1,7 @@
 
 #include "es.hpp"
 
-void sys_free(System *sys)
+void sys_free(system_t *sys)
 {
 	sys_singularize_vars(sys);
 
@@ -12,23 +12,23 @@ void sys_free(System *sys)
 		delete v.second;
 }
 
-size_t sys_size(System *sys)
+size_t sys_size(system_t *sys)
 {
 	return sys->equs.size();
 }
 
-void sys_add_equ(System *sys, ExpOp *equ)
+void sys_add_equ(system_t *sys, ExpOp *equ)
 {
 	sys->equs.push_back(equ);
 }
 
-void sys_add_sys(System *sys, System *sys_to_add)
+void sys_add_sys(system_t *sys, system_t *sys_to_add)
 {
 	for (int i = 0; i < sys_to_add->equs.size(); ++i)
 		sys_add_equ(sys, sys_to_add->equs[i]->deep_copy());
 }
 
-void sys_add_equs_from_func_calls(System *sys)
+void sys_add_equs_from_func_calls(system_t *sys)
 {
 	for (int i = 0; i < sys->equs.size(); ++i)
 		sys->equs[i]->add_equs_from_func_calls(sys);
@@ -36,7 +36,7 @@ void sys_add_equs_from_func_calls(System *sys)
 
 int sys_rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
-	System *sys = static_cast<System *>(params);
+	system_t *sys = static_cast<system_t *>(params);
 
 	std::vector<double> y(sys->unknown_equs.size());
 
@@ -62,7 +62,7 @@ void sys_print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
 	std::cout << std::endl;
 }
 
-int sys_solve(System *sys)
+int sys_solve(system_t *sys)
 {
 	int n = sys->unknown_equs.size();
 	const double EPSILON = 1e-7;
@@ -106,7 +106,7 @@ int sys_solve(System *sys)
 	return 0;
 }
 
-void sys_sort_equs_and_vars(System *sys)
+void sys_sort_equs_and_vars(system_t *sys)
 {
 	for (auto &var : sys->vars)
 	{
@@ -127,7 +127,7 @@ void sys_sort_equs_and_vars(System *sys)
 	assert(sys->unknown_equs.size() == sys->unknown_vars.size());
 }
 
-void sys_infer(System *sys)
+void sys_infer(system_t *sys)
 {
 	int not_stable = 1;
 	int it = 0;
@@ -181,9 +181,9 @@ void sys_infer(System *sys)
 	sys_sort_equs_and_vars(sys);
 }
 
-System *sys_deep_copy(System *sys)
+system_t *sys_deep_copy(system_t *sys)
 {
-	System *cp_sys = new System();
+	system_t *cp_sys = new system_t();
 
 	for (int i = 0; i < sys->equs.size(); ++i)
 		sys_add_equ(cp_sys, sys->equs[i]->deep_copy());
@@ -191,19 +191,19 @@ System *sys_deep_copy(System *sys)
 	return cp_sys;
 }
 
-void sys_singularize_vars(System *sys)
+void sys_singularize_vars(system_t *sys)
 {
 	for (int i = 0; i < sys->equs.size(); ++i)
 		sys->equs[i]->singularize_vars(sys);
 }
 
-void sys_add_prefix_to_vars(System *sys, std::string prefix)
+void sys_add_prefix_to_vars(system_t *sys, std::string prefix)
 {
 	for (int i = 0; i < sys->equs.size(); ++i)
 		sys->equs[i]->add_prefix_to_vars(prefix);
 }
 
-double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
+double ExpVar::eval(system_t *mother_sys, const gsl_vector *x) const
 {
 	// if (this->name == "pi") return M_PI;
 	// if (this->name == "e") return M_E;
