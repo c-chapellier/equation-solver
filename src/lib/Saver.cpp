@@ -1,7 +1,7 @@
 
-#include "Saver.hpp"
+#include "es.hpp"
 
-int Saver::save_to_file(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys)
+int sys_to_file(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys)
 {
     std::ofstream f;
 
@@ -16,7 +16,7 @@ int Saver::save_to_file(const std::string &fname, const std::map<std::string, Fu
     return 0;
 }
 
-int Saver::save_to_markdown(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys)
+int sys_to_markdown(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys)
 {
     std::ofstream f;
 

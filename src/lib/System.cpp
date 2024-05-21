@@ -1,45 +1,37 @@
 
-#include "System.hpp"
+#include "es.hpp"
 
-System::System()
+void sys_free(System *sys)
 {
-	this->equs = std::vector<ExpOp *>();
-}
+	sys_singularize_vars(sys);
 
-System::~System()
-{
-	this->singularize_vars();
+	for (int i = 0; i < sys->equs.size(); ++i)
+		delete sys->equs[i];
 
-	for (int i = 0; i < this->equs.size(); ++i)
-		delete this->equs[i];
-
-	for (auto &v : this->vars)
+	for (auto &v : sys->vars)
 		delete v.second;
-
-	for (auto &v : this->vars_to_delete)
-		delete v;
 }
 
-size_t System::size() const
+size_t sys_size(System *sys)
 {
-	return this->equs.size();
+	return sys->equs.size();
 }
 
-void System::add_equ(ExpOp *equ)
+void sys_add_equ(System *sys, ExpOp *equ)
 {
-	this->equs.push_back(equ);
+	sys->equs.push_back(equ);
 }
 
-void System::add_sys(System *sys)
+void sys_add_sys(System *sys, System *sys_to_add)
+{
+	for (int i = 0; i < sys_to_add->equs.size(); ++i)
+		sys_add_equ(sys, sys_to_add->equs[i]->deep_copy());
+}
+
+void sys_add_equs_from_func_calls(System *sys)
 {
 	for (int i = 0; i < sys->equs.size(); ++i)
-		this->add_equ(sys->equs[i]->deep_copy());
-}
-
-void System::add_equs_from_func_calls()
-{
-	for (int i = 0; i < this->equs.size(); ++i)
-		this->equs[i]->add_equs_from_func_calls(this);
+		sys->equs[i]->add_equs_from_func_calls(sys);
 }
 
 std::ostream &operator<<(std::ostream &os, const System &sys)
@@ -54,7 +46,7 @@ std::ostream &operator<<(std::ostream &os, const System &sys)
     return os;
 }
 
-int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
+int sys_rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
 	System *sys = static_cast<System *>(params);
 
@@ -71,7 +63,7 @@ int System::rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 	return GSL_SUCCESS;
 }
 
-void System::print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
+void sys_print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
 {
 	std::cout << "iter = " << iter << " x = ";
 	for (int i = 0; i < n; ++i)
@@ -82,18 +74,18 @@ void System::print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
 	std::cout << std::endl;
 }
 
-int System::solve()
+int sys_solve(System *sys)
 {
-	int n = this->unknown_equs.size();
+	int n = sys->unknown_equs.size();
 	const double EPSILON = 1e-7;
 	const int MAX_ITERATIONS = 1000;
 	const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
 	gsl_multiroot_fsolver *s = gsl_multiroot_fsolver_alloc(T, n);
-	gsl_multiroot_function f = { &System::rosenbrock_f, (size_t)n, this };
+	gsl_multiroot_function f = { &sys_rosenbrock_f, (size_t)n, sys };
 	gsl_vector *x = gsl_vector_alloc(n);
 	
 	int i = 0;
-	for (auto &v : this->unknown_vars)
+	for (auto &v : sys->unknown_vars)
 		gsl_vector_set(x, i++, v.second->guess);
 
 	gsl_multiroot_fsolver_set(s, &f, x);
@@ -112,10 +104,10 @@ int System::solve()
 		status = gsl_multiroot_test_residual(s->f, EPSILON);
 	}
 
-	assert(s->x->size == this->unknown_equs.size());
+	assert(s->x->size == sys->unknown_equs.size());
 
 	i = 0;
-	for (auto &v : this->unknown_vars)
+	for (auto &v : sys->unknown_vars)
 	{
 		v.second->value = gsl_vector_get(s->x, i++);
 		v.second->is_value_known = true;
@@ -126,28 +118,28 @@ int System::solve()
 	return 0;
 }
 
-void System::sort_equs_and_vars()
+void sys_sort_equs_and_vars(System *sys)
 {
-	for (auto &var : this->vars)
+	for (auto &var : sys->vars)
 	{
 		if (var.second->is_value_known)
-			this->inferred_vars[var.first] = var.second;
+			sys->inferred_vars[var.first] = var.second;
 		else
-			this->unknown_vars[var.first] = var.second;
+			sys->unknown_vars[var.first] = var.second;
 	}
 
-	for (int i = 0; i < this->equs.size(); ++i)
+	for (int i = 0; i < sys->equs.size(); ++i)
 	{
-		if (this->equs[i]->is_completly_infered())
-			this->inferred_equs.push_back(this->equs[i]);
+		if (sys->equs[i]->is_completly_infered())
+			sys->inferred_equs.push_back(sys->equs[i]);
 		else
-			this->unknown_equs.push_back(this->equs[i]);
+			sys->unknown_equs.push_back(sys->equs[i]);
 	}
 
-	assert(this->unknown_equs.size() == this->unknown_vars.size());
+	assert(sys->unknown_equs.size() == sys->unknown_vars.size());
 }
 
-void System::infer()
+void sys_infer(System *sys)
 {
 	int not_stable = 1;
 	int it = 0;
@@ -156,12 +148,12 @@ void System::infer()
 	{
 		// DEBUG("Iteration: " << it++);
 		not_stable = 0;
-		for (int i = 0; i < this->equs.size(); ++i)
+		for (int i = 0; i < sys->equs.size(); ++i)
 		{
 			// DEBUG(not_stable << " Equation(" << i << "): " << *this->equs[i]);
 			std::vector<ExpVar *> vars = std::vector<ExpVar *>();
 
-			if (!this->equs[i]->infer_units(vars, SIUnit(), false))
+			if (!sys->equs[i]->infer_units(vars, SIUnit(), false))
 				not_stable = 1;
 
 			// DEBUG(not_stable << " Equation(" << i << "): " << *this->equs[i]);
@@ -185,9 +177,9 @@ void System::infer()
 
 			// DEBUG("not_stable = " << not_stable);
 
-			if (vars.size() == 1 && this->equs[i]->is_linear())
+			if (vars.size() == 1 && sys->equs[i]->is_linear())
 			{
-				this->vars[vars[0]->name]->can_be_infered = true;
+				sys->vars[vars[0]->name]->can_be_infered = true;
 				not_stable = 1;
 			}
 
@@ -195,29 +187,29 @@ void System::infer()
 		}
 	}
 
-	this->sort_equs_and_vars();
+	sys_sort_equs_and_vars(sys);
 }
 
-System *System::deep_copy() const
+System *sys_deep_copy(System *sys)
 {
 	System *cp_sys = new System();
 
-	for (int i = 0; i < this->equs.size(); ++i)
-		cp_sys->add_equ(this->equs[i]->deep_copy());
+	for (int i = 0; i < sys->equs.size(); ++i)
+		sys_add_equ(cp_sys, sys->equs[i]->deep_copy());
 
 	return cp_sys;
 }
 
-void System::singularize_vars()
+void sys_singularize_vars(System *sys)
 {
-	for (int i = 0; i < this->equs.size(); ++i)
-		this->equs[i]->singularize_vars(this);
+	for (int i = 0; i < sys->equs.size(); ++i)
+		sys->equs[i]->singularize_vars(sys);
 }
 
-void System::add_prefix_to_vars(std::string prefix)
+void sys_add_prefix_to_vars(System *sys, std::string prefix)
 {
-	for (int i = 0; i < this->equs.size(); ++i)
-		this->equs[i]->add_prefix_to_vars(prefix);
+	for (int i = 0; i < sys->equs.size(); ++i)
+		sys->equs[i]->add_prefix_to_vars(prefix);
 }
 
 double ExpVar::eval(System *mother_sys, const gsl_vector *x) const

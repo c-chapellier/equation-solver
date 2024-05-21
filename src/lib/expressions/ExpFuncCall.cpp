@@ -144,7 +144,8 @@ void ExpFuncCall::add_equs_from_func_calls(System *sys)
 		if (arg != nullptr && arg->op == OpType::EQU)
 			std::cerr << "Error: argument: " << this->f->args_names[i] << ": cannot use equation as argument" << std::endl, exit(1);
 
-		sys->add_equ(
+		sys_add_equ(
+			sys,
 			new ExpOp(
 				OpType::EQU,
 				new ExpVar(func_call_prefix + this->f->args_names[i]),
@@ -156,10 +157,10 @@ void ExpFuncCall::add_equs_from_func_calls(System *sys)
     this->ret = this->f->ret->deep_copy();
     this->ret->add_prefix_to_vars(func_call_prefix);
 
-    System *tmp_sys = this->f->sys->deep_copy();
-	for (int i = 0; i < this->f->sys->size(); ++i)
-        tmp_sys->add_prefix_to_vars(func_call_prefix);
-    sys->add_sys(tmp_sys);
+    System *tmp_sys = sys_deep_copy(this->f->sys);
+	for (int i = 0; i < sys_size(this->f->sys); ++i)
+        sys_add_prefix_to_vars(tmp_sys, func_call_prefix);
+    sys_add_sys(sys, tmp_sys);
     delete tmp_sys;
 }
 

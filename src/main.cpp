@@ -4,7 +4,7 @@
 extern int yyparse();
 extern FILE* yyin;
 
-System main_sys = System();
+System main_sys;
 int n_parsing_errors = 0;
 
 static void parse_file(const std::string &fname)
@@ -43,33 +43,29 @@ static void parse_file(const std::string &fname)
 
 int main(int argc, char* argv[])
 {
-	std::span<char *> args = std::span(argv, size_t (argc));
-
 	if (argc != 2)
-		std::cerr << "Usage: " << args[0] << " <filename>" << std::endl, exit(1);
+		printf("Usage: %s <filename>\n", argv[0]), exit(1);
 	
 	// add_default_funcs();
 
-	std::cout << " --------- 0 --------- " << std::endl;
-	parse_file(args[1]);
+	printf(" --------- 0 --------- \n");
+	parse_file(argv[1]);
 
-	std::cout << " --------- 1 --------- " << std::endl;
-	main_sys.add_equs_from_func_calls();
-	std::cout << " --------- 2 --------- " << std::endl;
-	main_sys.singularize_vars();
-	std::cout << " --------- 3 --------- " << std::endl;
-	main_sys.infer();
-	std::cout << " --------- 4 --------- " << std::endl;
-	main_sys.solve();
-	std::cout << " --------- 5 --------- " << std::endl;
+	printf(" --------- 1 --------- \n");
+	sys_add_equs_from_func_calls(&main_sys);
+	printf(" --------- 2 --------- \n");
+	sys_singularize_vars(&main_sys);
+	printf(" --------- 3 --------- \n");
+	sys_infer(&main_sys);
+	printf(" --------- 4 --------- \n");
+	sys_solve(&main_sys);
+	printf(" --------- 5 --------- \n");
 
-	Saver::save_to_file(std::string(args[1]) + ".res", funcs, main_sys);
-	Saver::save_to_markdown(std::string(args[1]) + ".md", funcs, main_sys);
+	sys_to_file(std::string(argv[1]) + ".res", funcs, main_sys);
+	sys_to_markdown(std::string(argv[1]) + ".md", funcs, main_sys);
 
 	// for (auto &func : funcs)
 	// 	delete func.second;
-
-	std::cin.get();
 
 	return 0;
 }

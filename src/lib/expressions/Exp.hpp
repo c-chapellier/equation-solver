@@ -5,7 +5,6 @@
 
 #include "../SIUnit.hpp"
 
-class System;
 class ExpVar;
 class ExpNum;
 class ExpOp;

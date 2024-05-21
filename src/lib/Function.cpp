@@ -41,6 +41,6 @@ std::string Function::to_latex() const
 
 Function::~Function()
 {
-	delete this->sys;
+	sys_free(this->sys);
 	delete this->ret;
 }

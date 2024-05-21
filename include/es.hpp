@@ -23,6 +23,43 @@ enum OpType
 	POW
 };
 
+
+#pragma once
+
+#include "es.hpp"
+
+#include "../src/lib/SIUnit.hpp"
+
+class ExpOp;
+class ExpVar;
+
+typedef struct System_s
+{
+    std::vector<ExpOp *> equs;
+    std::vector<ExpOp *> inferred_equs;
+	std::vector<ExpOp *> unknown_equs;
+	std::map<std::string, ExpVar *> vars;
+    std::map<std::string, ExpVar *> inferred_vars;
+	std::map<std::string, ExpVar *> unknown_vars;
+} System ;
+
+extern System main_sys;
+
+void sys_free(System *sys);
+size_t sys_size(System *sys);
+void sys_add_equ(System *sys, ExpOp *equ);
+void sys_add_sys(System *sys, System *sys_to_add);
+void sys_add_equs_from_func_calls(System *sys);
+std::ostream &operator<<(std::ostream &os, const System &sys);
+int sys_rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f);
+void sys_print_state(size_t iter, int n, gsl_multiroot_fsolver *s);
+int sys_solve(System *sys);
+void sys_sort_equs_and_vars(System *sys);
+void sys_infer(System *sys);
+System *sys_deep_copy(System *sys);
+void sys_singularize_vars(System *sys);
+void sys_add_prefix_to_vars(System *sys, std::string prefix);
+
 #include "../src/lib/expressions/Exp.hpp"
 #include "../src/lib/expressions/ExpNum.hpp"
 #include "../src/lib/expressions/ExpVar.hpp"
@@ -34,9 +71,9 @@ enum OpType
 
 #include "../src/lib/Function.hpp"
 
-#include "../src/lib/Saver.hpp"
+int sys_to_file(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys);
+int sys_to_markdown(const std::string &fname, const std::map<std::string, Function *> &funcs, const System &sys);
 
-#include "../src/lib/System.hpp"
 
 inline std::map<std::string, Function *> funcs;
 

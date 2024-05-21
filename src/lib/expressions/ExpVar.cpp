@@ -59,13 +59,8 @@ bool ExpVar::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value
 Exp *ExpVar::singularize_vars(System *sys)
 {
 	for (auto &v : sys->vars)
-	{
 		if (this->name == v.first)
-		{
-			sys->vars_to_delete.push_back(this);
 			return sys->vars[v.first];
-		}
-	}
 
 	this->index = sys->vars.size();
 	sys->vars[this->name] = this;
