@@ -23,7 +23,7 @@ void Function::print() const
 std::string Function::to_latex() const
 {
 	std::string res = "";
-	res += "" + Latex::var_to_latex(this->name) + "(";
+	res += "" + latex_var_to_latex(this->name) + "(";
 	for (int i = 0; i < this->args_names.size(); ++i)
 	{
 		res += this->args_names.at(i);

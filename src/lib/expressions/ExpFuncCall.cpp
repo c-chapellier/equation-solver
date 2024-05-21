@@ -52,7 +52,7 @@ std::string ExpFuncCall::to_latex() const
 		return "\\sqrt{" + this->args[0]->to_latex() + "}";
 	else
 	{
-		std::string ret = Latex::var_to_latex(this->f->name);
+		std::string ret = latex_var_to_latex(this->f->name);
 
 		ret += "\\left(\n";
 		for (int i = 0; i < this->args.size(); ++i)
