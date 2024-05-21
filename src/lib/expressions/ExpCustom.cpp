@@ -43,7 +43,7 @@ bool ExpCustom::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_va
     std::cerr << "ExpCustom::infer_units: not implemented" << std::endl, exit(1);
 }
 
-Exp *ExpCustom::singularize_vars()
+Exp *ExpCustom::singularize_vars(System *sys)
 {
     std::cerr << "ExpCustom::singularize_vars: not implemented" << std::endl, exit(1);
 }
@@ -57,4 +57,14 @@ std::ostream &ExpCustom::output(std::ostream &os) const
 {
     os << this->str_repr;
     return os;
+}
+
+void ExpCustom::add_equs_from_func_calls(System *sys)
+{
+    std::cerr << "ExpCustom::add_equs_from_func_calls: not implemented" << std::endl, exit(1);
+}
+
+void ExpCustom::add_prefix_to_vars(std::string prefix)
+{
+    std::cerr << "ExpCustom::add_prefix_to_vars: not implemented" << std::endl, exit(1);
 }

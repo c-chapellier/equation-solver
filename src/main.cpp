@@ -28,18 +28,18 @@ static void parse_file(const std::string &fname)
 	}
 }
 
-static void add_default_funcs()
-{
-	for (auto &func_data : default_funcs)
-	{
-		funcs[func_data.name] = new Function(
-			func_data.name,
-			func_data.args,
-			new System(),
-			new ExpCustom(func_data.args.size(), func_data.func, func_data.str_repr, func_data.latex_repr)
-		);
-	}
-}
+// static void add_default_funcs()
+// {
+// 	for (auto &func_data : default_funcs)
+// 	{
+// 		funcs[func_data.name] = new Function(
+// 			func_data.name,
+// 			func_data.args,
+// 			new System(),
+// 			new ExpCustom(func_data.args.size(), func_data.func, func_data.str_repr, func_data.latex_repr)
+// 		);
+// 	}
+// }
 
 int main(int argc, char* argv[])
 {
@@ -48,21 +48,28 @@ int main(int argc, char* argv[])
 	if (argc != 2)
 		std::cerr << "Usage: " << args[0] << " <filename>" << std::endl, exit(1);
 	
-	add_default_funcs();
+	// add_default_funcs();
 
+	std::cout << " --------- 0 --------- " << std::endl;
 	parse_file(args[1]);
 
+	std::cout << " --------- 1 --------- " << std::endl;
+	main_sys.add_equs_from_func_calls();
+	std::cout << " --------- 2 --------- " << std::endl;
 	main_sys.singularize_vars();
+	std::cout << " --------- 3 --------- " << std::endl;
 	main_sys.infer();
+	std::cout << " --------- 4 --------- " << std::endl;
 	main_sys.solve();
-
-	std::cout << main_sys;
+	std::cout << " --------- 5 --------- " << std::endl;
 
 	Saver::save_to_file(std::string(args[1]) + ".res", funcs, main_sys);
 	Saver::save_to_markdown(std::string(args[1]) + ".md", funcs, main_sys);
 
-	for (auto &func : funcs)
-		delete func.second;
+	// for (auto &func : funcs)
+	// 	delete func.second;
+
+	std::cin.get();
 
 	return 0;
 }

@@ -28,12 +28,14 @@ public:
     virtual std::string to_latex() const = 0;
     virtual bool is_linear() const = 0;
     virtual bool infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value = -1) = 0;
-    virtual Exp *singularize_vars() = 0;
+    virtual Exp *singularize_vars(System *sys) = 0;
     virtual bool is_completly_infered() const = 0;
     virtual std::ostream &output(std::ostream &os) const = 0;
+	virtual void add_equs_from_func_calls(System *sys) = 0;
+    virtual void add_prefix_to_vars(std::string prefix) = 0;
 };
 
-inline std::ostream& operator<<(std::ostream& os, const Exp &exp)
+inline std::ostream &operator<<(std::ostream &os, const Exp &exp)
 {
     return exp.output(os);
 }

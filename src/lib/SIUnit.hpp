@@ -3,21 +3,17 @@
 
 #include <string>
 #include <iostream>
-#include <map>
+#include <vector>
 
 class SIUnit
 {
 public:
     bool is_known;
-    std::map<std::string, int> units = std::map<std::string, int>({
-        { "s", 0 },
-        { "m", 0 },
-        { "kg", 0 },
-        { "A", 0 },
-        { "K", 0 },
-        { "mol", 0 },
-        { "cd", 0 }
-    });
+    enum UnitType
+    {
+        S, M, KG, A, K, MOL, CD
+    };
+    int units[7];
 
 public:
     SIUnit();
@@ -25,6 +21,10 @@ public:
     std::string to_latex() const;
     SIUnit multiply(SIUnit unit);
     SIUnit divide(SIUnit unit);
+    int str_to_unit(std::string unit) const;
+    std::string unit_to_str(int unit) const;
+
+    bool operator==(const SIUnit &rhs) const;
 
     friend std::ostream &operator<<(std::ostream &os, const SIUnit &sys);
 };

@@ -9,15 +9,15 @@ class Latex
 {
 private:
     static constexpr int SIGNIFICANT_DIGITS = 5;
-    static constexpr int GREEK_LETTERS_SIZE = 66;
+    static constexpr int GREEK_LETTERS_SIZE = 68;
     static constexpr std::array<std::string_view, GREEK_LETTERS_SIZE> GREEK_LETTERS = {
         "Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta",
-        "Iota", "Kappa", "Lambda", "Mu", "Xi", "Omicron", "Pi",
+        "Iota", "Kappa", "Lambda", "Mu", "Nu", "Xi", "Omicron", "Pi",
         "Rho", "Sigma", "Tau", "Upsilon", "Phi", "Chi", "Psi", "Omega",
         "varGamma", "varDelta", "varTheta", "varLambda", "varXi", "varPi",
         "varSigma", "varUpsilon", "varPhi", "varPsi", "varOmega", "alpha",
         "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta", "iota",
-        "kappa", "lambda", "mu", "xi", "omicron", "pi", "rho", "sigma",
+        "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho", "sigma",
         "tau", "upsilon", "phi", "chi", "psi", "omega", "varepsilon", "varkappa",
         "vartheta", "thetasym", "varpi", "varrho", "varsigma", "varphi", "digamma"
     };

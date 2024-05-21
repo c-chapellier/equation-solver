@@ -8,6 +8,12 @@
 
 #include "es.hpp"
 
+template<typename T>
+constexpr void debug(const T &x)
+{
+    if (0) std::cerr << x << std::endl;
+}
+
 #define YY_DECL int yylex()
 
 #include "parser.hpp"

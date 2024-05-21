@@ -29,7 +29,7 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
     f << "## Functions" << std::endl << std::endl;
     for (auto it = funcs.begin(); it != funcs.end(); ++it)
     {
-        if (it->second->been_called)
+        if (it->second->call_count > 0)
         {
             f << "$$";
             f << it->second->to_latex();

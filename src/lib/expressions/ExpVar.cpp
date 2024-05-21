@@ -7,6 +7,11 @@ ExpVar::ExpVar(std::string name, std::string guess)
 
 }
 
+ExpVar::~ExpVar()
+{
+
+}
+
 ExpVar *ExpVar::deep_copy() const
 {
 	return new ExpVar(this->name, "{" + std::to_string(this->guess) + "}");
@@ -29,7 +34,7 @@ bool ExpVar::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value
 	if (this->is_value_known && is_value_known)
 		assert(abs(this->value - value) < 1e-6);
 	if (this->unit.is_known && unit.is_known)
-		assert(this->unit.units == unit.units);
+		assert(this->unit == unit);
 
 	bool is_stable = true;
 
@@ -37,6 +42,7 @@ bool ExpVar::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value
 	{
 		this->is_value_known = is_value_known;
 		this->value = value;
+		this->can_be_infered = true;
 		is_stable = false;
 	}
 
@@ -50,14 +56,19 @@ bool ExpVar::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value
 	return is_stable;
 }
 
-Exp *ExpVar::singularize_vars()
+Exp *ExpVar::singularize_vars(System *sys)
 {
-	for (auto &v : main_sys.vars)
+	for (auto &v : sys->vars)
+	{
 		if (this->name == v.first)
-			return main_sys.vars[v.first];
+		{
+			sys->vars_to_delete.push_back(this);
+			return sys->vars[v.first];
+		}
+	}
 
-	this->index = main_sys.vars.size();
-	main_sys.vars[this->name] = this;
+	this->index = sys->vars.size();
+	sys->vars[this->name] = this;
 	return NULL;
 }
 
@@ -70,4 +81,14 @@ std::ostream &ExpVar::output(std::ostream &os) const
 {
 	os << this->name << "[" << this->value << "|" << this->unit << "]";
 	return os;
+}
+
+void ExpVar::add_equs_from_func_calls(System *sys)
+{
+	return ;
+}
+
+void ExpVar::add_prefix_to_vars(std::string prefix)
+{
+	this->name = prefix + this->name;
 }

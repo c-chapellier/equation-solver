@@ -8,10 +8,16 @@ System::System()
 
 System::~System()
 {
+	this->singularize_vars();
+
 	for (int i = 0; i < this->equs.size(); ++i)
 		delete this->equs[i];
+
 	for (auto &v : this->vars)
 		delete v.second;
+
+	for (auto &v : this->vars_to_delete)
+		delete v;
 }
 
 size_t System::size() const
@@ -28,6 +34,12 @@ void System::add_sys(System *sys)
 {
 	for (int i = 0; i < sys->equs.size(); ++i)
 		this->add_equ(sys->equs[i]->deep_copy());
+}
+
+void System::add_equs_from_func_calls()
+{
+	for (int i = 0; i < this->equs.size(); ++i)
+		this->equs[i]->add_equs_from_func_calls(this);
 }
 
 std::ostream &operator<<(std::ostream &os, const System &sys)
@@ -138,30 +150,48 @@ void System::sort_equs_and_vars()
 void System::infer()
 {
 	int not_stable = 1;
+	int it = 0;
 
 	while (not_stable)
 	{
+		// DEBUG("Iteration: " << it++);
 		not_stable = 0;
 		for (int i = 0; i < this->equs.size(); ++i)
 		{
+			// DEBUG(not_stable << " Equation(" << i << "): " << *this->equs[i]);
 			std::vector<ExpVar *> vars = std::vector<ExpVar *>();
 
 			if (!this->equs[i]->infer_units(vars, SIUnit(), false))
 				not_stable = 1;
 
-			for (auto &v : this->vars)
-			{
-				if (!v.second->unit.is_known)
-					not_stable = 1;
-				if (this->vars[v.second->name]->can_be_infered)
-					vars.erase(std::remove(vars.begin(), vars.end(), v.second), vars.end());
-			}
+			// DEBUG(not_stable << " Equation(" << i << "): " << *this->equs[i]);
+
+			// DEBUG("vars: " << vars.size());
+			// for (auto &v : vars)
+			// 	DEBUG("  " << *v);
+
+			for (int j = 0; j < vars.size(); ++j)
+				if (vars[j]->is_value_known || vars[j]->unit.is_known || vars[j]->can_be_infered)
+					vars.erase(vars.begin() + j--);
+
+			// DEBUG("vars: " << vars.size());
+			// for (auto &v : vars)
+			// {
+			// 	DEBUG("v.is_value_known = " << v->is_value_known);
+			// 	DEBUG("v.unit.is_known = " << v->unit.is_known);
+			// 	DEBUG("v.can_be_infered = " << v->can_be_infered);
+			// 	DEBUG("  " << *v);
+			// }
+
+			// DEBUG("not_stable = " << not_stable);
 
 			if (vars.size() == 1 && this->equs[i]->is_linear())
 			{
 				this->vars[vars[0]->name]->can_be_infered = true;
 				not_stable = 1;
 			}
+
+			// DEBUG("not_stable = " << not_stable);
 		}
 	}
 
@@ -175,21 +205,26 @@ System *System::deep_copy() const
 	for (int i = 0; i < this->equs.size(); ++i)
 		cp_sys->add_equ(this->equs[i]->deep_copy());
 
-	cp_sys->infer();
-
 	return cp_sys;
 }
 
 void System::singularize_vars()
 {
 	for (int i = 0; i < this->equs.size(); ++i)
-		this->equs[i]->singularize_vars();
+		this->equs[i]->singularize_vars(this);
+}
+
+void System::add_prefix_to_vars(std::string prefix)
+{
+	for (int i = 0; i < this->equs.size(); ++i)
+		this->equs[i]->add_prefix_to_vars(prefix);
 }
 
 double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 {
-	if (this->name == "pi") return M_PI;
-	if (this->name == "e") return M_E;
+	// if (this->name == "pi") return M_PI;
+	// if (this->name == "e") return M_E;
+
 
 	int i = 0;
 	for (auto &v : mother_sys->unknown_vars)
@@ -198,190 +233,12 @@ double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 			return gsl_vector_get(x, i);
 		++i;
 	}
-	
+
+	for (auto &v : mother_sys->inferred_vars)
+	{
+		if (v.first == this->name)
+			return v.second->value;
+	}
+
 	std::cerr << "Error: variable " << this->name << " not found" << std::endl, exit(1);
-}
-
-ExpFuncCall::ExpFuncCall(Function *f, std::vector<Exp *> &args) : Exp()
-{
-	if (f->args_names.size() != args.size())
-		std::cerr << "Error: function " << f->name << " takes " << f->args_names.size() << " arguments, but " << args.size() << " were given" << std::endl, exit(1);
-
-	this->sys = new System();
-	this->f = f;
-	this->args = args;
-
-	for (int i = 0; i < this->f->args_names.size(); ++i)
-	{
-		if (dynamic_cast<ExpOp *>(args[i]) != nullptr)
-			std::cerr << "Error: argument " << this->f->args_names[i] << " is an equation" << std::endl, exit(1);
-
-		this->sys->add_equ(
-			new ExpOp(
-				OpType::EQU,
-				new ExpVar(std::string("@") + this->f->args_names[i]),
-				args[args.size() - 1 - i]->deep_copy()));
-	}
-
-	for (int i = 0; i < this->f->sys->size(); ++i)
-		this->sys->add_equ(f->sys->equs[i]->deep_copy());
-
-	this->sys->add_equ(
-		new ExpOp(
-			OpType::EQU,
-			new ExpVar(std::string("#ret")),
-			this->f->exp->deep_copy()));
-
-	this->sys->infer();
-}
-
-double ExpFuncCall::eval(System *mother_sys, const gsl_vector *x) const
-{
-	// funcs[this->f->name]->been_called = true;
-
-	// std::vector<double> args_values(this->args.size());
-	// for (int i = 0; i < this->args.size(); ++i)
-	// 	args_values[i] = this->args[i]->eval(mother_sys, x);
-
-	// System *cp_sys = this->sys->deep_copy();
-
-	// int j = 0;
-	// for (int i = 0; i < cp_sys->equs.size(); ++i)
-	// {
-	// 	ExpOp *equ = dynamic_cast<ExpOp *>(cp_sys->equs[i]);
-	// 	if (equ == nullptr)
-	// 		std::cerr << "Error: expression is not an equation" << std::endl, exit(1);
-
-	// 	ExpVar *var = dynamic_cast<ExpVar *>(equ->get_left());
-	// 	if (var != nullptr && var->name.front() == '@') // arguments of the function
-	// 	{
-	// 		cp_sys->add_equ(
-	// 			new ExpOp(
-	// 				OpType::EQU,
-	// 				new ExpVar(var->name.erase(0, 1)),
-	// 				new ExpNum(args_values[args_values.size() - 1 - i])));
-	// 		++j;
-	// 	}
-	// }
-
-	// for (int i = 0; i < j; ++i)
-	// {
-	// 	delete cp_sys->equs.front();
-	// 	cp_sys->equs.erase(cp_sys->equs.begin());
-	// }
-
-	// cp_sys->infer_units();
-
-	// std::vector<double> res;
-	// std::vector<double> guesses = std::vector<double>(cp_sys->equs.size(), 1.);
-
-	// cp_sys->solve(res, guesses);
-
-	// int i = cp_sys->vars["#ret"]->index;
-	// assert(i != -1)
-
-	// delete cp_sys;
-
-	// return res[i];
-}
-
-ExpFuncCall *ExpFuncCall::deep_copy() const
-{
-	std::vector<Exp *> cp_args = std::vector<Exp *>();
-
-	for (int i = 0; i < this->args.size(); ++i)
-		cp_args.push_back(this->args[i]->deep_copy());
-
-	ExpFuncCall *ret = new ExpFuncCall();
-
-	ret->f = this->f->deep_copy();
-	ret->args = cp_args;
-	ret->sys = this->sys->deep_copy();
-
-	return ret;
-}
-
-std::string ExpFuncCall::to_latex() const
-{
-	if (this->f->name == "abs")
-		return "\\mid " + this->args[0]->to_latex() + " \\mid";
-	else if (this->f->name == "sqrt")
-		return "\\sqrt{" + this->args[0]->to_latex() + "}";
-	else
-	{
-		std::string ret = Latex::var_to_latex(this->f->name);
-
-		ret += "\\left(\n";
-		for (int i = 0; i < this->args.size(); ++i)
-		{
-			ret += this->args[i]->to_latex();
-			if (i != this->args.size() - 1)
-				ret += ", ";
-		}
-		ret += "\\right)";
-		return ret;
-	}
-}
-
-std::ostream &ExpFuncCall::output(std::ostream &os) const
-{
-	os << this->f->name << "(";
-	os << this->sys;
-	os << ")";
-	return os;
-}
-
-Function *Function::deep_copy() const
-{
-	std::vector<std::string> cp_args_names = std::vector<std::string>();
-	for (int i = 0; i < this->args_names.size(); ++i)
-		cp_args_names.push_back(this->args_names[i]);
-
-	return new Function(this->name, cp_args_names, this->sys->deep_copy(), this->exp->deep_copy());
-}
-
-void Function::print() const
-{
-	std::cout << "Function: " << this->name << std::endl;
-	std::cout << "Args: ";
-	for (int i = 0; i < this->args_names.size(); ++i)
-		std::cout << this->args_names[i] << " ";
-	std::cout << std::endl;
-	std::cout << "Fn system: " << std::endl;
-	std::cout << this->sys;
-	std::cout << "Expression: " << std::endl;
-	std::cout << this->exp << std::endl;
-}
-
-std::string Function::to_latex() const
-{
-	std::string res = "";
-	res += "" + Latex::var_to_latex(this->name) + "(";
-	for (int i = 0; i < this->args_names.size(); ++i)
-	{
-		res += this->args_names.at(i);
-		if (i != this->args_names.size() - 1)
-			res += ", ";
-	}
-	res += ")";
-	if (this->sys->equs.size() > 0)
-		res += ":";
-	for (int i = 0; i < this->sys->equs.size(); ++i)
-		res += this->sys->equs[i]->to_latex() + " ; ";
-	res += " \\rArr " + this->exp->to_latex() + "";
-	return res;
-}
-
-Function::~Function()
-{
-	delete this->sys;
-	delete this->exp;
-}
-
-ExpFuncCall::~ExpFuncCall()
-{
-	delete this->sys;
-	delete this->f;
-	for (int i = 0; i < this->args.size(); ++i)
-		delete this->args[i];
 }

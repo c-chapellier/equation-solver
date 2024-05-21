@@ -9,12 +9,16 @@ ExpOp::ExpOp(OpType op, Exp *left, Exp *right)
 
 ExpOp::~ExpOp()
 {
-    ExpVar *var = static_cast<ExpVar *>(this->eleft);
-    if (var == NULL)
+    ExpVar *v = dynamic_cast<ExpVar *>(this->eleft);
+    if (v == NULL)
         delete this->eleft;
-    var = static_cast<ExpVar *>(this->eright);
-    if (var == NULL)
-        delete this->eright;
+	
+    if (this->op != OpType::PAR)
+    {
+        v = dynamic_cast<ExpVar *>(this->eright);
+        if (v == NULL)
+            delete this->eright;
+    }
 }
 
 double ExpOp::eval(System *mother_sys, const gsl_vector *x) const
@@ -100,8 +104,8 @@ bool ExpOp::is_linear() const
 
 bool ExpOp::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value)
 {
-    if (unit.is_known && this->unit.is_known)
-        assert(this->unit.units == unit.units);
+    if (this->unit.is_known && unit.is_known)
+        assert(this->unit == unit);
     
     if (this->is_value_known && is_value_known)
         assert(abs(this->value - value) < 1e-6);
@@ -226,7 +230,7 @@ bool ExpOp::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_
         if (!this->unit.is_known && this->eleft->unit.is_known)
         {
             this->unit = this->eleft->unit;
-            is_stable = true;
+            is_stable = false;
         }
         l = this->eleft->infer_units(vars, this->unit, this->is_value_known, this->value);
         return is_stable && l;
@@ -237,24 +241,19 @@ bool ExpOp::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_
     }
 }
 
-Exp *ExpOp::singularize_vars()
+Exp *ExpOp::singularize_vars(System *sys)
 {
-    Exp *r = this->eleft->singularize_vars();
+    Exp *r = this->eleft->singularize_vars(sys);
     if (r != NULL)
-    {
-        delete this->eleft;
         this->eleft = r;
-    }
 
     if (this->op == OpType::PAR)
         return NULL;
 
-    r = this->eright->singularize_vars();
+    r = this->eright->singularize_vars(sys);
     if (r != NULL)
-    {
-        delete this->eright;
         this->eright = r;
-    }
+
     return NULL;
 }
 
@@ -314,4 +313,20 @@ std::ostream &ExpOp::output(std::ostream &os) const
         
     os << ")["<< this->value <<  "|" << this->unit << "]";
     return os;
+}
+
+void ExpOp::add_equs_from_func_calls(System *sys)
+{
+    this->eleft->add_equs_from_func_calls(sys);
+    if (this->op == OpType::PAR)
+        return ;
+    this->eright->add_equs_from_func_calls(sys);
+}
+
+void ExpOp::add_prefix_to_vars(std::string prefix)
+{
+    this->eleft->add_prefix_to_vars(prefix);
+    if (this->op == OpType::PAR)
+        return ;
+    this->eright->add_prefix_to_vars(prefix);
 }

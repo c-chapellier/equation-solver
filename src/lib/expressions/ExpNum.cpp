@@ -13,6 +13,11 @@ ExpNum::ExpNum(double value, std::string unit)
 
 }
 
+ExpNum::~ExpNum()
+{
+
+}
+
 double ExpNum::eval(System *mother_sys, const gsl_vector *x) const
 {
     return this->value;
@@ -40,7 +45,7 @@ bool ExpNum::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value
 	if (this->is_value_known && is_value_known)
 		assert(abs(this->value - value) < 1e-6);
 	if (this->unit.is_known && unit.is_known)
-		assert(this->unit.units == unit.units);
+		assert(this->unit == unit);
 
 	assert(!(!this->is_value_known && is_value_known));
 
@@ -53,7 +58,7 @@ bool ExpNum::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value
 	return true;
 }
 
-Exp *ExpNum::singularize_vars()
+Exp *ExpNum::singularize_vars(System *sys)
 {
 	return NULL;
 }
@@ -67,4 +72,14 @@ std::ostream &ExpNum::output(std::ostream &os) const
 {
 	os << this->value << "[" << this->value << "|" << this->unit << "]";
 	return os;
+}
+
+void ExpNum::add_equs_from_func_calls(System *sys)
+{
+	return ;
+}
+
+void ExpNum::add_prefix_to_vars(std::string prefix)
+{
+	return ;
 }

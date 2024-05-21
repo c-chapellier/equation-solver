@@ -1,9 +1,12 @@
 
-function square_area(r)
+function mult_pi(a)
 {
-    return pi * r^2
+    b = 3.1416
+    return a * b
 }
 
-a = square_area(b)
-sqrt(a) = b + c
+a = mult_pi(b)
+a = b + c
 c / a = b
+
+d = mult_pi(b)

@@ -31,17 +31,20 @@ public:
 	std::map<std::string, ExpVar *> vars;
     std::map<std::string, ExpVar *> inferred_vars;
 	std::map<std::string, ExpVar *> unknown_vars;
+	std::vector<ExpVar *> vars_to_delete;
 
 public:
     System();
     ~System();
     void add_equ(ExpOp *equ);
     void add_sys(System *sys);
+	void add_equs_from_func_calls();
     size_t size() const;
     void singularize_vars();
     void infer();
     int solve();
     System *deep_copy() const;
+    void add_prefix_to_vars(std::string prefix);
 
     friend std::ostream &operator<<(std::ostream &os, const System &sys);
 };

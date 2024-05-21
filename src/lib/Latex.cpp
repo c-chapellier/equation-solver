@@ -5,14 +5,17 @@ void Latex::replace_greek_letters(std::string &s)
 {
     for (const std::string_view &match : Latex::GREEK_LETTERS)
     {
-        std::string replace = std::string("\\") + match.data() + " ";
-
+        std::string replacement = std::string("\\") + match.data() + " ";
         size_t pos = s.find(match);
 
         while (pos != std::string::npos)
         {
-            s.replace(pos, match.size(), replace);
-            pos = s.find(match, pos + replace.size());
+            if ((pos == 0 || s[pos - 1] == '_') && (!std::isalnum(s[pos + match.size()]) || pos + match.size() == s.size()))
+            {
+                std::cout << "find match: " << match << " at position: " << pos << "of " << s << std::endl;
+                s.replace(pos, match.size(), replacement);
+            }
+            pos = s.find(match, pos + replacement.size());
         }
     }
 }
