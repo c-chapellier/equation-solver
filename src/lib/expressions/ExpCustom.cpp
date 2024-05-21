@@ -38,7 +38,7 @@ bool ExpCustom::is_linear() const
     return false;   // TODO
 }
 
-bool ExpCustom::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value)
+bool ExpCustom::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_known, double value)
 {
     std::cerr << "ExpCustom::infer_units: not implemented" << std::endl, exit(1);
 }

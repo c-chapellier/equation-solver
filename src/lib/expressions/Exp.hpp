@@ -3,8 +3,6 @@
 
 #include "es.hpp"
 
-#include "../SIUnit.hpp"
-
 class ExpVar;
 class ExpNum;
 class ExpOp;
@@ -16,17 +14,19 @@ class Exp
 public:
     bool is_value_known;
     double value;
-    SIUnit unit;
+    siu_t unit;
 
 public:
     Exp(): is_value_known(false), value(-1), unit() {}
-    Exp(double value, std::string unit): is_value_known(true), value(value), unit(unit) {}
+    Exp(double value, std::string unit): is_value_known(true), value(value) {
+        siu_init(&this->unit, unit.c_str());
+    }
     virtual ~Exp() {}
     virtual double eval(System *mother_sys, const gsl_vector *x) const = 0;
     virtual Exp *deep_copy() const = 0;
     virtual std::string to_latex() const = 0;
     virtual bool is_linear() const = 0;
-    virtual bool infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value = -1) = 0;
+    virtual bool infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_known, double value = -1) = 0;
     virtual Exp *singularize_vars(System *sys) = 0;
     virtual bool is_completly_infered() const = 0;
     virtual std::ostream &output(std::ostream &os) const = 0;

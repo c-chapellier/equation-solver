@@ -17,7 +17,7 @@ public:
     ExpOp *deep_copy() const override;
     std::string to_latex() const override;
     bool is_linear() const override;
-    bool infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value = -1) override;
+    bool infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_known, double value = -1) override;
     Exp *singularize_vars(System *sys) override;
     bool is_completly_infered() const override;
     std::ostream &output(std::ostream &os) const override;
