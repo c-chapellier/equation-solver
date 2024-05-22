@@ -60,7 +60,7 @@ int sys_to_markdown(std::string fname, std::map<std::string, Function *> funcs, 
         f << v.second->to_latex();
         f << " = ";
         f << Latex::double_to_latex(v.second->value);
-        f << "\\," << siu_to_latex(v.second->unit);
+        f << "\\," << v.second->unit.to_latex();
         f << "$$" << std::endl << std::endl;
     }
 
@@ -71,7 +71,7 @@ int sys_to_markdown(std::string fname, std::map<std::string, Function *> funcs, 
         f << v.second->to_latex();
         f << " = ";
         f << Latex::double_to_latex(v.second->value);
-        f << "\\," << siu_to_latex(v.second->unit);
+        f << "\\," << v.second->unit.to_latex();
         f << "$$" << std::endl << std::endl;
     }
 

@@ -102,10 +102,10 @@ bool ExpOp::is_linear() const
     }
 }
 
-bool ExpOp::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_known, double value)
+bool ExpOp::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value)
 {
     if (this->unit.is_known && unit.is_known)
-        assert(siu_compare(this->unit, unit));
+        assert(this->unit == unit);
     
     if (this->is_value_known && is_value_known)
         assert(abs(this->value - value) < 1e-6);
@@ -179,18 +179,18 @@ bool ExpOp::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_k
         }
         if (!this->unit.is_known && this->eleft->unit.is_known && this->eright->unit.is_known)
         {
-            this->unit = siu_multiply(this->eleft->unit, this->eright->unit);
+            this->unit = this->eleft->unit.multiply(this->eright->unit);
             is_stable = false;
         }
         l = this->eleft->infer_units(
             vars,
-            this->eleft->unit.is_known ? this->eleft->unit : siu_divide(this->unit, this->eright->unit),
+            this->eleft->unit.is_known ? this->eleft->unit : this->unit.divide(this->eright->unit),
             this->is_value_known && this->eright->is_value_known,
             this->value / this->eright->value
         );
         r = this->eright->infer_units(
             vars,
-            this->eright->unit.is_known ? this->eright->unit : siu_divide(this->unit, this->eleft->unit),
+            this->eright->unit.is_known ? this->eright->unit : this->unit.divide(this->eleft->unit),
             this->is_value_known && this->eleft->is_value_known,
             this->value / this->eleft->value
         );
@@ -204,18 +204,18 @@ bool ExpOp::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_k
         }
         if (!this->unit.is_known && this->eleft->unit.is_known && this->eright->unit.is_known)
         {
-            this->unit = siu_divide(this->eleft->unit, this->eright->unit);
+            this->unit = this->eleft->unit.divide(this->eright->unit);
             is_stable = false;
         }
         l = this->eleft->infer_units(
             vars,
-            this->eleft->unit.is_known ? this->eleft->unit : siu_multiply(this->unit, this->eright->unit),
+            this->eleft->unit.is_known ? this->eleft->unit : this->unit.multiply(this->eright->unit),
             this->is_value_known && this->eright->is_value_known,
             this->value * this->eright->value
         );
         r = this->eright->infer_units(
             vars,
-            this->eright->unit.is_known ? this->eright->unit : siu_divide(this->eleft->unit, this->unit),
+            this->eright->unit.is_known ? this->eright->unit : this->eleft->unit.divide(this->unit),
             this->is_value_known && this->eleft->is_value_known,
             this->eleft->value / this->value
         );
@@ -311,7 +311,7 @@ std::ostream &ExpOp::output(std::ostream &os) const
     else
         os << *this->eright;
         
-    os << ")["<< this->value <<  "|" << siu_to_latex(this->unit) << "]";
+    os << ")["<< this->value <<  "|" << this->unit << "]";
     return os;
 }
 

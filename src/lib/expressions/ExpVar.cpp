@@ -29,12 +29,12 @@ bool ExpVar::is_linear() const
     return true;
 }
 
-bool ExpVar::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_known, double value)
+bool ExpVar::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value)
 {
 	if (this->is_value_known && is_value_known)
 		assert(abs(this->value - value) < 1e-6);
 	if (this->unit.is_known && unit.is_known)
-		assert(siu_compare(this->unit, unit));
+		assert(this->unit == unit);
 
 	bool is_stable = true;
 
@@ -74,7 +74,7 @@ bool ExpVar::is_completly_infered() const
 
 std::ostream &ExpVar::output(std::ostream &os) const
 {
-	os << this->name << "[" << this->value << "|" << siu_to_latex(this->unit) << "]";
+	os << this->name << "[" << this->value << "|" << this->unit << "]";
 	return os;
 }
 

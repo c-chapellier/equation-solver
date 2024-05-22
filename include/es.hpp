@@ -25,25 +25,12 @@ enum OpType
 	POW
 };
 
-// System Interface Unit
-typedef struct siu_s
-{
-    bool is_known;
-    enum UnitType { S, M, KG, A, K, MOL, CD };
-    int units[7];
-} siu_t;
 
+#pragma once
 
 #include "es.hpp"
 
-void siu_init(siu_t *siu);
-void siu_init(siu_t *siu, std::string unit);
-int siu_str_to_unit(std::string unit);
-bool siu_compare(siu_t a, siu_t b);
-// std::ostream &operator<<(std::ostream &os, const SIUnit &sys);
-std::string siu_to_latex(siu_t siu);
-siu_t siu_multiply(siu_t a, siu_t b);
-siu_t siu_divide(siu_t a, siu_t b);
+#include "../src/lib/SIUnit.hpp"
 
 class ExpOp;
 class ExpVar;
@@ -61,12 +48,21 @@ typedef struct system_s
 
 extern system_t main_sys;
 
+<<<<<<< HEAD
 void sys_init(system_t *sys);
 void sys_free(system_t *sys);
 size_t sys_size(system_t *sys);
 void sys_add_equ(system_t *sys, ExpOp *equ);
 void sys_add_sys(system_t *sys, system_t *sys_to_add);
 void sys_add_equs_from_func_calls(system_t *sys);
+=======
+void sys_free(System *sys);
+size_t sys_size(System *sys);
+void sys_add_equ(System *sys, ExpOp *equ);
+void sys_add_sys(System *sys, System *sys_to_add);
+void sys_add_equs_from_func_calls(System *sys);
+std::ostream &operator<<(std::ostream &os, const System &sys);
+>>>>>>> parent of 4cc2554 (rm class unit)
 int sys_rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f);
 void sys_print_state(size_t iter, int n, gsl_multiroot_fsolver *s);
 int sys_solve(system_t *sys);

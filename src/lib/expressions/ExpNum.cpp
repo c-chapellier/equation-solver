@@ -32,7 +32,7 @@ ExpNum *ExpNum::deep_copy() const
 
 std::string ExpNum::to_latex() const
 {
-	return Latex::double_to_latex(this->value) + siu_to_latex(this->unit);
+	return Latex::double_to_latex(this->value) + this->unit.to_latex();
 }
 
 bool ExpNum::is_linear() const
@@ -40,12 +40,12 @@ bool ExpNum::is_linear() const
     return true;
 }
 
-bool ExpNum::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_known, double value)
+bool ExpNum::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value)
 {
 	if (this->is_value_known && is_value_known)
 		assert(abs(this->value - value) < 1e-6);
 	if (this->unit.is_known && unit.is_known)
-		assert(siu_compare(this->unit, unit));
+		assert(this->unit == unit);
 
 	assert(!(!this->is_value_known && is_value_known));
 
@@ -70,7 +70,7 @@ bool ExpNum::is_completly_infered() const
 
 std::ostream &ExpNum::output(std::ostream &os) const
 {
-	os << this->value << "[" << this->value << "|" << siu_to_latex(this->unit) << "]";
+	os << this->value << "[" << this->value << "|" << this->unit << "]";
 	return os;
 }
 

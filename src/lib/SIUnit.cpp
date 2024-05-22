@@ -1,21 +1,19 @@
 
-#include "es.hpp"
+#include "SIUnit.hpp"
 
-void siu_init(siu_t *siu)
+SIUnit::SIUnit()
+    : is_known(false)
 {
-    siu->is_known = false;
-
     for (int i = 0; i < 7; ++i)
-        siu->units[i] = 0;
+        this->units[i] = 0;
 }
 
 // unit format example: [m] [kg m2 s-2] [s-1] [m s2]
-void siu_init(siu_t *siu, std::string unit)
+SIUnit::SIUnit(std::string unit)
+    : is_known(true)
 {
-    siu->is_known = true;
-
     for (int i = 0; i < 7; ++i)
-        siu->units[i] = 0;
+        this->units[i] = 0;
     
     unit = unit.substr(1, unit.size() - 2); // remove the brackets
     std::replace(unit.begin(), unit.end(), '\t', ' ');
@@ -42,15 +40,15 @@ void siu_init(siu_t *siu, std::string unit)
         int unit_power = i == 0 ? 1 : std::atof(unit.substr(0, i).c_str());
         unit.erase(0, i);
 
-        int unit_index = siu_str_to_unit(unit_name);
+        int unit_index = str_to_unit(unit_name);
         if (unit_index == -1)
             std::cerr << "Unknown unit: '" << unit_name << "'" << std::endl, exit(1);
         
-        siu->units[unit_index] += unit_power;
+        this->units[unit_index] += unit_power;
     }
 }
 
-int siu_str_to_unit(std::string unit)
+int SIUnit::str_to_unit(std::string unit) const
 {
     if (unit == "m")
         return 0;
@@ -69,7 +67,7 @@ int siu_str_to_unit(std::string unit)
     return -1;
 }
 
-std::string siu_unit_to_str(int unit)
+std::string SIUnit::unit_to_str(int unit) const
 {
     if (unit == 0)
         return "m";
@@ -88,54 +86,54 @@ std::string siu_unit_to_str(int unit)
     return "Unknown || Error";
 }
 
-bool siu_compare(siu_t a, siu_t b)
+bool SIUnit::operator==(const SIUnit &rhs) const
 {
     // if (!this->is_known || !rhs.is_known)
         // return false;
     
     for (int i = 0; i < 7; ++i)
-        if (a.units[i] != b.units[i])
+        if (this->units[i] != rhs.units[i])
             return false;
     
     return true;
 }
 
-// std::ostream &operator<<(std::ostream &os, const SIUnit &sys)
-// {
-//     if (!sys.is_known)
-//     {
-//         os << "?";
-//         return os;
-//     }
+std::ostream &operator<<(std::ostream &os, const SIUnit &sys)
+{
+    if (!sys.is_known)
+    {
+        os << "?";
+        return os;
+    }
 
-//     std::string unit_str = "";
+    std::string unit_str = "";
 
-//     for (int i = 0; i < 7; ++i)
-//         if (sys.units[i] != 0)
-//             unit_str += sys.unit_to_str(i) + (sys.units[i] == 1 ? "" : std::to_string(sys.units[i])) + " ";
+    for (int i = 0; i < 7; ++i)
+        if (sys.units[i] != 0)
+            unit_str += sys.unit_to_str(i) + (sys.units[i] == 1 ? "" : std::to_string(sys.units[i])) + " ";
     
-//     if (unit_str.size() == 0)
-//     {
-//         os << "\\";
-//         return os;
-//     }
+    if (unit_str.size() == 0)
+    {
+        os << "\\";
+        return os;
+    }
         
-//     unit_str.erase(unit_str.size() - 1);
-//     os << unit_str;
-//     return os;
-// }
+    unit_str.erase(unit_str.size() - 1);
+    os << unit_str;
+    return os;
+}
 
 // [kg.m.s^{-1}]
-std::string siu_to_latex(siu_t siu)
+std::string SIUnit::to_latex() const
 {
-    if (!siu.is_known)
+    if (!this->is_known)
         return "{[?]}";
 
     std::string unit_str = "{[";
 
     for (int i = 0; i < 7; ++i)
-        if (siu.units[i] != 0)
-            unit_str += siu_unit_to_str(i) + (siu.units[i] == 1 ? "." : "^{" + std::to_string(siu.units[i])) + "}.";
+        if (this->units[i] != 0)
+            unit_str += this->unit_to_str(i) + (this->units[i] == 1 ? "." : "^{" + std::to_string(this->units[i])) + "}.";
     
     if (unit_str.size() == 2)
         return "";
@@ -143,32 +141,28 @@ std::string siu_to_latex(siu_t siu)
     return unit_str.erase(unit_str.size() - 1) + "]}";
 }
 
-siu_t siu_multiply(siu_t a, siu_t b)
+SIUnit SIUnit::multiply(SIUnit unit)
 {
-    siu_t res;
-    siu_init(&res);
-
-    if (!a.is_known || !b.is_known)
-        return res;
+    if (!this->is_known || !unit.is_known)
+        return SIUnit();
     
+    SIUnit res;
     res.is_known = true;
     for (int i = 0; i < 7; ++i)
-        res.units[i] = a.units[i] + b.units[i];
+        res.units[i] = this->units[i] + unit.units[i];
     
     return res;
 }
 
-siu_t siu_divide(siu_t a, siu_t b)
+SIUnit SIUnit::divide(SIUnit unit)
 {
-    siu_t res;
-    siu_init(&res);
-
-    if (!a.is_known || !b.is_known)
-        return res;
+    if (!this->is_known || !unit.is_known)
+        return SIUnit();
     
+    SIUnit res;
     res.is_known = true;
     for (int i = 0; i < 7; ++i)
-        res.units[i] = a.units[i] - b.units[i];
+        res.units[i] = this->units[i] - unit.units[i];
     
     return res;
 }

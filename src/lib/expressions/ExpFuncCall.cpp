@@ -82,10 +82,10 @@ bool ExpFuncCall::is_linear() const
     return this->ret->is_linear();
 }
 
-bool ExpFuncCall::infer_units(std::vector<ExpVar *> &vars, siu_t unit, bool is_value_known, double value)
+bool ExpFuncCall::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value)
 {
 	if (this->unit.is_known && unit.is_known)
-        assert(siu_compare(this->unit, unit));
+        assert(this->unit == unit);
     
     if (this->is_value_known && is_value_known)
         assert(abs(this->value - value) < 1e-6);

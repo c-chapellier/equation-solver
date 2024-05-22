@@ -41,6 +41,18 @@ void sys_add_equs_from_func_calls(system_t *sys)
 		sys->equs[i]->add_equs_from_func_calls(sys);
 }
 
+std::ostream &operator<<(std::ostream &os, const System &sys)
+{
+    os << "System:" << std::endl;
+	os << "  Equations(" << sys.equs.size() << "):" << std::endl;
+	for (int i = 0; i < sys.equs.size(); ++i)
+		os << "    " << *sys.equs[i] << std::endl;
+	os << "  Variables(" << sys.vars.size() << "):" << std::endl;
+	for (auto &v : sys.vars)
+		os << "    " << v.first << "{" << v.second->guess << "} [" << v.second->unit << "]" << std::endl;
+    return os;
+}
+
 int sys_rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
 	system_t *sys = (system_t *)params;
@@ -148,10 +160,7 @@ void sys_infer(system_t *sys)
 			// DEBUG(not_stable << " Equation(" << i << "): " << *this->equs[i]);
 			std::vector<ExpVar *> vars = std::vector<ExpVar *>();
 
-			siu_t unit;
-			siu_init(&unit);
-
-			if (!sys->equs[i]->infer_units(vars, unit, false))
+			if (!sys->equs[i]->infer_units(vars, SIUnit(), false))
 				not_stable = 1;
 
 			// DEBUG(not_stable << " Equation(" << i << "): " << *this->equs[i]);
