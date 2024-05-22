@@ -83,8 +83,7 @@ void sys_add_prefix_to_vars(system_t *sys, std::string prefix);
 #include "../src/lib/expressions/ExpFuncCall.hpp"
 #include "../src/lib/expressions/ExpCustom.hpp"
 
-std::string latex_var_to_latex(std::string var);
-std::string latex_double_to_latex(double n);
+#include "../src/lib/Latex.hpp"
 
 #include "../src/lib/Function.hpp"
 

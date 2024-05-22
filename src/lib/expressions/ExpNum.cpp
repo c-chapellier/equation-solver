@@ -32,7 +32,7 @@ ExpNum *ExpNum::deep_copy() const
 
 std::string ExpNum::to_latex() const
 {
-	return latex_double_to_latex(this->value) + siu_to_latex(this->unit);
+	return Latex::double_to_latex(this->value) + siu_to_latex(this->unit);
 }
 
 bool ExpNum::is_linear() const

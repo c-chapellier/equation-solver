@@ -20,8 +20,8 @@ ExpVar *ExpVar::deep_copy() const
 std::string ExpVar::to_latex() const
 {
 	if (!this->can_be_infered)
-		return "\\textcolor{red}{" + latex_var_to_latex(this->name.c_str()) + "}";
-	return "\\textcolor{green}{" + latex_var_to_latex(this->name.c_str()) + "}";
+		return "\\textcolor{red}{" + Latex::var_to_latex(this->name.c_str()) + "}";
+	return "\\textcolor{green}{" + Latex::var_to_latex(this->name.c_str()) + "}";
 }
 
 bool ExpVar::is_linear() const
