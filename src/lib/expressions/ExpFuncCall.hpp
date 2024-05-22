@@ -11,6 +11,7 @@ public:
     Function *f;
     std::vector<Exp *> args;
     Exp *ret;
+    std::vector<ExpOp *> args_equs;
     
 public:
     ExpFuncCall();

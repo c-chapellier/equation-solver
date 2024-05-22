@@ -4,12 +4,12 @@
 ExpVar::ExpVar(std::string name, std::string guess)
 	: Exp(), name(name), guess(std::stod(guess.substr(1, guess.size() - 2))), can_be_infered(false), index(-1)
 {
-	DEBUG("ExpVar::ExpVar(" << this << "): " << name);
+
 }
 
 ExpVar::~ExpVar()
 {
-	DEBUG("ExpVar::~ExpVar(" << this << "): " << name);
+
 }
 
 ExpVar *ExpVar::deep_copy() const
@@ -81,7 +81,7 @@ bool ExpVar::is_completly_infered() const
 
 std::ostream &ExpVar::output(std::ostream &os) const
 {
-	os << this->name << "[" << this->value << "|" << this->unit << "]";
+	os << this->name << "[" << this << "|" << this->value << "|" << this->unit << "]";
 	return os;
 }
 

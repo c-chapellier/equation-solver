@@ -2,7 +2,7 @@
 #include "ExpFuncCall.hpp"
 
 ExpFuncCall::ExpFuncCall()
-	: Exp(), args(std::vector<Exp *>()), f(nullptr), ret(nullptr)
+	: Exp(), f(nullptr), ret(nullptr)
 {
 	
 }
@@ -57,7 +57,7 @@ std::string ExpFuncCall::to_latex() const
 		ret += "\\left(\n";
 		for (int i = 0; i < this->args.size(); ++i)
 		{
-			ret += this->args[i]->to_latex();
+			ret += this->args_equs[i]->eright->to_latex();
 			if (i != this->args.size() - 1)
 				ret += ", ";
 		}
@@ -122,10 +122,13 @@ bool ExpFuncCall::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_
 
 Exp *ExpFuncCall::singularize_vars(System *sys)
 {
+	if (this->ret == NULL)
+		return NULL;
+
 	Exp *r = this->ret->singularize_vars(sys);
     if (r != NULL)
         this->ret = r;
-	
+
     return NULL;
 }
 
@@ -144,13 +147,14 @@ void ExpFuncCall::add_equs_from_func_calls(System *sys)
 		if (arg != nullptr && arg->op == OpType::EQU)
 			std::cerr << "Error: argument: " << this->f->args_names[i] << ": cannot use equation as argument" << std::endl, exit(1);
 
-		sys->add_equ(
-			new ExpOp(
-				OpType::EQU,
-				new ExpVar(func_call_prefix + this->f->args_names[i]),
-				args[args.size() - 1 - i]->deep_copy()
-			)
+		ExpOp *arg_equ = new ExpOp(
+			OpType::EQU,
+			new ExpVar(func_call_prefix + this->f->args_names[i]),
+			args[args.size() - 1 - i]->deep_copy()
 		);
+
+		this->args_equs.push_back(arg_equ);
+		sys->add_equ(arg_equ);
 	}
 
     this->ret = this->f->ret->deep_copy();
@@ -159,7 +163,7 @@ void ExpFuncCall::add_equs_from_func_calls(System *sys)
     System *tmp_sys = this->f->sys->deep_copy();
 	for (int i = 0; i < this->f->sys->size(); ++i)
         tmp_sys->add_prefix_to_vars(func_call_prefix);
-    sys->add_sys(tmp_sys);
+	sys->add_sys(tmp_sys);
     delete tmp_sys;
 }
 

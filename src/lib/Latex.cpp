@@ -11,10 +11,7 @@ void Latex::replace_greek_letters(std::string &s)
         while (pos != std::string::npos)
         {
             if ((pos == 0 || s[pos - 1] == '_') && (!std::isalnum(s[pos + match.size()]) || pos + match.size() == s.size()))
-            {
-                std::cout << "find match: " << match << " at position: " << pos << "of " << s << std::endl;
                 s.replace(pos, match.size(), replacement);
-            }
             pos = s.find(match, pos + replacement.size());
         }
     }

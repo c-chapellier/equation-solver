@@ -6,7 +6,7 @@ function perimeter(d)
 }
 
 D_roue = 0.58 [m]
-p_roue = 3.1416 * D_roue
+p_roue = perimeter(D_roue)
 C_roue = 3 [kg m2 s-2]
 v_roue_tr_min = 627 [s-1]
 v_roue_rd_s = v_roue_tr_min * 2 * 3.1416 / 60
@@ -16,7 +16,7 @@ P_roue = C_roue * v_roue_rd_s
 rendement = 1 
 P_cylindre = P_roue * rendement
 D_cylindre = 0.08 [m]
-p_cylindre = 3.1416 * D_cylindre
+p_cylindre = perimeter(D_cylindre)
 v_cylindre_km_h = v_roue_km_h
 v_cylindre_tr_min = (v_cylindre_km_h * 1000) / (60 * p_cylindre)
 v_cylindre_rd_s = v_cylindre_tr_min * 2 * 3.1416 / 60
