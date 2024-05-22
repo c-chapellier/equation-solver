@@ -66,10 +66,8 @@ int main(int argc, char* argv[])
 	Saver::save_to_file(std::string(args[1]) + ".res", funcs, main_sys);
 	Saver::save_to_markdown(std::string(args[1]) + ".md", funcs, main_sys);
 
-	// for (auto &func : funcs)
-	// 	delete func.second;
-
-	std::cin.get();
+	for (auto &func : funcs)
+		delete func.second;
 
 	return 0;
 }

@@ -4,12 +4,12 @@
 ExpVar::ExpVar(std::string name, std::string guess)
 	: Exp(), name(name), guess(std::stod(guess.substr(1, guess.size() - 2))), can_be_infered(false), index(-1)
 {
-
+	DEBUG("ExpVar::ExpVar(" << this << "): " << name);
 }
 
 ExpVar::~ExpVar()
 {
-
+	DEBUG("ExpVar::~ExpVar(" << this << "): " << name);
 }
 
 ExpVar *ExpVar::deep_copy() const

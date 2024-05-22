@@ -7,6 +7,17 @@ Function::Function(std::string name, std::vector<std::string> args_names, System
 
 }
 
+Function::~Function()
+{
+	ExpOp *op = dynamic_cast<ExpOp *>(this->ret);
+	if (op != nullptr)
+		this->sys->add_equ(op);
+	else
+		delete this->ret;
+	
+	delete this->sys;
+}
+
 void Function::print() const
 {
 	std::cout << "Function: " << this->name << std::endl;
@@ -37,10 +48,4 @@ std::string Function::to_latex() const
 		res += this->sys->equs[i]->to_latex() + " ; ";
 	res += " \\rArr " + this->ret->to_latex() + "";
 	return res;
-}
-
-Function::~Function()
-{
-	delete this->sys;
-	delete this->ret;
 }

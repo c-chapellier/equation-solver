@@ -154,44 +154,23 @@ void System::infer()
 
 	while (not_stable)
 	{
-		// DEBUG("Iteration: " << it++);
 		not_stable = 0;
 		for (int i = 0; i < this->equs.size(); ++i)
 		{
-			// DEBUG(not_stable << " Equation(" << i << "): " << *this->equs[i]);
 			std::vector<ExpVar *> vars = std::vector<ExpVar *>();
 
 			if (!this->equs[i]->infer_units(vars, SIUnit(), false))
 				not_stable = 1;
 
-			// DEBUG(not_stable << " Equation(" << i << "): " << *this->equs[i]);
-
-			// DEBUG("vars: " << vars.size());
-			// for (auto &v : vars)
-			// 	DEBUG("  " << *v);
-
 			for (int j = 0; j < vars.size(); ++j)
 				if (vars[j]->is_value_known || vars[j]->unit.is_known || vars[j]->can_be_infered)
 					vars.erase(vars.begin() + j--);
-
-			// DEBUG("vars: " << vars.size());
-			// for (auto &v : vars)
-			// {
-			// 	DEBUG("v.is_value_known = " << v->is_value_known);
-			// 	DEBUG("v.unit.is_known = " << v->unit.is_known);
-			// 	DEBUG("v.can_be_infered = " << v->can_be_infered);
-			// 	DEBUG("  " << *v);
-			// }
-
-			// DEBUG("not_stable = " << not_stable);
 
 			if (vars.size() == 1 && this->equs[i]->is_linear())
 			{
 				this->vars[vars[0]->name]->can_be_infered = true;
 				not_stable = 1;
 			}
-
-			// DEBUG("not_stable = " << not_stable);
 		}
 	}
 
@@ -224,7 +203,6 @@ double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 {
 	// if (this->name == "pi") return M_PI;
 	// if (this->name == "e") return M_E;
-
 
 	int i = 0;
 	for (auto &v : mother_sys->unknown_vars)
