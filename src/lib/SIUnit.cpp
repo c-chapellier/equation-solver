@@ -127,15 +127,15 @@ std::ostream &operator<<(std::ostream &os, const SIUnit &sys)
 std::string SIUnit::to_latex() const
 {
     if (!this->is_known)
-        return "{[?]}";
+        return "\\,{[?]}";
 
-    std::string unit_str = "{[";
+    std::string unit_str = "\\,{[";
 
     for (int i = 0; i < 7; ++i)
         if (this->units[i] != 0)
-            unit_str += this->unit_to_str(i) + (this->units[i] == 1 ? "." : "^{" + std::to_string(this->units[i])) + "}.";
+            unit_str += this->unit_to_str(i) + (this->units[i] == 1 ? "." : "^{" + std::to_string(this->units[i]) + "}.");
     
-    if (unit_str.size() == 2)
+    if (unit_str.size() == 4)
         return "";
         
     return unit_str.erase(unit_str.size() - 1) + "]}";

@@ -60,7 +60,7 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
         f << v.second->to_latex();
         f << " = ";
         f << Latex::double_to_latex(v.second->value);
-        f << "\\," << v.second->unit.to_latex();
+        f << v.second->unit.to_latex();
         f << "$$" << std::endl << std::endl;
     }
 
@@ -71,7 +71,7 @@ int Saver::save_to_markdown(const std::string &fname, const std::map<std::string
         f << v.second->to_latex();
         f << " = ";
         f << Latex::double_to_latex(v.second->value);
-        f << "\\," << v.second->unit.to_latex();
+        f << v.second->unit.to_latex();
         f << "$$" << std::endl << std::endl;
     }
 

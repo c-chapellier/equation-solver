@@ -60,6 +60,8 @@ Exp *ExpVar::singularize_vars(System *sys)
 {
 	for (auto &v : sys->vars)
 	{
+		if (this == sys->vars[v.first])
+			return this;
 		if (this->name == v.first)
 		{
 			sys->vars_to_delete.push_back(this);
