@@ -38,7 +38,7 @@ int sys_to_markdown(std::string fname, std::map<std::string, Function *> funcs, 
     }
 
     f << "## Inferred Equations" << std::endl << std::endl;
-    for (int i = 0; i < sys.inferred_equs.size(); ++i)
+    for (int i = 0; i < sys.n_inferred_equs; ++i)
     {
         f << "$$";
         f << sys.inferred_equs[i]->to_latex();
@@ -46,7 +46,7 @@ int sys_to_markdown(std::string fname, std::map<std::string, Function *> funcs, 
     }
 
     f << "## System of Equations" << std::endl << std::endl;
-    for (int i = 0; i < sys.unknown_equs.size(); ++i)
+    for (int i = 0; i < sys.n_unknown_equs; ++i)
     {
         f << "$$";
         f << sys.unknown_equs[i]->to_latex();

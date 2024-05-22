@@ -31,9 +31,9 @@ std::string Function::to_latex() const
 			res += ", ";
 	}
 	res += ")";
-	if (this->sys->equs.size() > 0)
+	if (this->sys->n_equs > 0)
 		res += ":";
-	for (int i = 0; i < this->sys->equs.size(); ++i)
+	for (int i = 0; i < this->sys->n_equs; ++i)
 		res += this->sys->equs[i]->to_latex() + " ; ";
 	res += " \\rArr " + this->ret->to_latex() + "";
 	return res;

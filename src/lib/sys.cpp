@@ -1,11 +1,18 @@
 
 #include "es.hpp"
 
+void sys_init(system_t *sys)
+{
+	sys->n_equs = 0;
+	sys->n_inferred_equs = 0;
+	sys->n_unknown_equs = 0;
+}
+
 void sys_free(system_t *sys)
 {
 	sys_singularize_vars(sys);
 
-	for (int i = 0; i < sys->equs.size(); ++i)
+	for (int i = 0; i < sys->n_equs; ++i)
 		delete sys->equs[i];
 
 	for (auto &v : sys->vars)
@@ -14,38 +21,38 @@ void sys_free(system_t *sys)
 
 size_t sys_size(system_t *sys)
 {
-	return sys->equs.size();
+	return sys->n_equs;
 }
 
 void sys_add_equ(system_t *sys, ExpOp *equ)
 {
-	sys->equs.push_back(equ);
+	sys->equs[sys->n_equs++] = equ;
 }
 
 void sys_add_sys(system_t *sys, system_t *sys_to_add)
 {
-	for (int i = 0; i < sys_to_add->equs.size(); ++i)
+	for (int i = 0; i < sys_to_add->n_equs; ++i)
 		sys_add_equ(sys, sys_to_add->equs[i]->deep_copy());
 }
 
 void sys_add_equs_from_func_calls(system_t *sys)
 {
-	for (int i = 0; i < sys->equs.size(); ++i)
+	for (int i = 0; i < sys->n_equs; ++i)
 		sys->equs[i]->add_equs_from_func_calls(sys);
 }
 
 int sys_rosenbrock_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
-	system_t *sys = static_cast<system_t *>(params);
+	system_t *sys = (system_t *)params;
 
-	std::vector<double> y(sys->unknown_equs.size());
+	double y[sys->n_unknown_equs];
 
-	for (int i = 0; i < sys->unknown_equs.size(); ++i)
+	for (int i = 0; i < sys->n_unknown_equs; ++i)
 		y[i] = sys->unknown_equs[i]->eval(sys, x);
 
-	assert(x->size == sys->unknown_equs.size());
+	assert(x->size == sys->n_unknown_equs);
 
-	for (int i = 0; i < sys->unknown_equs.size(); ++i)
+	for (int i = 0; i < sys->n_unknown_equs; ++i)
 		gsl_vector_set(f, i, y[i]);
 
 	return GSL_SUCCESS;
@@ -64,7 +71,7 @@ void sys_print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
 
 int sys_solve(system_t *sys)
 {
-	int n = sys->unknown_equs.size();
+	int n = sys->n_unknown_equs;
 	const double EPSILON = 1e-7;
 	const int MAX_ITERATIONS = 1000;
 	const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
@@ -92,7 +99,7 @@ int sys_solve(system_t *sys)
 		status = gsl_multiroot_test_residual(s->f, EPSILON);
 	}
 
-	assert(s->x->size == sys->unknown_equs.size());
+	assert(s->x->size == sys->n_unknown_equs);
 
 	i = 0;
 	for (auto &v : sys->unknown_vars)
@@ -116,15 +123,15 @@ void sys_sort_equs_and_vars(system_t *sys)
 			sys->unknown_vars[var.first] = var.second;
 	}
 
-	for (int i = 0; i < sys->equs.size(); ++i)
+	for (int i = 0; i < sys->n_equs; ++i)
 	{
 		if (sys->equs[i]->is_completly_infered())
-			sys->inferred_equs.push_back(sys->equs[i]);
+			sys->inferred_equs[sys->n_inferred_equs++] = sys->equs[i];
 		else
-			sys->unknown_equs.push_back(sys->equs[i]);
+			sys->unknown_equs[sys->n_unknown_equs++] = sys->equs[i];
 	}
 
-	assert(sys->unknown_equs.size() == sys->unknown_vars.size());
+	assert(sys->n_unknown_equs == sys->unknown_vars.size());
 }
 
 void sys_infer(system_t *sys)
@@ -136,7 +143,7 @@ void sys_infer(system_t *sys)
 	{
 		// DEBUG("Iteration: " << it++);
 		not_stable = 0;
-		for (int i = 0; i < sys->equs.size(); ++i)
+		for (int i = 0; i < sys->n_equs; ++i)
 		{
 			// DEBUG(not_stable << " Equation(" << i << "): " << *this->equs[i]);
 			std::vector<ExpVar *> vars = std::vector<ExpVar *>();
@@ -185,7 +192,7 @@ system_t *sys_deep_copy(system_t *sys)
 {
 	system_t *cp_sys = new system_t();
 
-	for (int i = 0; i < sys->equs.size(); ++i)
+	for (int i = 0; i < sys->n_equs; ++i)
 		sys_add_equ(cp_sys, sys->equs[i]->deep_copy());
 
 	return cp_sys;
@@ -193,13 +200,13 @@ system_t *sys_deep_copy(system_t *sys)
 
 void sys_singularize_vars(system_t *sys)
 {
-	for (int i = 0; i < sys->equs.size(); ++i)
+	for (int i = 0; i < sys->n_equs; ++i)
 		sys->equs[i]->singularize_vars(sys);
 }
 
 void sys_add_prefix_to_vars(system_t *sys, std::string prefix)
 {
-	for (int i = 0; i < sys->equs.size(); ++i)
+	for (int i = 0; i < sys->n_equs; ++i)
 		sys->equs[i]->add_prefix_to_vars(prefix);
 }
 

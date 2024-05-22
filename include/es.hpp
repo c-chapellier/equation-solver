@@ -10,6 +10,8 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>
 
+#include "../src/lib/vec.hpp"
+
 #define DEBUG(x) std::cout << "\033[33m" << __FILE__ << ":" << __LINE__ << "\033[0m: " << x << std::endl
 
 enum OpType
@@ -48,9 +50,10 @@ class ExpVar;
 
 typedef struct system_s
 {
-    std::vector<ExpOp *> equs;
-    std::vector<ExpOp *> inferred_equs;
-	std::vector<ExpOp *> unknown_equs;
+	int n_equs, n_inferred_equs, n_unknown_equs;
+    ExpOp *equs[100];
+    ExpOp *inferred_equs[100];
+	ExpOp *unknown_equs[100];
 	std::map<std::string, ExpVar *> vars;
     std::map<std::string, ExpVar *> inferred_vars;
 	std::map<std::string, ExpVar *> unknown_vars;
@@ -58,6 +61,7 @@ typedef struct system_s
 
 extern system_t main_sys;
 
+void sys_init(system_t *sys);
 void sys_free(system_t *sys);
 size_t sys_size(system_t *sys);
 void sys_add_equ(system_t *sys, ExpOp *equ);
@@ -90,14 +94,14 @@ int sys_to_markdown(std::string fname, std::map<std::string, Function *> funcs, 
 
 inline std::map<std::string, Function *> funcs;
 
-struct DefaultFunc
-{
-	std::string name;
-	std::vector<std::string> args;
-	double (*func)(double *);
-	const char *str_repr;
-	const char *latex_repr;
-};
+// struct DefaultFunc
+// {
+// 	std::string name;
+// 	std::vector<std::string> args;
+// 	double (*func)(double *);
+// 	const char *str_repr;
+// 	const char *latex_repr;
+// };
 
 // inline DefaultFunc default_funcs[] = {
 // 	{ "abs", { "x" }, [](double *args) -> double { return abs(args[0]); }, "\\mid x \\mid", "|x|" },

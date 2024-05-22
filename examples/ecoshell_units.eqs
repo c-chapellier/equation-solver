@@ -5,8 +5,8 @@
 "    return pi * d"
 "}"
 
-"D_roue = 0.58 [m]"
-"p_roue = perimeter(D_roue)"
+D_roue = 0.58 [m]
+p_roue = perimeter(D_roue)
 "C_roue = 3 [kg m2 s-2]"
 "v_roue_tr_min = 627 [s-1]"
 "v_roue_rd_s = v_roue_tr_min * 2 * 3.1416 / 60"
@@ -30,6 +30,6 @@
 "small_number = 0.00000123456"
 "small_negative_number = 0.00000123456"
 
-x + 2*y + 3*z = 14
-3*x - 2*y + 3*z = 8
-3*y + 5*z - x = 20
+"x + 2*y + 3*z = 14"
+"3*x - 2*y + 3*z = 8"
+"3*y + 5*z - x = 20"
