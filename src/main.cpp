@@ -69,5 +69,7 @@ int main(int argc, char* argv[])
 	// for (auto &func : funcs)
 	// 	delete func.second;
 
+	std::cin.get();
+
 	return 0;
 }

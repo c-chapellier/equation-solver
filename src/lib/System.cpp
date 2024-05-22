@@ -16,8 +16,8 @@ System::~System()
 	for (auto &v : this->vars)
 		delete v.second;
 
-	for (int i = 0; i < this->vars_to_delete.size(); ++i)
-		delete this->vars_to_delete[i];
+	for (auto &v : this->vars_to_delete)
+		delete v;
 }
 
 size_t System::size() const
