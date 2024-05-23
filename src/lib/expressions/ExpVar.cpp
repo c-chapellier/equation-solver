@@ -74,8 +74,6 @@ Exp *ExpVar::singularize_vars(System *sys)
 		this->unit = SIUnit("[\\]");
 		this->state = ExpVar::CONSTANT;
 		this->name = last_part;
-		sys->vars[this->name] = this;
-		return NULL;
 	}	
 
 	for (auto &v : sys->vars)

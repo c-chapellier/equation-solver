@@ -43,10 +43,10 @@ std::string Function::to_latex() const
 	}
 
 	out += ")";
-	if (this->sys->equs.size() > 0)
+	if (this->sys->size() > 0)
 		out += ":";
 
-	for (int i = 0; i < this->sys->equs.size(); ++i)
+	for (int i = 0; i < this->sys->size(); ++i)
 		out += this->sys->equs[i]->to_latex() + " ; ";
 
 	return out + " \\rArr " + this->ret->to_latex();

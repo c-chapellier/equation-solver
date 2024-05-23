@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 	main_sys.infer();
 	main_sys.solve();
 
-	Saver::save_to_file(std::string(argv[1]) + ".res", funcs, main_sys);
+	// Saver::save_to_file(std::string(argv[1]) + ".res", funcs, main_sys);
 	Saver::save_to_markdown(std::string(argv[1]) + ".md", funcs, main_sys);
 
 	for (auto &func : funcs)

@@ -33,14 +33,18 @@ public:
 public:
     System();
     ~System();
+
     void add_equ(ExpOp *equ);
     void add_sys(System *sys);
+
 	void add_equs_from_func_calls();
-    size_t size() const;
     void singularize_vars();
     void infer();
     int solve();
+
+    size_t size() const;
     System *deep_copy() const;
+
     void add_prefix_to_vars(std::string prefix);
 
     friend std::ostream &operator<<(std::ostream &os, const System &sys);
