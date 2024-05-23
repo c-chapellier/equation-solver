@@ -124,7 +124,7 @@ args:
 
 void yyerror2(void *loc, const char *s)
 {
-	yyltype *yylloc = (yyltype *)loc;
-	std::cerr << "\033[1mtest/test.es:" << yylloc->first_line << ":" << yylloc->first_column << ": \033[1;31merror:\033[0m\033[1m " << s << "\033[0m" << std::endl;
+	yyltype *yylloc_no_shadow = (yyltype *)loc;
+	std::cerr << "\033[1mtest/test.es:" << yylloc_no_shadow->first_line << ":" << yylloc_no_shadow->first_column << ": \033[1;31merror:\033[0m\033[1m " << s << "\033[0m" << std::endl;
 	++n_parsing_errors;
 }

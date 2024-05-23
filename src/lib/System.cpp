@@ -153,25 +153,24 @@ void System::sort_equs_and_vars()
 void System::infer()
 {
 	int not_stable = 1;
-	int it = 0;
 
 	while (not_stable)
 	{
 		not_stable = 0;
 		for (int i = 0; i < this->equs.size(); ++i)
 		{
-			std::vector<ExpVar *> vars = std::vector<ExpVar *>();
+			std::vector<ExpVar *> equs_vars = std::vector<ExpVar *>();
 
-			if (!this->equs[i]->infer_units(vars, SIUnit(), false))
+			if (!this->equs[i]->infer_units(equs_vars, SIUnit(), false))
 				not_stable = 1;
 
-			for (int j = 0; j < vars.size(); ++j)
-				if (vars[j]->is_value_known || vars[j]->unit.is_known || vars[j]->state == ExpVar::CONSTANT || vars[j]->state == ExpVar::INFERED)
-					vars.erase(vars.begin() + j--);
+			for (int j = 0; j < equs_vars.size(); ++j)
+				if (equs_vars[j]->is_value_known || equs_vars[j]->unit.is_known || equs_vars[j]->state == ExpVar::CONSTANT || equs_vars[j]->state == ExpVar::INFERED)
+					equs_vars.erase(equs_vars.begin() + j--);
 
-			if (vars.size() == 1 && this->equs[i]->is_linear())
+			if (equs_vars.size() == 1 && this->equs[i]->is_linear())
 			{
-				this->vars[vars[0]->name]->state = ExpVar::INFERED;
+				this->vars[equs_vars[0]->name]->state = ExpVar::INFERED;
 				not_stable = 1;
 			}
 		}

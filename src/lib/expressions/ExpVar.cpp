@@ -2,7 +2,7 @@
 #include "ExpVar.hpp"
 
 ExpVar::ExpVar(std::string name, std::string guess, State state)
-	: Exp(), name(name), guess(std::stod(guess.substr(1, guess.size() - 2))), state(state)
+	: Exp(), name(name), state(state), guess(std::stod(guess.substr(1, guess.size() - 2)))
 {
 
 }

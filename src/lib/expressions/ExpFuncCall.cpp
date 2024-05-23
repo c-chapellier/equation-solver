@@ -52,20 +52,20 @@ std::string ExpFuncCall::to_latex() const
 		return "\\sqrt{" + this->args[0]->to_latex() + "}";
 	else
 	{
-		std::string ret = (this->is_value_known ? "\\textcolor{green}{" : "\\textcolor{red}{");
-		ret += Latex::var_to_latex(this->f->name);
-		ret += "}";
+		std::string out = (this->is_value_known ? "\\textcolor{green}{" : "\\textcolor{red}{");
+		out += Latex::var_to_latex(this->f->name);
+		out += "}";
 
-		ret += "\\left(\n";
+		out += "\\left(\n";
 		for (int i = 0; i < this->args.size(); ++i)
 		{
-			ret += this->args_equs[i]->eright->to_latex();
+			out += this->args_equs[i]->eright->to_latex();
 			if (i != this->args.size() - 1)
-				ret += ", ";
+				out += ", ";
 		}
-		ret += "\\right)";
+		out += "\\right)";
 
-		return ret;
+		return out;
 	}
 }
 
@@ -88,7 +88,7 @@ bool ExpFuncCall::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_
     if (this->is_value_known && is_value_known)
         assert(abs(this->value - value) < 1e-6);
     
-    bool is_stable = true, ret;
+    bool is_stable = true;
 
     if (!this->unit.is_known && unit.is_known)
     {
@@ -114,8 +114,7 @@ bool ExpFuncCall::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_
         is_stable = true;
     }
 
-    ret = this->ret->infer_units(vars, this->unit, this->is_value_known, this->value);
-    return is_stable && ret;
+    return is_stable && this->ret->infer_units(vars, this->unit, this->is_value_known, this->value);
 }
 
 Exp *ExpFuncCall::singularize_vars(System *sys)

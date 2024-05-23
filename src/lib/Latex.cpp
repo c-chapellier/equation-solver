@@ -32,7 +32,7 @@ std::string Latex::var_to_latex(std::string var)
 {
     Latex::replace_greek_letters(var);
 
-    size_t i = var.find('_');
+    int i = var.find('_');
 
     if (i == -1)
         return var;
@@ -48,7 +48,7 @@ std::string Latex::double_to_latex(double n)
 {
     std::stringstream ss;
 
-    if (0.0001 > n && n > -0.0001 || 10000 < n || n < -10000)
+    if ((0.0001 > n && n > -0.0001) || 10000 < n || n < -10000)
         ss << std::scientific << std::setprecision(Latex::SIGNIFICANT_DIGITS - 1) << n;
     else
         ss << std::setprecision(Latex::SIGNIFICANT_DIGITS) << n;

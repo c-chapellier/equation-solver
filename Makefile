@@ -18,8 +18,13 @@ SOURCES = $(shell find $(SRC_PATH) -name '*.$(SRC_EXT)' | sort -k 1nr | cut -f2-
 OBJECTS = $(SOURCES:$(SRC_PATH)/%.$(SRC_EXT)=$(BUILD_PATH)/%.o)
 DEPS = $(OBJECTS:.o=.d)
 
-# -Wshadow
-COMPILE_FLAGS = --std=c++20 -g -O0 -Wnon-virtual-dtor -pedantic
+COMPILE_FLAGS = --std=c++20 -g -O0 -Wnon-virtual-dtor -pedantic \
+				-Wall  -Wpedantic \
+          		-Wformat=2 -Wno-unused-parameter \
+          		-Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
+          		-Wredundant-decls -Wnested-externs -Wmissing-include-dirs \
+				-Wshadow \
+				# -Wextra
 INCLUDES = -Iinclude/ -I/usr/local/include
 LIBS = -lgsl -lgslcblas -lm
 

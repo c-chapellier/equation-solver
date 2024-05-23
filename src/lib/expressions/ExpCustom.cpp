@@ -16,6 +16,7 @@ double ExpCustom::eval(System *mother_sys, const gsl_vector *x) const
     for (int i = 0; i < this->n_args; i++)
         args[i] = gsl_vector_get(x, i + 1);
 
+    std::cout << "func(" << args[0] << ") = " << this->func(args) << std::endl;
     double res = this->func(args);
 
     delete[] args;
@@ -35,22 +36,22 @@ std::string ExpCustom::to_latex() const
 
 bool ExpCustom::is_linear() const
 {
-    return false;   // TODO
+   return false; // TODO for some functions
 }
 
 bool ExpCustom::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value_known, double value)
 {
-    std::cerr << "ExpCustom::infer_units: not implemented" << std::endl, exit(1);
+    return true; // TODO for some functions
 }
 
 Exp *ExpCustom::singularize_vars(System *sys)
 {
-    std::cerr << "ExpCustom::singularize_vars: not implemented" << std::endl, exit(1);
+    return NULL;
 }
 
 bool ExpCustom::is_completly_infered() const
 {
-    std::cerr << "ExpCustom::is_completly_infered: not implemented" << std::endl, exit(1);
+    return false; // TODO for some functions
 }
 
 std::ostream &ExpCustom::output(std::ostream &os) const
@@ -61,10 +62,10 @@ std::ostream &ExpCustom::output(std::ostream &os) const
 
 void ExpCustom::add_equs_from_func_calls(System *sys)
 {
-    std::cerr << "ExpCustom::add_equs_from_func_calls: not implemented" << std::endl, exit(1);
+    return ;
 }
 
 void ExpCustom::add_prefix_to_vars(std::string prefix)
 {
-    std::cerr << "ExpCustom::add_prefix_to_vars: not implemented" << std::endl, exit(1);
+   return ;
 }

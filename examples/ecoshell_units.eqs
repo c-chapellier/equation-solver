@@ -1,4 +1,6 @@
 
+"a {2} = sqrt(9)"
+
 function perimeter(d)
 {
     return pi * d
