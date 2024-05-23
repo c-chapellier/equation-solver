@@ -43,28 +43,20 @@ static void parse_file(const std::string &fname)
 
 int main(int argc, char* argv[])
 {
-	std::span<char *> args = std::span(argv, size_t (argc));
-
 	if (argc != 2)
-		std::cerr << "Usage: " << args[0] << " <filename>" << std::endl, exit(1);
+		std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl, exit(1);
 	
 	// add_default_funcs();
 
-	std::cout << " --------- 0 --------- " << std::endl;
-	parse_file(args[1]);
+	parse_file(argv[1]);
 
-	std::cout << " --------- 1 --------- " << std::endl;
 	main_sys.add_equs_from_func_calls();
-	std::cout << " --------- 2 --------- " << std::endl;
 	main_sys.singularize_vars();
-	std::cout << " --------- 3 --------- " << std::endl;
 	main_sys.infer();
-	std::cout << " --------- 4 --------- " << std::endl;
 	main_sys.solve();
-	std::cout << " --------- 5 --------- " << std::endl;
 
-	Saver::save_to_file(std::string(args[1]) + ".res", funcs, main_sys);
-	Saver::save_to_markdown(std::string(args[1]) + ".md", funcs, main_sys);
+	Saver::save_to_file(std::string(argv[1]) + ".res", funcs, main_sys);
+	Saver::save_to_markdown(std::string(argv[1]) + ".md", funcs, main_sys);
 
 	for (auto &func : funcs)
 		delete func.second;

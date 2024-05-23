@@ -133,7 +133,10 @@ void System::sort_equs_and_vars()
 		if (var.second->is_value_known)
 			this->inferred_vars[var.first] = var.second;
 		else
+		{
+			var.second->state = ExpVar::UNKNOWN;
 			this->unknown_vars[var.first] = var.second;
+		}
 	}
 
 	for (int i = 0; i < this->equs.size(); ++i)

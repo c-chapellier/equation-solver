@@ -27,7 +27,7 @@ std::string ExpVar::to_latex() const
 		return "\\textcolor{yellow}{" + Latex::var_to_latex(this->name.c_str()) + "}";
 	case ExpVar::INFERED:
 		return "\\textcolor{green}{" + Latex::var_to_latex(this->name.c_str()) + "}";
-	case ExpVar::NOT_INFERED:
+	case ExpVar::UNKNOWN:
 		return "\\textcolor{red}{" + Latex::var_to_latex(this->name.c_str()) + "}";
 	}
 }
@@ -66,6 +66,18 @@ bool ExpVar::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value
 
 Exp *ExpVar::singularize_vars(System *sys)
 {
+	std::string last_part = this->name.substr(this->name.find_last_of(":") + 1);
+	if (sys->default_constants.find(last_part) != sys->default_constants.end())
+	{
+		this->is_value_known = true;
+		this->value = sys->default_constants[last_part];
+		this->unit = SIUnit("[\\]");
+		this->state = ExpVar::CONSTANT;
+		this->name = last_part;
+		sys->vars[this->name] = this;
+		return NULL;
+	}	
+
 	for (auto &v : sys->vars)
 	{
 		if (this == sys->vars[v.first])
@@ -76,17 +88,6 @@ Exp *ExpVar::singularize_vars(System *sys)
 			return sys->vars[v.first];
 		}
 	}
-
-	std::string last_part = this->name.substr(this->name.find_last_of(":") + 1);
-
-	if (sys->default_constants.find(last_part) != sys->default_constants.end())
-	{
-		this->is_value_known = true;
-		this->value = sys->default_constants[last_part];
-		this->unit = SIUnit("[\\]");
-		this->state = ExpVar::CONSTANT;
-		return this;
-	}	
 
 	sys->vars[this->name] = this;
 	return NULL;

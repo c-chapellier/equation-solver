@@ -13,7 +13,7 @@ public:
         NORMAL,
         CONSTANT,
         INFERED,
-        NOT_INFERED
+        UNKNOWN
     };
 
     std::string name;
