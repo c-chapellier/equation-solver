@@ -15,7 +15,6 @@ public:
 public:
     Function(std::string name, std::vector<std::string> args_names, System *sys, Exp *ret);
 	~Function();
-	Function *deep_copy() const;
 	std::string to_latex() const;
 	void print() const;
 };

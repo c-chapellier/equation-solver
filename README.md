@@ -6,9 +6,6 @@ Equation solving language
 ./es equation_system.eqs
 ```
 
-Process 23265: 196 nodes malloced for 36 KB
-Process 23265: 12 leaks for 1344 total leaked bytes.
-
 ## Example 1
 
 This equation system

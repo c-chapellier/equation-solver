@@ -33,19 +33,21 @@ void Function::print() const
 
 std::string Function::to_latex() const
 {
-	std::string res = "";
-	res += "" + Latex::var_to_latex(this->name) + "(";
+	std::string out = Latex::var_to_latex(this->name) + "(";
+
 	for (int i = 0; i < this->args_names.size(); ++i)
 	{
-		res += this->args_names.at(i);
+		out += this->args_names[i];
 		if (i != this->args_names.size() - 1)
-			res += ", ";
+			out += ", ";
 	}
-	res += ")";
+
+	out += ")";
 	if (this->sys->equs.size() > 0)
-		res += ":";
+		out += ":";
+
 	for (int i = 0; i < this->sys->equs.size(); ++i)
-		res += this->sys->equs[i]->to_latex() + " ; ";
-	res += " \\rArr " + this->ret->to_latex() + "";
-	return res;
+		out += this->sys->equs[i]->to_latex() + " ; ";
+
+	return out + " \\rArr " + this->ret->to_latex();
 }

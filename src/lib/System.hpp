@@ -9,14 +9,6 @@ class ExpOp;
 
 extern System main_sys;
 
-typedef struct var_s
-{
-    std::string name;
-    double guess;
-    SIUnit unit;
-    bool true_var;
-} var_t;
-
 class System
 {
 private:
@@ -32,6 +24,11 @@ public:
     std::map<std::string, ExpVar *> inferred_vars;
 	std::map<std::string, ExpVar *> unknown_vars;
 	std::vector<ExpVar *> vars_to_delete;
+
+    std::map<std::string, double> default_constants = std::map<std::string, double>({
+        { "pi", M_PI },
+        { "e", M_E },
+    });
 
 public:
     System();

@@ -163,12 +163,12 @@ void System::infer()
 				not_stable = 1;
 
 			for (int j = 0; j < vars.size(); ++j)
-				if (vars[j]->is_value_known || vars[j]->unit.is_known || vars[j]->can_be_infered)
+				if (vars[j]->is_value_known || vars[j]->unit.is_known || vars[j]->state == ExpVar::CONSTANT || vars[j]->state == ExpVar::INFERED)
 					vars.erase(vars.begin() + j--);
 
 			if (vars.size() == 1 && this->equs[i]->is_linear())
 			{
-				this->vars[vars[0]->name]->can_be_infered = true;
+				this->vars[vars[0]->name]->state = ExpVar::INFERED;
 				not_stable = 1;
 			}
 		}
@@ -201,9 +201,6 @@ void System::add_prefix_to_vars(std::string prefix)
 
 double ExpVar::eval(System *mother_sys, const gsl_vector *x) const
 {
-	// if (this->name == "pi") return M_PI;
-	// if (this->name == "e") return M_E;
-
 	int i = 0;
 	for (auto &v : mother_sys->unknown_vars)
 	{

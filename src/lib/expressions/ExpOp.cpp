@@ -257,11 +257,6 @@ Exp *ExpOp::singularize_vars(System *sys)
     return NULL;
 }
 
-Exp *ExpOp::get_left()
-{
-    return this->eleft;
-}
-
 bool ExpOp::is_completly_infered() const
 {
     if (!this->is_value_known)

@@ -1,8 +1,8 @@
 
 #include "ExpVar.hpp"
 
-ExpVar::ExpVar(std::string name, std::string guess)
-	: Exp(), name(name), guess(std::stod(guess.substr(1, guess.size() - 2))), can_be_infered(false), index(-1)
+ExpVar::ExpVar(std::string name, std::string guess, State state)
+	: Exp(), name(name), guess(std::stod(guess.substr(1, guess.size() - 2))), state(state)
 {
 
 }
@@ -14,14 +14,22 @@ ExpVar::~ExpVar()
 
 ExpVar *ExpVar::deep_copy() const
 {
-	return new ExpVar(this->name, "{" + std::to_string(this->guess) + "}");
+	return new ExpVar(this->name, "{" + std::to_string(this->guess) + "}", this->state);
 }
 
 std::string ExpVar::to_latex() const
 {
-	if (!this->can_be_infered)
+	switch (this->state)
+	{
+	case ExpVar::NORMAL:
+		return Latex::var_to_latex(this->name.c_str());
+	case ExpVar::CONSTANT:
+		return "\\textcolor{yellow}{" + Latex::var_to_latex(this->name.c_str()) + "}";
+	case ExpVar::INFERED:
+		return "\\textcolor{green}{" + Latex::var_to_latex(this->name.c_str()) + "}";
+	case ExpVar::NOT_INFERED:
 		return "\\textcolor{red}{" + Latex::var_to_latex(this->name.c_str()) + "}";
-	return "\\textcolor{green}{" + Latex::var_to_latex(this->name.c_str()) + "}";
+	}
 }
 
 bool ExpVar::is_linear() const
@@ -42,7 +50,7 @@ bool ExpVar::infer_units(std::vector<ExpVar *> &vars, SIUnit unit, bool is_value
 	{
 		this->is_value_known = is_value_known;
 		this->value = value;
-		this->can_be_infered = true;
+		this->state = ExpVar::INFERED;
 		is_stable = false;
 	}
 
@@ -69,7 +77,17 @@ Exp *ExpVar::singularize_vars(System *sys)
 		}
 	}
 
-	this->index = sys->vars.size();
+	std::string last_part = this->name.substr(this->name.find_last_of(":") + 1);
+
+	if (sys->default_constants.find(last_part) != sys->default_constants.end())
+	{
+		this->is_value_known = true;
+		this->value = sys->default_constants[last_part];
+		this->unit = SIUnit("[\\]");
+		this->state = ExpVar::CONSTANT;
+		return this;
+	}	
+
 	sys->vars[this->name] = this;
 	return NULL;
 }

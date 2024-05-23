@@ -52,7 +52,9 @@ std::string ExpFuncCall::to_latex() const
 		return "\\sqrt{" + this->args[0]->to_latex() + "}";
 	else
 	{
-		std::string ret = Latex::var_to_latex(this->f->name);
+		std::string ret = (this->is_value_known ? "\\textcolor{green}{" : "\\textcolor{red}{");
+		ret += Latex::var_to_latex(this->f->name);
+		ret += "}";
 
 		ret += "\\left(\n";
 		for (int i = 0; i < this->args.size(); ++i)
@@ -62,6 +64,7 @@ std::string ExpFuncCall::to_latex() const
 				ret += ", ";
 		}
 		ret += "\\right)";
+
 		return ret;
 	}
 }
@@ -70,11 +73,6 @@ std::ostream &ExpFuncCall::output(std::ostream &os) const
 {
 	os << *this->ret;
 	return os;
-}
-
-void ExpFuncCall::add_arg(Exp *arg)
-{
-	this->args.push_back(arg);
 }
 
 bool ExpFuncCall::is_linear() const
