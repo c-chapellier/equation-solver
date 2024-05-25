@@ -40,9 +40,12 @@ Markdown output (as image because of the GitHub markdown rendering):
 - Guesses (for better convergence)
 
 ## Todo
-- Add support for SI units in functions
+1. Test and fix existing features for a MVP
+2. Port this compiler in a VSCode extension
+
+Then
 - Add support for prefix units
-- Add support for derived units
+- Better support for derived units
 - Add support for libraries
 
 ## References
