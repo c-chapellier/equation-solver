@@ -40,9 +40,8 @@ Markdown output (as image because of the GitHub markdown rendering):
 - Guesses (for better convergence)
 
 ## Todo
-- Add support for SI units in functions
 - Add support for prefix units
-- Add support for derived units
+- Better support for derived units
 - Add support for libraries
 
 ## References
