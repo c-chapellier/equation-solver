@@ -25,7 +25,7 @@ x + 2*y + 3*z = 14
 Markdown output:
 
 > ## Functions
-> $$newton_{to\_kg}(F) \rArr \frac{F}{9.81\,{[m.s^{-2}]}}$$
+> $$newton_{to\_kg}(F) {\rArr} \frac{F}{9.81\,{[m.s^{-2}]}}$$
 > ## Inferred Equations
 > $$\textcolor{green}{C} = 3\,{[Nm]}$$
 > $$\textcolor{green}{P} = \textcolor{green}{C} \cdot 120\,{[s^{-1}]}$$
