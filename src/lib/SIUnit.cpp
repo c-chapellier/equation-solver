@@ -1,6 +1,42 @@
 
 #include "SIUnit.hpp"
 
+static const std::vector<std::pair<std::string, std::array<int, 7>>> UNITS_DB {
+    // SI Units
+    //         cd mol   K  kg   m   s   A
+    { "cd",  {  1,  0,  0,  0,  0,  0,  0 } },
+    { "mol", {  0,  1,  0,  0,  0,  0,  0 } },
+    { "K",   {  0,  0,  1,  0,  0,  0,  0 } },
+    { "kg",  {  0,  0,  0,  1,  0,  0,  0 } },
+    { "m",   {  0,  0,  0,  0,  1,  0,  0 } },
+    { "s",   {  0,  0,  0,  0,  0,  1,  0 } },
+    { "A",   {  0,  0,  0,  0,  0,  0,  1 } },
+    // Derived Units
+    //         cd mol   K  kg   m   s   A
+    // { "rad", {  0,  0,  0,  0,  0,  0,  0 } }, // ""
+    // { "sr",  {  0,  0,  0,  0,  0,  0,  0 } }, // ""
+    // { "Hz",  {  0,  0,  0,  0,  0, -1,  0 } }, // "s-1"
+    { "N",   {  0,  0,  0,  1,  1, -2,  0 } }, // "kg⋅m⋅s-2"
+    { "Pa",  {  0,  0,  0,  1, -1, -2,  0 } }, // "kg⋅m-1⋅s-2"
+    { "Nm",   {  0,  0,  0,  1,  2, -2,  0 } }, // "kg⋅m2⋅s-2"
+    { "W",   {  0,  0,  0,  1,  2, -3,  0 } }, // "kg⋅m2⋅s-3"
+    { "C",   {  0,  0,  0,  0,  0,  1,  1 } }, // "s⋅A"
+    { "V",   {  0,  0,  0,  1,  2, -3, -1 } }, // "kg⋅m2⋅s-3⋅A-1"
+    { "F",   {  0,  0,  0, -1, -2,  4,  2 } }, // "kg-1⋅m-2⋅s4⋅A2"
+    { "ohm", {  0,  0,  0,  1,  2, -3, -2 } }, // "kg⋅m2⋅s-3⋅A-2"
+    { "S",   {  0,  0,  0, -1, -2,  3,  2 } }, // "kg-1⋅m-2⋅s3⋅A2"
+    { "Wb",  {  0,  0,  0,  1,  2, -2, -1 } }, // "kg⋅m2⋅s-2⋅A-1"
+    { "T",   {  0,  0,  0,  1, -2, -2,  1 } }, // "kg⋅s-2⋅A-1"
+    { "H",   {  0,  0,  0,  1,  2, -2, -2 } }, // "kg⋅m2⋅s-2⋅A-2"
+    { "°C",  {  0,  0,  1,  0,  0,  0,  0 } }, // "K"
+    // { "lm",  {  1,  0,  0,  0,  0,  0,  0 } }, // "cd"
+    { "lx",  {  1,  0,  0,  0, -2,  0,  0 } }, // "cd/m2"
+    // { "Bq",  {  0,  0,  0,  0,  0, -1,  0 } }, // "s-1"
+    { "Gy",  {  0,  0,  0,  0,  0, -2,  0 } }, // "m2⋅s-2"
+    { "Sv",  {  0,  0,  0,  0,  0, -2,  0 } }, // "m2⋅s-2"
+    { "kat", {  0,  1,  0,  0,  0, -1,  0 } }, // "mol⋅s-1"
+};
+
 SIUnit::SIUnit()
     : is_known(false)
 {
@@ -40,50 +76,36 @@ SIUnit::SIUnit(std::string unit)
         int unit_power = i == 0 ? 1 : std::atof(unit.substr(0, i).c_str());
         unit.erase(0, i);
 
-        int unit_index = str_to_unit(unit_name);
-        if (unit_index == -1)
-            std::cerr << "Unknown unit: '" << unit_name << "'" << std::endl, exit(1);
-        
-        this->units[unit_index] += unit_power;
+        SIUnit current_unit = SIUnit::str_to_unit(unit_name);
+
+        for (int j = 0; j < 7; ++j)
+            this->units[j] += current_unit.units[j] * unit_power;
     }
 }
 
-int SIUnit::str_to_unit(std::string unit) const
+SIUnit::SIUnit(const int *units)
+    : is_known(true)
 {
-    if (unit == "m")
-        return 0;
-    if (unit == "kg")
-        return 1;
-    if (unit == "s")
-        return 2;
-    if (unit == "A")
-        return 3;
-    if (unit == "K")
-        return 4;
-    if (unit == "mol")
-        return 5;
-    if (unit == "cd")
-        return 6;
-    return -1;
+    for (int i = 0; i < 7; ++i)
+        this->units[i] = units[i];
 }
 
-std::string SIUnit::unit_to_str(int unit) const
+SIUnit SIUnit::str_to_unit(std::string unit)
 {
-    if (unit == 0)
-        return "m";
-    if (unit == 1)
-        return "kg";
-    if (unit == 2)
-        return "s";
-    if (unit == 3)
-        return "A";
-    if (unit == 4)
-        return "K";
-    if (unit == 5)
-        return "mol";
-    if (unit == 6)
-        return "cd";
-    return "Unknown || Error";
+    for (auto &unit_str : UNITS_DB)
+        if (unit == unit_str.first)
+            return SIUnit(unit_str.second.data());
+
+    std::cerr << "Unknown unit: '" << unit << "'" << std::endl, exit(1);
+}
+
+std::string SIUnit::unit_to_str(int unit)
+{
+    for (auto &unit_str : UNITS_DB)
+        if (unit_str.second[unit] != 0)
+            return unit_str.first;
+
+    std::cerr << "Unknown unit index: '" << unit << "'" << std::endl, exit(1);
 }
 
 bool SIUnit::operator==(const SIUnit &rhs) const
@@ -110,7 +132,7 @@ std::ostream &operator<<(std::ostream &os, const SIUnit &sys)
 
     for (int i = 0; i < 7; ++i)
         if (sys.units[i] != 0)
-            unit_str += sys.unit_to_str(i) + (sys.units[i] == 1 ? "" : std::to_string(sys.units[i])) + " ";
+            unit_str += SIUnit::unit_to_str(i) + (sys.units[i] == 1 ? "" : std::to_string(sys.units[i])) + " ";
     
     if (unit_str.size() == 0)
     {
@@ -131,9 +153,35 @@ std::string SIUnit::to_latex() const
 
     std::string unit_str = "\\,{[";
 
+    int current_unit[7];
+    
     for (int i = 0; i < 7; ++i)
-        if (this->units[i] != 0)
-            unit_str += this->unit_to_str(i) + (this->units[i] == 1 ? "." : "^{" + std::to_string(this->units[i]) + "}.");
+        current_unit[i] = this->units[i];
+
+    // search for derived units by exact match
+    for (auto &unit_str_pair : UNITS_DB)
+    {
+        bool match = true;
+        for (int i = 0; i < 7; ++i)
+        {
+            if (current_unit[i] != unit_str_pair.second[i])
+            {
+                match = false;
+                break;
+            }
+        }
+        if (match)
+        {
+            unit_str += unit_str_pair.first + ".";
+            for (int i = 0; i < 7; ++i)
+                current_unit[i] = 0;
+            break;
+        }
+    }
+
+    for (int i = 0; i < 7; ++i)
+        if (current_unit[i] != 0)
+            unit_str += SIUnit::unit_to_str(i) + (current_unit[i] == 1 ? "." : "^{" + std::to_string(this->units[i]) + "}.");
     
     if (unit_str.size() == 4)
         return "";

@@ -1,12 +1,15 @@
 
-function mult_pi(a)
+function newton_to_kg(F)
 {
-    b = 3.1416
-    return a * b
+    return F / 9.81 [m s-2]
 }
 
-a = mult_pi(b)
-a = b + c
-c / a = b
+C = 3 [Nm]
+P = C * 120[s-1]
+F_n = C / 0.2 [m]
+F_kg = newton_to_kg(F_n)
 
-d = mult_pi(b)
+
+x + 2*y + 3*z = 14
+3*x - 2*y + 3*z = 8
+3*y + 5*z - x = 20

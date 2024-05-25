@@ -85,6 +85,10 @@ void System::print_state(size_t iter, int n, gsl_multiroot_fsolver *s)
 int System::solve()
 {
 	int n = this->unknown_equs.size();
+
+	if (n == 0)
+		return 0;
+
 	const double EPSILON = 1e-7;
 	const int MAX_ITERATIONS = 1000;
 	const gsl_multiroot_fsolver_type *T = gsl_multiroot_fsolver_hybrids;
@@ -152,17 +156,18 @@ void System::sort_equs_and_vars()
 
 void System::infer()
 {
-	int not_stable = 1;
+	bool stable = false, first_time_stable = true;
 
-	while (not_stable)
+	while (!stable)
 	{
-		not_stable = 0;
+		std::cout << *this;
+		stable = true;
 		for (int i = 0; i < this->equs.size(); ++i)
 		{
 			std::vector<ExpVar *> equs_vars = std::vector<ExpVar *>();
 
 			if (!this->equs[i]->infer_units(equs_vars, SIUnit(), false))
-				not_stable = 1;
+				stable = false;
 
 			for (int j = 0; j < equs_vars.size(); ++j)
 				if (equs_vars[j]->is_value_known || equs_vars[j]->unit.is_known || equs_vars[j]->state == ExpVar::CONSTANT || equs_vars[j]->state == ExpVar::INFERED)
@@ -171,8 +176,14 @@ void System::infer()
 			if (equs_vars.size() == 1 && this->equs[i]->is_linear())
 			{
 				this->vars[equs_vars[0]->name]->state = ExpVar::INFERED;
-				not_stable = 1;
+				stable = false;
 			}
+		}
+
+		if (stable && first_time_stable)
+		{
+			stable = false;
+			first_time_stable = false;
 		}
 	}
 

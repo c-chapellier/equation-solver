@@ -8,7 +8,7 @@ function perimeter(d)
 
 D_roue = 0.58 [m]
 p_roue = perimeter(D_roue)
-C_roue = 3 [kg m2 s-2]
+C_roue = 3 [N m]
 v_roue_tr_min = 627 [s-1]
 v_roue_rd_s = v_roue_tr_min * 2 * pi / 60
 v_roue_m_s = v_roue_tr_min * p_roue / 60 
