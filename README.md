@@ -25,13 +25,12 @@ x + 2*y + 3*z = 14
 Markdown output:
 
 > ## Functions
-> $$newton_{to\_kg}(F) {\rArr} \frac{F}{9.81{[m.s^{-2}]}}$$
+> $$newton_{to\_kg}(F) \rArr \frac{F}{9.81{[m.s^{-2}]}}$$
 > ## Inferred Equations
 > $$\textcolor{green}{C} = 3{[Nm]}$$
 > $$\textcolor{green}{P} = \textcolor{green}{C} \cdot 120{[s^{-1}]}$$
 > $$\textcolor{green}{F_{n}} = \frac{\textcolor{green}{C}}{0.2{[m]}}$$
-> $$\textcolor{green}{F_{kg}} = \textcolor{green}{newton_{to\_kg}}\left(
-> \textcolor{green}{F_{n}}\right)$$
+> $$\textcolor{green}{F_{kg}} = \textcolor{green}{newton_{to\_kg}}\left(\textcolor{green}{F_{n}}\right)$$
 > ## Inferred Solutions
 > $$\textcolor{green}{C} = 3{[Nm]}$$
 > $$\textcolor{green}{F_{kg}} = 1.5291{[kg]}$$
