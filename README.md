@@ -22,28 +22,10 @@ x + 2*y + 3*z = 14
 3*y + 5*z - x = 20
 ```
 
-Markdown output:
+Markdown output (as image because of the GitHub markdown rendering):
 
-> ## Functions
-> $$newton_to_kg(F) \rArr \frac{F}{9.81{[m.s^{-2}]}}$$
-> ## Inferred Equations
-> $$\textcolor{green}{C} = 3{[Nm]}$$
-> $$\textcolor{green}{P} = \textcolor{green}{C} \cdot 120{[s^{-1}]}$$
-> $$\textcolor{green}{F_{n}} = \frac{\textcolor{green}{C}}{0.2{[m]}}$$
-> $$\textcolor{green}{F_{kg}} = \textcolor{green}{newton_to_kg}\left(\textcolor{green}{F_{n}}\right)$$
-> ## Inferred Solutions
-> $$\textcolor{green}{C} = 3{[Nm]}$$
-> $$\textcolor{green}{F_{kg}} = 1.5291{[kg]}$$
-> $$\textcolor{green}{F_{n}} = 15{[N]}$$
-> $$\textcolor{green}{P} = 360{[W]}$$
-> ## System of Equations
-> $$\textcolor{red}{x} + 2 \cdot \textcolor{red}{y} + 3 \cdot \textcolor{red}{z} = 14$$
-> $$3 \cdot \textcolor{red}{x} - 2 \cdot \textcolor{red}{y} + 3 \cdot \textcolor{red}{z} = 8$$
-> $$3 \cdot \textcolor{red}{y} + 5 \cdot \textcolor{red}{z} - \textcolor{red}{x} = 20$$
-> ## Solutions
-> $$\textcolor{red}{x} = 1$$
-> $$\textcolor{red}{y} = 2$$
-> $$\textcolor{red}{z} = 3$$
+![readme_example_output](./examples/readme_example/readme_example_output.png)
+
 
 ## Usage
 ```sh
