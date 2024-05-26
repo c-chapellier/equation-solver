@@ -44,7 +44,7 @@ Markdown output (as image because of the GitHub markdown rendering):
 2. Port this compiler in a VSCode extension
 
 Then
-- Add support for prefix units
+- Add support for prefixed units
 - Better support for derived units
 - Add support for libraries
 
