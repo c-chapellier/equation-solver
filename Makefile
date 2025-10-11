@@ -24,6 +24,7 @@ COMPILE_FLAGS = --std=c++20 -g -O2 -Wnon-virtual-dtor -pedantic \
           		-Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
           		-Wredundant-decls -Wnested-externs -Wmissing-include-dirs \
 				# -Wextra
+
 INCLUDES = -Iinclude/ -I/usr/local/include
 LIBS = -lgsl -lgslcblas -lm
 
